@@ -186,6 +186,28 @@ class TestExpression {
         ARIADNE_TEST_ASSERT(not is_additive_in(Vector<RealExpression>({x+u1,y+sqr(u2)}),{u1,u2}));
     }
 
+    Void test_vector_expression()
+    {
+        ARIADNE_TEST_SAME_TYPE(RealVariables,Variables<Real>);
+//        ARIADNE_TEST_SAME_TYPE(RealVectorExpression,Expression<RealVector>);
+        ARIADNE_TEST_SAME_TYPE(RealVectorExpression,Expression<RealVector>);
+        RealVector cs={-2,3,-5};
+        RealVariables xs("x",3);
+        RealVectorExpression vle={xs[0],cs[1],xs[2]+cs[2]};
+        RealVectorExpression vce=cs;
+        RealVectorExpression vexs=xs;
+        RealVectorExpression vee=Vector<RealExpression>({xs[0],xs[1],xs[2]});
+        RealVectorExpression vex=xs;
+        RealVectorExpression vyce({cs[0],y,cs[2]});
+        ARIADNE_TEST_SAME((vex+vce)[0],xs[0]+cs[0])
+        ARIADNE_TEST_SAME((vex+vce)[1],xs[1]+y)
+        ARIADNE_TEST_SAME((vex-vce)[0],xs[0]-cs[0])
+        ARIADNE_TEST_SAME((vex*y)[1],xs[1]*y)
+        ARIADNE_TEST_SAME((y*(vex-vce))[0],y*(xs[0]-cs[0]))
+        ARIADNE_TEST_SAME(((vex-vce)*y)[0],(xs[0]-cs[0])*y)
+        ARIADNE_TEST_SAME(((vex-vce)/y)[0],(xs[0]-cs[0])/y)
+    }
+
     Void test_function()
     {
         // Test to ensure that constants are handled correctly.
@@ -244,6 +266,7 @@ class TestExpression {
         test_substitute();
         test_scalar_properties();
         test_vector_properties();
+        test_vector_expression();
         test_function();
     }
 

@@ -37,6 +37,9 @@ class Real;
 
 class Identifier;
 
+template<class T> class Vector;
+template<class T> class Matrix;
+
 template<class T> class Constant;
 template<class T> class Variable;
 template<class T> class Variables;
@@ -78,6 +81,11 @@ using StringExpression = Expression<String>;
 using IntegerExpression = Expression<Integer>;
 using RealExpression = Expression<Real>;
 using RealExpressions = List<Expression<Real>>;
+
+using RealVector = Vector<Real>;
+using RealMatrix = Matrix<Real>;
+using RealVectorExpression = Expression<RealVector>;
+using RealMatrixExpression = Expression<RealMatrix>;
 
 using StringAssignment = Assignment<StringVariable,StringExpression>;
 using PrimedStringAssignment = Assignment<PrimedStringVariable,StringExpression>;

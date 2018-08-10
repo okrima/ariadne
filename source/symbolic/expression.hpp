@@ -125,6 +125,51 @@ class Expression
     SharedPointer<const ExpressionNode<T>> _root;
 };
 
+template<class T> Bool same(Expression<T> const& e1, Expression<T> const& e2) { return identical(e1,e2); }
+
+template<>
+class Expression<Vector<Real>>
+    : public DeclareExpressionOperations<Real>
+{
+    typedef Vector<Real> T;
+  public:
+    Expression<Vector<Real>>(InitializerList<Expression<Real>>);
+    Expression<Vector<Real>>(Vector<Real>);
+    Expression<Vector<Real>>(Variables<Real>);
+    Expression<Vector<Real>>(Vector<Expression<Real>>);
+    Expression<Real> get(SizeType i) const;
+    Void set(SizeType i, Expression<Real>);
+    Expression<Real> operator[](SizeType i) const { return this->get(i); }
+    friend Expression<Vector<Real>> operator+(Expression<Vector<Real>>, Expression<Vector<Real>>);
+    friend Expression<Vector<Real>> operator-(Expression<Vector<Real>>, Expression<Vector<Real>>);
+    friend Expression<Vector<Real>> operator*(Expression<Real>, Expression<Vector<Real>>);
+    friend Expression<Vector<Real>> operator*(Expression<Vector<Real>>, Expression<Real>);
+    friend Expression<Vector<Real>> operator/(Expression<Vector<Real>>, Expression<Real>);
+    friend Expression<Vector<Real>> join(Expression<Vector<Real>>, Expression<Vector<Real>>);
+  private:
+    SharedPointer<const ExpressionNode<Vector<Real>>> _root;
+};
+
+template<>
+class Expression<Matrix<Real>>
+    : public DeclareExpressionOperations<Real>
+{
+    typedef Matrix<Real> T;
+  public:
+    Expression<Matrix<Real>>(Matrix<Real>);
+    Expression<Matrix<Real>>(Matrix<Expression<Real>>);
+    Expression<Real> get(SizeType i) const;
+    Void set(SizeType i, Expression<Real>);
+    friend Expression<Matrix<Real>> operator+(Expression<Matrix<Real>>, Expression<Matrix<Real>>);
+    friend Expression<Matrix<Real>> operator-(Expression<Matrix<Real>>, Expression<Matrix<Real>>);
+    friend Expression<Matrix<Real>> operator*(Expression<Matrix<Real>>, Expression<Matrix<Real>>);
+    friend Expression<Matrix<Real>> operator*(Expression<Matrix<Real>>, Expression<Scalar<Real>>);
+    friend Expression<Vector<Real>> operator*(Expression<Matrix<Real>>, Expression<Vector<Real>>);
+  private:
+    SharedPointer<const ExpressionNode<Matrix<Real>>> _root;
+};
+
+
 
 //@{
 //! \name Evaluation and related operations.
@@ -210,13 +255,7 @@ ScalarFunction<EffectiveTag> make_function(const Expression<Real>& e, const Spac
 
 //! \brief Make a function on a Euclidean domain given an ordered list including all argument variables.
 Expression<Real> make_expression(const ScalarFunction<EffectiveTag>& f, const Space<Real>& s);
-
-Expression<Real> make_expression(const Formula<Real>& f, const Space<Real>& s);
-
 //@}
-
-
-
 
 } // namespace Ariadne
 
