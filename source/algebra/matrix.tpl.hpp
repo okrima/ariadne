@@ -65,6 +65,33 @@ template<class X> Matrix<X>::Matrix(InitializerList<InitializerList<X>> lst) : _
     }
 }
 
+/*
+template<class X> OutputStream& Matrix<X>::write(OutputStream& os) const {
+    const Matrix<X>& A=*this;
+    if(A.row_size()==0 || A.column_size()==0) { os << "["; }
+    for(SizeType i=0; i!=A.row_size(); ++i) {
+        for(SizeType j=0; j!=A.column_size(); ++j) {
+            os << (j==0 ? (i==0 ? "[" : "; ") : ",") << A.at(i,j); } }
+}
+*/
+
+template<class X> OutputStream& Matrix<X>::write(OutputStream& os, SizeType width) const {
+    const Matrix<X>& A=*this;
+    if(A.row_size()==0 || A.column_size()==0) { return os << "[]"; }
+    for(SizeType i=0; i!=A.row_size(); ++i) {
+        os << "[";
+        for(SizeType j=0; j!=A.column_size(); ++j) {
+            os << (j==0 ? "" : ",") << std::setw(width) << A.at(i,j);
+        }
+        os << "]\n";
+    }
+    return os;
+}
+
+template<class X> OutputStream& Matrix<X>::write(OutputStream& os) const {
+    return this->write(os,20);
+}
+
 #ifdef ARIADNE_OMIT
 template<class X> InputStream& Matrix<X>::read(InputStream& is) {
     Matrix<X>& A=*this;

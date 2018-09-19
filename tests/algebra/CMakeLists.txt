@@ -1,5 +1,6 @@
 set(UNIT_TESTS
     test_differential
+    test_eigenvalues
     test_expansion
     test_matrix
     test_multi_index

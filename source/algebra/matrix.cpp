@@ -397,6 +397,7 @@ normalise_rows(Matrix<X>& A)
 }
 
 
+
 // Returns a pivot P and matrices L and U such that L is unit lower-triangular,
 // U is upper-trianguler and A=PLU.
 template<class X>
@@ -885,6 +886,7 @@ template class Matrix<FloatMPValue>;
 template Matrix<FloatMPApproximation> inverse(const Matrix<FloatMPApproximation>&);
 template Vector<FloatMPApproximation> solve(const Matrix<FloatMPApproximation>&, const Vector<FloatMPApproximation>&);
 template Matrix<FloatMPApproximation> solve(const Matrix<FloatMPApproximation>&, const Matrix<FloatMPApproximation>&);
+template Vector<FloatMPApproximation> lu_solve(const Matrix<FloatMPApproximation>&, const Vector<FloatMPApproximation>&);
 template Tuple<PivotMatrix,Matrix<FloatMPBounds>,Matrix<FloatMPBounds>> triangular_decomposition(Matrix<FloatMPBounds> const&);
 template Tuple<Matrix<FloatMPApproximation>,Matrix<FloatMPApproximation>> orthogonal_decomposition(Matrix<FloatMPApproximation> const&);
 template Vector<FloatMPApproximation> row_norms(Matrix<FloatMPApproximation> const&);
@@ -894,6 +896,7 @@ template Vector<FloatMPBounds> solve(const Matrix<FloatMPBounds>&, const Vector<
 template Matrix<FloatMPBounds> solve(const Matrix<FloatMPBounds>&, const Matrix<FloatMPBounds>&);
 template Matrix<FloatMPBounds> lu_inverse(const Matrix<FloatMPBounds>&);
 template Matrix<FloatMPBounds> gs_inverse(const Matrix<FloatMPBounds>&);
+template Vector<FloatMPBounds> lu_solve(const Matrix<FloatMPBounds>&, const Vector<FloatMPBounds>&);
 template Matrix<FloatMPBounds> lu_solve(const Matrix<FloatMPBounds>&, const Matrix<FloatMPBounds>&);
 template Vector<FloatMPBounds> gs_solve(const Matrix<FloatMPBounds>&, const Vector<FloatMPBounds>&);
 template Matrix<FloatMPBounds> gs_solve(const Matrix<FloatMPBounds>&, const Matrix<FloatMPBounds>&);

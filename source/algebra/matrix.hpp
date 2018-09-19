@@ -165,6 +165,8 @@ template<class X> class Matrix
 
     //! \brief The zero matrix with \a r rows and \a c columns.
     static Matrix<X> zero(SizeType m, SizeType n);
+    template<class... PRS, EnableIf<IsConstructible<X,PRS...>> =dummy> static Matrix<X> zero(SizeType m, SizeType n, PRS... pr);
+
     //! \brief The itentity matrix with \a n rows and \a n columns.
     static Matrix<X> identity(SizeType n);
     //! Construct the identity matrix from parameters of \a X.
@@ -202,6 +204,11 @@ template<class X> class Matrix
     //! \brief A pointer to the first element of the data storage.
     const X* begin() const;
 
+    MatrixRow<Matrix<X>> row(SizeType j);
+    MatrixRow<const Matrix<X>> row(SizeType j) const;
+    MatrixColumn<Matrix<X>> column(SizeType j);
+    MatrixColumn<const Matrix<X>> column(SizeType j) const;
+
 #ifdef DOXYGEN
     //! \brief C-style subscripting operator.
     X& operator[][](SizeType i, SizeType j);
@@ -223,6 +230,7 @@ template<class X> class Matrix
     static Matrix<X> _mul(const Matrix<X>& A1, const Matrix<X>& A2);
   private:
     Void _check_data_access(SizeType i, SizeType j) const;
+    OutputStream& write(OutputStream& os, SizeType width) const;
     OutputStream& write(OutputStream& os) const;
     InputStream& read(InputStream& is);
 
@@ -314,8 +322,12 @@ template<class M> struct MatrixColumn
     auto operator[](SizeType i) -> decltype(_A.at(i,_j)) { return _A.at(i,_j); }
     operator Vector<ScalarType> () const {
         Vector<ScalarType> r(size(),zero_element()); for(SizeType i=0; i!=size(); ++i) { r[i]=_A.at(i,_j); } return r; }
+    template<class VE> MatrixColumn<M>& operator=(const VectorExpression<VE>& ve) {
+        ARIADNE_PRECONDITION(this->size()==ve().size());
+        for(SizeType i=0; i!=this->size(); ++i) { this->_A.set(i,this->_j,ve().get(i)); }
+        return *this; }
 };
-template<class M> struct IsVectorExpression<MatrixColumn<M>> : True { };
+template<class M> struct IsVector<MatrixColumn<M>> : True { };
 
 template<class M> struct MatrixTranspose {
     M const& _AT;
@@ -514,17 +526,6 @@ template<class X> inline InputStream& operator>>(InputStream& is, Matrix<X>& A) 
     A.read(is); return is;
 }
 
-template<class X> OutputStream& Matrix<X>::write(OutputStream& os) const {
-    const Matrix<X>& A=*this;
-    if(A.row_size()==0 || A.column_size()==0) { os << "["; }
-    for(SizeType i=0; i!=A.row_size(); ++i) {
-        for(SizeType j=0; j!=A.column_size(); ++j) {
-            os << (j==0 ? (i==0 ? "[" : "; ") : ",") << A.at(i,j); } }
-    return os << "]";
-}
-
-
-
 template<class M> inline MatrixRange<const M> project(const MatrixExpression<M>& Ae, Range rw_rng, Range cl_rng) {
     return MatrixRange<const M>(Ae(),rw_rng,cl_rng);
 }
@@ -535,6 +536,12 @@ template<class X> inline MatrixRange<Matrix<X>> project(Matrix<X>& A, Range rw_r
 
 template<class M> inline MatrixColumn<const M> column(const M& A, SizeType j) {
     return MatrixColumn<const M>(A,j);
+}
+template<class X> inline MatrixColumn<const Matrix<X>> Matrix<X>::column(SizeType j) const {
+    return MatrixColumn<const Matrix<X>>(*this,j);
+}
+template<class X> inline MatrixColumn<Matrix<X>> Matrix<X>::column(SizeType j) {
+    return MatrixColumn<Matrix<X>>(*this,j);
 }
 
 template<class M> inline MatrixRow<const M> row(const M& A, SizeType j) {
@@ -845,13 +852,11 @@ Matrix<X>::Matrix(InitializerList<InitializerList<double>> lst, PRS... prs) : _r
     }
 }
 
-template<class X> template<class... PRS, EnableIf<IsConstructible<X,PRS...>>> auto
-Matrix<X>::identity(SizeType n, PRS... prs) -> Matrix<X> {
-    Matrix<X> I(n,n,X(prs...));
-    for(SizeType i=0; i!=n; ++i) {
-        I.at(i,i)=1u;
-    }
-    return I;
+template<class X> template<class... PRS, EnableIf<IsConstructible<X,PRS...>>>
+Matrix<X> Matrix<X>::identity(SizeType n, PRS... prs) {
+    Matrix<X> A(n,n,X(prs...));
+    for(SizeType i=0; i!=n; ++i) { A.at(i,i)=1; }
+    return A;
 }
 
 template<class X> template<class Y, EnableIf<IsAssignable<X,Y>>>
@@ -897,6 +902,13 @@ template<class X> Matrix<X> normalise_rows(const Matrix<X>& A);
 Tuple< Matrix<FloatDPApproximation>, PivotMatrix> triangular_factor(const Matrix<FloatDPApproximation>& A);
 Matrix<FloatDPApproximation> triangular_multiplier(const Matrix<FloatDPApproximation>& A);
 
+template<class X> decltype(refines(declval<X>(),declval<X>())) refines(Matrix<X> const& A1, Matrix<X> const& A2) {
+    static_assert(IsSame<decltype(refines(declval<X>(),declval<X>())),Bool>::value,"");
+    for(SizeType i=0; i!=A1.row_size(); ++i) { for(SizeType j=0; j!=A2.column_size(); ++j) {
+        if(!refines(A1[i][j],A2[i][j])) { return false; }
+    } }
+    return true;
+}
 
 } // namespace Ariadne
 
