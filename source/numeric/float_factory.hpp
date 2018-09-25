@@ -42,12 +42,12 @@ template<class PR> class FloatFactory {
     PR precision() const { return this->_pr; }
     PR properties() const { return this->_pr; }
   public:
-    FloatApproximation<PR> create(Number<ApproximateTag> const& y);
-    FloatLowerBound<PR> create(Number<ValidatedLowerTag> const& y);
-    FloatUpperBound<PR> create(Number<ValidatedUpperTag> const& y);
-    FloatBounds<PR> create(Number<ValidatedTag> const& y);
-    FloatBounds<PR> create(Number<EffectiveTag> const& y);
-    FloatBounds<PR> create(Number<ExactTag> const& y);
+    FloatApproximation<PR> create(ApproximateNumber const& y);
+    FloatLowerBound<PR> create(ValidatedLowerNumber const& y);
+    FloatUpperBound<PR> create(ValidatedUpperNumber const& y);
+    FloatBounds<PR> create(ValidatedNumber const& y);
+    FloatBounds<PR> create(EffectiveNumber const& y);
+    FloatBounds<PR> create(ExactNumber const& y);
     FloatBounds<PR> create(Real const& y);
     FloatBounds<PR> create(Rational const& y);
     FloatBounds<PR> create(Dyadic const& y);

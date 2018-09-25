@@ -73,6 +73,8 @@ template<class F> class LowerBound
         LowerBound<F>(const Decimal& d, PR pr);
         LowerBound<F>(const Rational& q, PR pr);
         LowerBound<F>(const Real& r, PR pr);
+        LowerBound<F>(const Value<F>& x, PR pr); // FIXME: Should not be necessary
+        LowerBound<F>(const Bounds<F>& x, PR pr);
     LowerBound<F>(const LowerBound<F>& x, PR pr);
     LowerBound<F>(const ValidatedLowerNumber& y, PR pr);
 
@@ -117,7 +119,7 @@ template<class F> class LowerBound
 };
 
 template<class F> inline FloatFactory<PrecisionType<F>> factory(LowerBound<F> const& flt) { return FloatFactory<PrecisionType<F>>(flt.precision()); }
-template<class PR> inline FloatLowerBound<PR> FloatFactory<PR>::create(Number<LowerTag> const& y) { return FloatLowerBound<PR>(y,_pr); }
+template<class PR> inline FloatLowerBound<PR> FloatFactory<PR>::create(ValidatedLowerNumber const& y) { return FloatLowerBound<PR>(y,_pr); }
 
 template<class F> class Positive<LowerBound<F>> : public LowerBound<F>
     , public DispatchPositiveDirectedFloatOperations<PositiveLowerBound<F>,PositiveUpperBound<F>>

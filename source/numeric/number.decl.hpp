@@ -95,6 +95,8 @@ template<class R, class A> R integer_cast(const A& _a);
 template<class X> class Positive;
 
 template<class P=Void> class Number;
+template<class P> class LowerNumber;
+template<class P> class UpperNumber;
 
 template<> struct IsNumericType<Nat>;
 template<> struct IsNumericType<Int>;
@@ -116,18 +118,19 @@ template<class P> struct IsGenericNumericType<Number<P>> : True { };
 
 using ExactNumber=Number<ExactTag>; //!< Alias for generic exact numbers. \ingroup NumericModule
 using EffectiveNumber=Number<EffectiveTag>; //!< Alias for generic effective numbers. \ingroup NumericModule
-using EffectiveUpperNumber=Number<EffectiveUpperTag>; //!< Alias for generic effective upper numbers. \ingroup NumericModule
-using EffectiveLowerNumber=Number<EffectiveLowerTag>; //!< Alias for generic effective lower numbers. \ingroup NumericModule
 using ValidatedNumber=Number<ValidatedTag>; //!< Alias for generic validated numbers. \ingroup NumericModule
-using ValidatedUpperNumber=Number<ValidatedUpperTag>; //!< Alias for generic validated upper numbers. \ingroup NumericModule
-using ValidatedLowerNumber=Number<ValidatedLowerTag>; //!< Alias for generic validated lower numbers. \ingroup NumericModule
 using ApproximateNumber=Number<ApproximateTag>; //!< Alias for generic approximate numbers. \ingroup NumericModule
+
+using EffectiveUpperNumber=UpperNumber<EffectiveTag>; //!< Alias for generic effective upper numbers. \ingroup NumericModule
+using EffectiveLowerNumber=LowerNumber<EffectiveTag>; //!< Alias for generic effective lower numbers. \ingroup NumericModule
+using ValidatedUpperNumber=UpperNumber<ValidatedTag>; //!< Alias for generic validated upper numbers. \ingroup NumericModule
+using ValidatedLowerNumber=LowerNumber<ValidatedTag>; //!< Alias for generic validated lower numbers. \ingroup NumericModule
 
 template<class P> using PositiveNumber = Positive<Number<P>>;
 
-using PositiveExactNumber=PositiveNumber<ExactTag>; //!< Alias for generic positive validated upper numbers. \ingroup NumericModule
-using PositiveValidatedUpperNumber=PositiveNumber<ValidatedUpperTag>; //!< Alias for generic positive validated upper numbers. \ingroup NumericModule
-using PositiveValidatedLowerNumber=PositiveNumber<ValidatedLowerTag>; //!< Alias for generic positive validated lower numbers. \ingroup NumericModule
+using PositiveExactNumber=Positive<ExactNumber>; //!< Alias for generic positive exact numbers. \ingroup NumericModule
+using PositiveValidatedUpperNumber=Positive<ValidatedUpperNumber>; //!< Alias for generic positive validated upper numbers. \ingroup NumericModule
+using PositiveValidatedLowerNumber=Positive<ValidatedLowerNumber>; //!< Alias for generic positive validated lower numbers. \ingroup NumericModule
 
 using ValidatedErrorNumber = PositiveValidatedUpperNumber;
 

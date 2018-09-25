@@ -327,6 +327,7 @@ template<class P> using Null = ParadigmClass<null(P::code())>;
 template<class P1, class P2=Negated<P1>> using LessThan = Weaker<Negated<P1>,P2>;
 template<class P1, class P2=Negated<P1>> using Equality = Null<Weaker<P1,Negated<P2>>>;
 
+
 } // namespace Ariadne
 
 #endif /* ARIADNE_PARADIGM_HPP */

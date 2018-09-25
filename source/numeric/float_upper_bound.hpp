@@ -73,6 +73,8 @@ template<class F> class UpperBound
         UpperBound<F>(const Decimal& d, PR pr);
         UpperBound<F>(const Rational& q, PR pr);
         UpperBound<F>(const Real& r, PR pr);
+        UpperBound<F>(const Value<F>& x, PR pr); // FIXME: Should not be necessary
+        UpperBound<F>(const Bounds<F>& x, PR pr);
     UpperBound<F>(const UpperBound<F>& x, PR pr);
     UpperBound<F>(const ValidatedUpperNumber& y, PR pr);
 
@@ -118,7 +120,7 @@ template<class F> class UpperBound
 };
 
 template<class F> inline FloatFactory<PrecisionType<F>> factory(UpperBound<F> const& flt) { return FloatFactory<PrecisionType<F>>(flt.precision()); }
-template<class PR> inline FloatUpperBound<PR> FloatFactory<PR>::create(Number<UpperTag> const& y) { return FloatUpperBound<PR>(y,_pr); }
+template<class PR> inline FloatUpperBound<PR> FloatFactory<PR>::create(ValidatedUpperNumber const& y) { return FloatUpperBound<PR>(y,_pr); }
 
 template<class F> class Positive<UpperBound<F>> : public UpperBound<F>
     , public DispatchPositiveDirectedFloatOperations<PositiveUpperBound<F>,PositiveLowerBound<F>>

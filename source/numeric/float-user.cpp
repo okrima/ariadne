@@ -336,6 +336,14 @@ template<class F> UpperBound<F>::UpperBound(Real const& r, PR pr)
     : UpperBound(r.get(pr)) {
 }
 
+template<class F> UpperBound<F>::UpperBound(Value<F> const& x, PR pr)
+    : _u(x._v,upward,pr) {
+}
+
+template<class F> UpperBound<F>::UpperBound(Bounds<F> const& x, PR pr)
+    : _u(x._u,upward,pr) {
+}
+
 template<class F> UpperBound<F>::UpperBound(UpperBound<F> const& x, PR pr)
     : _u(x._u,upward,pr) {
 }
@@ -383,6 +391,14 @@ template<class F> LowerBound<F>::LowerBound(Rational const& q, PR pr)
 
 template<class F> LowerBound<F>::LowerBound(Real const& r, PR pr)
     : LowerBound(r.get(pr)) {
+}
+
+template<class F> LowerBound<F>::LowerBound(Value<F> const& x, PR pr)
+    : _l(x._v,upward,pr) {
+}
+
+template<class F> LowerBound<F>::LowerBound(Bounds<F> const& x, PR pr)
+    : _l(x._l,upward,pr) {
 }
 
 template<class F> LowerBound<F>::LowerBound(LowerBound<F> const& x, PR pr)
@@ -1957,12 +1973,12 @@ template<> Int integer_cast<Int,FloatMPApproximation>(FloatMPApproximation const
 
 
 
-template<class F> Approximation<F> _make_float(Number<ApproximateTag> x) { return Approximation<F>(x); }
-template<class F> LowerBound<F> _make_float(Number<ValidatedLowerTag> x) { return LowerBound<F>(x); }
-template<class F> UpperBound<F> _make_float(Number<ValidatedUpperTag> x) { return UpperBound<F>(x); }
-template<class F> Bounds<F> _make_float(Number<ValidatedTag> x) { return Bounds<F>(x); }
-template<class F> Bounds<F> _make_float(Number<EffectiveTag> x) { return Bounds<F>(x); }
-template<class F> Bounds<F> _make_float(Number<ExactTag> x) { return Bounds<F>(x); }
+template<class F> Approximation<F> _make_float(ApproximateNumber x) { return Approximation<F>(x); }
+template<class F> LowerBound<F> _make_float(ValidatedLowerNumber x) { return LowerBound<F>(x); }
+template<class F> UpperBound<F> _make_float(ValidatedUpperNumber x) { return UpperBound<F>(x); }
+template<class F> Bounds<F> _make_float(ValidatedNumber x) { return Bounds<F>(x); }
+template<class F> Bounds<F> _make_float(EffectiveNumber x) { return Bounds<F>(x); }
+template<class F> Bounds<F> _make_float(ExactNumber x) { return Bounds<F>(x); }
 template<class F> Bounds<F> _make_float(Real r) { return Bounds<F>(r); }
 template<class F> Bounds<F> _make_float(Rational q) { return Bounds<F>(q); }
 template<class F> Value<F> _make_float(Integer z) { return Value<F>(z); }
