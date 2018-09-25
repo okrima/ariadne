@@ -33,6 +33,17 @@
 using namespace std;
 using namespace Ariadne;
 
+
+template<class F, class FE> Bool models(Ball<F,FE> const& x, Rational const& q) {
+    return abs(Dyadic(x.value().raw())-q)<=Dyadic(x.error().raw()); }
+template<class F> Bool models(Bounds<F> const& x, Rational const& q) {
+    return Dyadic(x.lower().raw())<=q && q <= Dyadic(x.upper().raw()); }
+template<class F> Bool models(LowerBound<F> const& x, Rational const& q) {
+    return Dyadic(x.raw())<=q; }
+template<class F> Bool models(UpperBound<F> const& x, Rational const& q) {
+    return q<=Dyadic(x.raw()); }
+
+    
 class TestNumbers
 {
   public:
@@ -41,7 +52,7 @@ class TestNumbers
     Void test_operations();
 };
 
-void TestNumbers::test()
+Void TestNumbers::test()
 {
     ARIADNE_TEST_CALL(test_operations());
     ARIADNE_TEST_CALL(test_float_value_behaviour());
@@ -72,9 +83,9 @@ TestNumbers::test_operations()
     Rational q3(3);
     FloatDPValue x2(2,dp);
     FloatDPValue x3(3,dp);
-    ExactNumber y2(x2), y3(x3);
-    ARIADNE_TEST_PRINT(w2/w3);
-    ARIADNE_TEST_PRINT(x2/x3);
+    ExactNumber y2(x2);
+    ExactNumber y3(x3);
+
     ARIADNE_TEST_THROWS(y2/y3, DispatchException);
     ARIADNE_TEST_THROWS(q2/y3, DispatchException);
     ARIADNE_TEST_THROWS(y2/q3, DispatchException);
@@ -88,7 +99,6 @@ TestNumbers::test_operations()
 
     ValidatedErrorNumber ym=max(en,ev);
     ARIADNE_TEST_PRINT(max(en,ev));
-    ARIADNE_TEST_PRINT(max(en,ev).pointer());
     ARIADNE_TEST_PRINT(max(en,ev).class_name());
     ARIADNE_TEST_PRINT(max(en,ev));
 
@@ -105,6 +115,7 @@ TestNumbers::test_operations()
 //    max(1u,FloatDPError(3u));
 }
 
+
 template<class Y> class TestNumber
 {
   public:
@@ -117,23 +128,6 @@ template<class Y> class TestNumber
     Void test_comparisons();
 };
 
-
-Int main() {
-    TestNumbers().test();
-    
-    std::cout<<std::setprecision(20);
-    std::cerr<<std::setprecision(20);
-
-    TestNumber<ApproximateNumber>().test();
-    TestNumber<ValidatedNumber>().test();
-    TestNumber<EffectiveNumber>().test();
-    TestNumber<ExactNumber>().test();
-
-    std::cerr<<"INCOMPLETE ";
-    return ARIADNE_TEST_FAILURES;
-//    TestNumber<ValidatedUpperNumber>().test();
-//    TestNumber<ValidatedLowerNumber>().test();
-}
 
 
 template<class Y> Void
@@ -163,17 +157,7 @@ TestNumber<Y>::test_concept()
 
     y==y; y!=y; y<=y; y>=y; y<y; y>y;
     y==n; y!=n; y<=n; y>=n; y<n; y>n;
-    cout << y;
 }
-
-template<class F, class FE> Bool models(Ball<F,FE> const& x, Rational const& q) {
-    return abs(Dyadic(x.value().raw())-q)<=Dyadic(x.error().raw()); }
-template<class F> Bool models(Bounds<F> const& x, Rational const& q) {
-    return Dyadic(x.lower().raw())<=q && q <= Dyadic(x.upper().raw()); }
-template<class F> Bool models(LowerBound<F> const& x, Rational const& q) {
-    return Dyadic(x.raw())<=q; }
-template<class F> Bool models(UpperBound<F> const& x, Rational const& q) {
-    return q<=Dyadic(x.raw()); }
 
 
 template<class Y> void test_number_get() {
@@ -226,8 +210,6 @@ TestNumber<Y>::test_get()
 
 }
 
-inline FloatDPValue max(Int y1, FloatDPValue x2) { return max(FloatDPValue(y1,x2.precision()),x2); }
-
 template<class Y> Void
 TestNumber<Y>::test_class()
 {
@@ -252,14 +234,13 @@ TestNumber<ExactNumber>::test_comparisons() {
     ARIADNE_TEST_CONSTRUCT(ExactNumber,pinf,(+ExactDouble::infinity()));
     ARIADNE_TEST_CONSTRUCT(ExactNumber,ninf,(-ExactDouble::infinity()));
 
-/*
     ARIADNE_TEST_BINARY_PREDICATE( operator==,y1,y1);
     ARIADNE_TEST_BINARY_PREDICATE(!operator!=,y1,y1);
     ARIADNE_TEST_BINARY_PREDICATE( operator<=,y1,y1);
     ARIADNE_TEST_BINARY_PREDICATE( operator>=,y1,y1);
     ARIADNE_TEST_BINARY_PREDICATE(!operator< ,y1,y1);
     ARIADNE_TEST_BINARY_PREDICATE(!operator> ,y1,y1);
-*/
+
     ARIADNE_TEST_BINARY_PREDICATE(!operator==,y1,y2);
     ARIADNE_TEST_BINARY_PREDICATE( operator!=,y1,y2);
     ARIADNE_TEST_BINARY_PREDICATE( operator<=,y1,y2);
@@ -292,3 +273,55 @@ TestNumber<ExactNumber>::test_comparisons() {
     ARIADNE_TEST_ASSERT(not definitely(ValidatedUpperNumber(4)>ValidatedLowerNumber(3)));
 
 }
+
+
+
+template<class Y> class TestDirectedNumber
+{
+  public:
+    Void test();
+  private:
+    Void test_concept();
+};
+
+template<class Y> Void
+TestDirectedNumber<Y>::test() {
+}
+
+template<class Y> Void
+TestDirectedNumber<Y>::test_concept() {
+    static_assert(IsSame<NegationType<NegationType<Y>>,Y>::value);
+    typedef NegationType<Y> NY;
+    Y y; NY ny;
+    y=+y; ny=-y; y=-ny;
+    y=y+y; y=y-ny; y+=y; y+=ny;
+    y=add(y,y); y=sub(y,ny); ny=sub(ny,y);
+    y=sqrt(y); y=exp(y); y=log(y); y=tan(y);
+
+    y==ny; y!=ny; y<ny; y>ny;
+    ny==y; ny!=y; ny<y; ny>y;
+}
+
+
+Int main() {
+    TestNumbers().test();
+    
+    std::cout<<std::setprecision(20);
+    std::cerr<<std::setprecision(20);
+
+    TestNumber<ApproximateNumber>().test();
+    TestNumber<ValidatedNumber>().test();
+    TestNumber<EffectiveNumber>().test();
+    TestNumber<ExactNumber>().test();
+
+    TestDirectedNumber<ValidatedLowerNumber>().test();
+    TestDirectedNumber<ValidatedUpperNumber>().test();
+    TestDirectedNumber<EffectiveLowerNumber>().test();
+    TestDirectedNumber<EffectiveUpperNumber>().test();
+
+    std::cerr<<"INCOMPLETE ";
+    return ARIADNE_TEST_FAILURES;
+//    TestNumber<ValidatedUpperNumber>().test();
+//    TestNumber<ValidatedLowerNumber>().test();
+}
+
