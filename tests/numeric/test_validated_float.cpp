@@ -80,7 +80,7 @@ class TestDirectedFloats
     typedef FloatType<ApproximateTag,PR> FloatApproximationType;
     typedef FloatType<LowerTag,PR> FloatLowerBoundType;
     typedef FloatType<UpperTag,PR> FloatUpperBoundType;
-    typedef FloatType<BoundedTag,PR> FloatBoundsType;
+    typedef FloatType<OrderTag,PR> FloatBoundsType;
     typedef FloatType<MetricTag,PR> FloatBallType;
     typedef FloatType<ExactTag,PR> FloatValueType;
 
@@ -200,7 +200,7 @@ class TestFloatBall
     typedef FloatType<ApproximateTag,PR> FloatApproximationType;
     typedef FloatType<LowerTag,PR> FloatLowerBoundType;
     typedef FloatType<UpperTag,PR> FloatUpperBoundType;
-    typedef FloatType<BoundedTag,PR> FloatBoundsType;
+    typedef FloatType<OrderTag,PR> FloatBoundsType;
     typedef FloatType<MetricTag,PR> FloatBallType;
     typedef FloatType<ExactTag,PR> FloatValueType;
   private:
@@ -292,7 +292,7 @@ template<class PR>
 class TestFloatBounds
 {
     typedef RawFloat<PR> RawFloatType;
-    typedef FloatType<BoundedTag,PR> FloatBoundsType;
+    typedef FloatType<OrderTag,PR> FloatBoundsType;
     typedef FloatType<ExactTag,PR> FloatValueType;
   private:
     PR precision;
@@ -666,7 +666,7 @@ template<class PR> Void TestFloatBounds<PR>::test_input()
     //ARIADNE_TEST_COMPARE(x.lower_raw(),<,Rational(2,5))
     // ARIADNE_TEST_COMPARE(x.upper_raw(),>,Rational(3,5))
     if(not(x.lower_raw()<=Rational(2,5) and x.upper_raw()>=Rational(3,5))) {
-        ARIADNE_TEST_WARN("FloatType<BoundedTag,"<<class_name<PR>()<<"> string constructor returns an approximate interval, not an outwardly rounded interval.");
+        ARIADNE_TEST_WARN("FloatType<OrderTag,"<<class_name<PR>()<<"> string constructor returns an approximate interval, not an outwardly rounded interval.");
     }
 }
 

@@ -293,7 +293,7 @@ template<class F> Bounds<F>::Bounds(ValidatedLowerNumber const& lower, Validated
     : Bounds<F>(lower.get(LowerTag(),pr),upper.get(UpperTag(),pr)) { }
 
 template<class F> Bounds<F>::Bounds(ValidatedNumber const& y, PR pr)
-    : Bounds(y.get(BoundedTag(),pr)) {
+    : Bounds(y.get(OrderTag(),pr)) {
 }
 
 template<class F> Bounds<F> Bounds<F>::create(ValidatedNumber const& y) const {

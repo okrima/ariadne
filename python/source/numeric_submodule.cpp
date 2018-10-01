@@ -144,46 +144,46 @@ using pybind11::init;
 using pybind11::detail::self;
 using pybind11::implicitly_convertible;
 
-template<class P> void export_effective_logical(pymodule& module, std::string name)
+template<class L> void export_effective_logical(pymodule& module, std::string name)
 {
-    typedef decltype(declval<LogicalType<P>>().check(declval<Effort>())) CheckType;
-    OutputStream& operator<<(OutputStream& os, LogicalType<P> l);
+    typedef decltype(declval<L>().check(declval<Effort>())) CheckType;
+    OutputStream& operator<<(OutputStream& os, L l);
 
-    pybind11::class_<LogicalType<P>> logical_class(module,name.c_str());
+    pybind11::class_<L> logical_class(module,name.c_str());
     logical_class.def(init<bool>());
-    logical_class.def(init<LogicalType<P>>());
-    logical_class.def("__str__", &__cstr__<LogicalType<P>>);
-    logical_class.def("__repr__", &__cstr__<LogicalType<P>>);
-    logical_class.def("check", (CheckType(LogicalType<P>::*)(Effort)) &LogicalType<P>::check);
+    logical_class.def(init<L>());
+    logical_class.def("__str__", &__cstr__<L>);
+    logical_class.def("__repr__", &__cstr__<L>);
+    logical_class.def("check", (CheckType(L::*)(Effort)) &L::check);
     define_logical(module,logical_class);
-    module.def("check", (CheckType(*)(LogicalType<P> const&,Effort const&)) &Ariadne::check<LogicalType<P>>);
+    module.def("check", (CheckType(*)(L const&,Effort const&)) &Ariadne::check<L>);
 }
 
-template<class P> void export_logical(pymodule& module, std::string name)
+template<class L> void export_logical(pymodule& module, std::string name)
 {
-    OutputStream& operator<<(OutputStream& os, LogicalType<P> l);
-    pybind11::class_<LogicalType<P>> logical_class(module,name.c_str());
+    OutputStream& operator<<(OutputStream& os, L l);
+    pybind11::class_<L> logical_class(module,name.c_str());
     logical_class.def(init<bool>());
-    logical_class.def(init<LogicalType<P>>());
-    logical_class.def("__str__", &__cstr__<LogicalType<P>>);
-    logical_class.def("__repr__", &__cstr__<LogicalType<P>>);
+    logical_class.def(init<L>());
+    logical_class.def("__str__", &__cstr__<L>);
+    logical_class.def("__repr__", &__cstr__<L>);
     define_logical(module,logical_class);
 
-    module.def("decide", (bool(*)(LogicalType<P>)) &decide);
-    module.def("possibly", (bool(*)(LogicalType<P>)) &possibly);
-    module.def("definitely", (bool(*)(LogicalType<P>)) &definitely);
+    module.def("decide", (bool(*)(L)) &decide);
+    module.def("possibly", (bool(*)(L)) &possibly);
+    module.def("definitely", (bool(*)(L)) &definitely);
 
 }
 
-template<> void export_logical<ExactTag>(pymodule& module, std::string name)
+template<> void export_logical<Boolean>(pymodule& module, std::string name)
 {
-    typedef ExactTag P;
-    OutputStream& operator<<(OutputStream& os, LogicalType<P> l);
-    pybind11::class_<LogicalType<P>> logical_class(module,name.c_str());
+    typedef Boolean L;
+    OutputStream& operator<<(OutputStream& os, L l);
+    pybind11::class_<L> logical_class(module,name.c_str());
     logical_class.def(init<bool>());
-    logical_class.def(init<LogicalType<P>>());
-    logical_class.def("__str__", &__cstr__<LogicalType<P>>);
-    logical_class.def("__repr__", &__cstr__<LogicalType<P>>);
+    logical_class.def(init<L>());
+    logical_class.def("__str__", &__cstr__<L>);
+    logical_class.def("__repr__", &__cstr__<L>);
     define_logical(module,logical_class);
 
 //    implicitly_convertible<LogicalType<ExactTag>,bool>();
@@ -192,14 +192,16 @@ template<> void export_logical<ExactTag>(pymodule& module, std::string name)
 
 
 Void export_logicals(pymodule& module) {
-    export_logical<ExactTag>(module,"Boolean");
-    export_effective_logical<EffectiveTag>(module,"Kleenean");
-    export_effective_logical<EffectiveUpperTag>(module,"Sierpinskian");
-    export_effective_logical<EffectiveLowerTag>(module,"NegatedSierpinskian");
-    export_logical<ValidatedTag>(module,"Tribool");
-    export_logical<UpperTag>(module,"Verified");
-    export_logical<LowerTag>(module,"Falsified");
-    export_logical<ApproximateTag>(module,"Fuzzy");
+    export_logical<Boolean>(module,"Boolean");
+    export_effective_logical<Sierpinskian>(module,"Sierpinskian");
+    export_effective_logical<NegatedSierpinskian>(module,"NegatedSierpinskian");
+    export_effective_logical<Kleenean>(module,"Kleenean");
+    export_effective_logical<LowerKleenean>(module,"LowerKleenean");
+    export_effective_logical<UpperKleenean>(module,"UpperKleenean");
+    export_logical<ValidatedKleenean>(module,"ValidatedKleenean");
+    export_logical<ValidatedUpperKleenean>(module,"ValidatedUpperKleenean");
+    export_logical<ValidatedLowerKleenean>(module,"ValidatedLowerKleenean");
+    export_logical<ApproximateKleenean>(module,"ApproximateKleenean");
 }
 
 
@@ -360,12 +362,12 @@ template<class P> void export_number(pybind11::module& module)
 //    number_class.def("get", (FloatMPApproximation(Number<P>::*)(ApproximateTag,MultiplePrecision)const) &Number<P>::get);
 }
 
-FloatDPBounds get(ExactNumber const& n, DoublePrecision const& pr) { return n.get(BoundedTag(),pr); }
-FloatMPBounds get(ExactNumber const& n, MultiplePrecision const& pr) { return n.get(BoundedTag(),pr); }
-FloatDPBounds get(EffectiveNumber const& n, DoublePrecision const& pr) { return n.get(BoundedTag(),pr); }
-FloatMPBounds get(EffectiveNumber const& n, MultiplePrecision const& pr) { return n.get(BoundedTag(),pr); }
-FloatDPBounds get(ValidatedNumber const& n, DoublePrecision const& pr) { return n.get(BoundedTag(),pr); }
-FloatMPBounds get(ValidatedNumber const& n, MultiplePrecision const& pr) { return n.get(BoundedTag(),pr); }
+FloatDPBounds get(ExactNumber const& n, DoublePrecision const& pr) { return n.get(OrderTag(),pr); }
+FloatMPBounds get(ExactNumber const& n, MultiplePrecision const& pr) { return n.get(OrderTag(),pr); }
+FloatDPBounds get(EffectiveNumber const& n, DoublePrecision const& pr) { return n.get(OrderTag(),pr); }
+FloatMPBounds get(EffectiveNumber const& n, MultiplePrecision const& pr) { return n.get(OrderTag(),pr); }
+FloatDPBounds get(ValidatedNumber const& n, DoublePrecision const& pr) { return n.get(OrderTag(),pr); }
+FloatMPBounds get(ValidatedNumber const& n, MultiplePrecision const& pr) { return n.get(OrderTag(),pr); }
 FloatDPUpperBound get(ValidatedUpperNumber const& n, DoublePrecision const& pr) { return n.get(UpperTag(),pr); }
 FloatMPUpperBound get(ValidatedUpperNumber const& n, MultiplePrecision const& pr) { return n.get(UpperTag(),pr); }
 FloatDPLowerBound get(ValidatedLowerNumber const& n, DoublePrecision const& pr) { return n.get(LowerTag(),pr); }

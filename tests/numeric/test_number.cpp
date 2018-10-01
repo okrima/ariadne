@@ -178,8 +178,8 @@ template<class Y> void test_number_get() {
     ARIADNE_TEST_BINARY_PREDICATE(models,y.get(UpperTag(),dp),q);
     ARIADNE_TEST_BINARY_PREDICATE(models,y.get(UpperTag(),mp),q);
 
-    ARIADNE_TEST_BINARY_PREDICATE(models,y.get(BoundedTag(),dp),q);
-    ARIADNE_TEST_BINARY_PREDICATE(models,y.get(BoundedTag(),mp),q);
+    ARIADNE_TEST_BINARY_PREDICATE(models,y.get(OrderTag(),dp),q);
+    ARIADNE_TEST_BINARY_PREDICATE(models,y.get(OrderTag(),mp),q);
 
     ARIADNE_TEST_BINARY_PREDICATE(models,y.get(MetricTag(),dp),q);
     ARIADNE_TEST_BINARY_PREDICATE(models,y.get(MetricTag(),mp),q);
@@ -282,10 +282,12 @@ template<class Y> class TestDirectedNumber
     Void test();
   private:
     Void test_concept();
+    Void test_operations();
 };
 
 template<class Y> Void
 TestDirectedNumber<Y>::test() {
+    test_operations();
 }
 
 template<class Y> Void
@@ -300,6 +302,32 @@ TestDirectedNumber<Y>::test_concept() {
 
     y==ny; y!=ny; y<ny; y>ny;
     ny==y; ny!=y; ny<y; ny>y;
+}
+
+template<class Y> Void
+TestDirectedNumber<Y>::test_operations() {
+    if constexpr (IsSame<Paradigm<Y>,ValidatedTag>::value) {
+        if constexpr (IsSame<Y,ValidatedLowerNumber>::value) {
+            typedef DoublePrecision PR;
+            PR pr;
+            Rational q(1,3);
+            FloatBounds<PR> x(q,pr);
+            FloatLowerBound<PR> xl=x;
+            FloatUpperBound<PR> xu=4*x;
+            
+            ValidatedLowerNumber yl(xl);
+            ValidatedUpperNumber yu(xu);
+            
+            // Tests
+            ARIADNE_TEST_ASSERT(not definitely (yl > q));
+            ARIADNE_TEST_ASSERT(not definitely (-yl < -q));
+            ARIADNE_TEST_ASSERT(not definitely (yl+yl+yl > 1));
+            ARIADNE_TEST_ASSERT(not definitely (yl+yl+yl > 1));
+            ARIADNE_TEST_ASSERT(not definitely (yl - yu > -1));
+            ARIADNE_TEST_ASSERT(not definitely (yl - yu > -2));
+            std::cerr << (yl-yu) << "\n";
+        }
+    }
 }
 
 

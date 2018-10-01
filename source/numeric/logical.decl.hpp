@@ -67,11 +67,7 @@ template<class P> struct LogicalTypedef;
 template<class P> using LogicalType = typename LogicalTypedef<P>::Type;
 template<> struct LogicalTypedef<ExactTag> { typedef Boolean Type; };
 template<> struct LogicalTypedef<EffectiveTag> { typedef Kleenean Type; };
-template<> struct LogicalTypedef<EffectiveLowerTag> { typedef LowerKleenean Type; };
-template<> struct LogicalTypedef<EffectiveUpperTag> { typedef UpperKleenean Type; };
 template<> struct LogicalTypedef<ValidatedTag> { typedef ValidatedKleenean Type; };
-template<> struct LogicalTypedef<ValidatedLowerTag> { typedef ValidatedLowerKleenean Type; };
-template<> struct LogicalTypedef<ValidatedUpperTag> { typedef ValidatedUpperKleenean Type; };
 template<> struct LogicalTypedef<ApproximateTag> { typedef ApproximateKleenean Type; };
 
 template<class P> struct LowerLogicalTypedef;

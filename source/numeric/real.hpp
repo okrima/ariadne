@@ -309,7 +309,7 @@ class LowerReal
   private: public:
     explicit LowerReal(SharedPointer<Real::Interface>);
   public:
-    typedef EffectiveLowerTag Paradigm;
+    typedef EffectiveTag Paradigm;
     typedef LowerReal NumericType;
   public:
     LowerReal(Real);
@@ -406,7 +406,7 @@ class UpperReal
   private: public:
     explicit UpperReal(SharedPointer<Real::Interface>);
   public:
-    typedef EffectiveUpperTag Paradigm;
+    typedef EffectiveTag Paradigm;
     typedef UpperReal NumericType;
   public:
     UpperReal(Real);
