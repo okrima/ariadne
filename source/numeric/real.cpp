@@ -354,7 +354,11 @@ template<> Nat integer_cast<Nat,Real>(Real const& r) { return std::round(r.get(d
 
 
 template<> String class_name<Real>() { return "Real"; }
+template<> String class_name<LowerReal>() { return "LowerReal"; }
+template<> String class_name<UpperReal>() { return "UpperReal"; }
 template<> String class_name<PositiveReal>() { return "PositiveReal"; }
+template<> String class_name<PositiveLowerReal>() { return "PositiveLowerReal"; }
+template<> String class_name<PositiveUpperReal>() { return "PositiveUpperReal"; }
 
 const Real pi = 4*atan(1); //Real(3.1415926535897930, 3.141592653589793238, 3.1415926535897936);
 const Real infinity = Real(std::numeric_limits<double>::infinity());
@@ -451,18 +455,26 @@ PositiveReal cast_positive(Real const& pr) { return static_cast<PositiveReal con
 
 LowerReal max(LowerReal const& lr1, LowerReal const& lr2) { return make_lower(max(cast_real(lr1),cast_real(lr2))); }
 LowerReal min(LowerReal const& lr1, LowerReal const& lr2) { return make_lower(min(cast_real(lr1),cast_real(lr2))); }
-Real min(LowerReal const& lr1, Real const& r2) { return min(cast_real(lr1),r2); }
-Real min(Real const& r1, LowerReal const& lr2) { return min(r1,cast_real(lr2)); }
+LowerReal pos(LowerReal const& lr) { return make_lower(pos(cast_real(lr))); }
+LowerReal neg(UpperReal const& ur) { return make_lower(neg(cast_real(ur))); }
+LowerReal add(LowerReal const& lr1, LowerReal const& lr2) { return make_lower(add(cast_real(lr1),cast_real(lr2))); }
+PositiveLowerReal sqrt(PositiveLowerReal const& lr) { return make_lower(sqrt(cast_real(lr))); }
+PositiveLowerReal exp(LowerReal const& lr) { return make_lower(exp(cast_real(lr))); }
+LowerReal log(PositiveLowerReal const& lr) { return make_lower(log(cast_real(lr))); }
+LowerReal atan(LowerReal const& lr) { return make_lower(atan(cast_real(lr))); }
+OutputStream& operator<<(OutputStream& os, LowerReal const& lr) { return lr._ptr->_write(os); }
 
 UpperReal max(UpperReal const& ur1, UpperReal const& ur2) { return make_upper(max(cast_real(ur1),cast_real(ur2))); }
-Real max(UpperReal const& ur1, Real const& r2) { return max(cast_real(ur1),r2); }
-Real max(Real r1, UpperReal const& ur2) { return max(r1,cast_real(ur2)); }
 UpperReal min(UpperReal const& ur1, UpperReal const& ur2) { return make_upper(min(cast_real(ur1),cast_real(ur2))); }
-
-LowerReal neg(UpperReal const& ur) { return make_lower(neg(cast_real(ur))); }
-UpperReal neg(LowerReal const& lr) { return make_upper(neg(cast_real(lr))); }
-LowerReal add(LowerReal const& lr1, LowerReal const& lr2) { return make_lower(add(cast_real(lr1),cast_real(lr2))); }
 UpperReal add(UpperReal const& ur1, UpperReal const& ur2) { return make_upper(add(cast_real(ur1),cast_real(ur2))); }
+UpperReal pos(UpperReal const& ur) { return make_upper(pos(cast_real(ur))); }
+UpperReal neg(LowerReal const& lr) { return make_upper(neg(cast_real(lr))); }
+PositiveUpperReal sqrt(PositiveUpperReal const& ur) { return make_upper(sqrt(cast_real(ur))); }
+PositiveUpperReal exp(UpperReal const& ur) { return make_upper(exp(cast_real(ur))); }
+UpperReal log(PositiveUpperReal const& ur) { return make_upper(log(cast_real(ur))); }
+UpperReal atan(UpperReal const& ur) { return make_upper(atan(cast_real(ur))); }
+OutputStream& operator<<(OutputStream& os, UpperReal const& ur) { return ur._ptr->_write(os); }
+
 
 PositiveFloatDPBounds PositiveReal::get(DoublePrecision pr) const {
     return PositiveFloatDPBounds(this->_ptr->_compute_get(pr));
