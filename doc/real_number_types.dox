@@ -26,7 +26,6 @@
 /*! \file real_number_types.dox
  *  \brief Documentation on real number types
  */
-#include "../include/multi_index.h"
 
 namespace Ariadne {
 
