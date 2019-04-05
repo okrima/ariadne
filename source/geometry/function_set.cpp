@@ -575,6 +575,7 @@ const EffectiveBoxType ConstrainedImageSet::constraint_bounds() const
 
 UpperBoxType ConstrainedImageSet::bounding_box() const
 {
+    return this->_function.codomain().bounding_box();
     return Ariadne::apply(this->_function,over_approximation(this->_domain));
 }
 

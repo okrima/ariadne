@@ -133,7 +133,7 @@ Void GridDrawer::draw(CanvasInterface& canvas, const Projection2d& projection, c
 
 Void box_draw(CanvasInterface& cnvs, const Projection2d& proj, const ValidatedConstrainedImageSet& set)
 {
-    cast_exact_box(apply(set.function(),set.domain())).draw(cnvs,proj);
+    set.bounding_box().draw(cnvs,proj);
 }
 
 Void affine_draw(CanvasInterface& cnvs, const Projection2d& proj, const ValidatedConstrainedImageSet& set, Nat splittings_remaining)

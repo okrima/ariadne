@@ -99,6 +99,37 @@ int main()
 
         SizeType ce=0;
         for (auto set : orbit.reach()) {
+            if (possibly(set.bounding_box()[1] >= 3.98_dec)) {
+                std::cout << "plotting set with bb=" << set.bounding_box() << std::endl;
+                Enclosure enclosure = set;
+                ValidatedConstrainedImageSet cis = enclosure.state_set();
+                std::cout << "enclosure_bb=" << enclosure.bounding_box() << std::endl;
+                std::cout << "cis_bb=" << cis.bounding_box() << std::endl;
+                std::cout << "enclosure_d=" << enclosure.domain() << std::endl;
+                std::cout << "enclosure_rd=" << enclosure.reduced_domain() << std::endl;
+                std::cout << "cis_rd=" << cis.reduced_domain() << std::endl;
+                std::cout << "same(enclosure_sf,cis_f)=" << same(enclosure.state_function().model(),cis.function().model()) << std::endl;
+//                std::cout << "enclosure_sf=" << enclosure.state_function() << std::endl;
+//                std::cout << "cis_f=" << cis.function() << std::endl;
+
+                Box<FloatDPUpperInterval> graphics_box(2);
+                graphics_box[0] = FloatDPUpperInterval(-2.5,2.5);
+                graphics_box[1] = FloatDPUpperInterval(-4.0,4.2);
+                Figure fig=Figure();
+                fig.set_bounding_box(graphics_box);
+                fig.set_line_colour(0.0,0.0,0.0);
+                fig.set_line_style(true);
+                fig.set_fill_colour(0.6,0.6,0.6);
+                //set.reduce();
+                fig.draw(set);
+                Box<FloatDPUpperInterval> line({{-2.5,2.5},{4.0,4.0}});
+                fig.draw(line);
+                fig.set_fill_colour(1.0,0.6,0.6);
+                fig.draw(set.bounding_box());
+                fig.write("oversplilling-set");
+                break;
+            }
+
             if (possibly(set.bounding_box()[1] >= 4)) {
                 std::cout << "set with y=" << set.bounding_box()[1] << " is outside the specification." << std::endl;
                 ++ce;
@@ -110,8 +141,6 @@ int main()
 
         reach2.adjoin(orbit.reach());
     }
-
-    DRAWING_METHOD = DrawingMethod::BOX;
 
     std::cout << "plotting..." << std::endl;
     Box<FloatDPUpperInterval> graphics_box(2);

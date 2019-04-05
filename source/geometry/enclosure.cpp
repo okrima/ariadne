@@ -124,7 +124,7 @@ inline Pair<ValidatedVectorMultivariateFunctionModelDP,ValidatedVectorMultivaria
 
 
 EnclosureConfiguration::EnclosureConfiguration(ValidatedFunctionModelDPFactory function_factory)
-    : _function_factory(function_factory), _paver(new AffinePaver()), _drawer(new AffineDrawer(0)) { }
+    : _function_factory(function_factory), _paver(new AffinePaver()), _drawer(new BoxDrawer()) { }
 
 OutputStream& operator<<(OutputStream& os, EnclosureConfiguration const& ec) {
     return os << "EnclosureConfiguration( function_factory=" << ec._function_factory
@@ -992,7 +992,9 @@ Enclosure::split(Nat d) const
 
 ValidatedConstrainedImageSet Enclosure::state_set() const
 {
-    return ValidatedConstrainedImageSet(this->domain(),this->state_function(),this->constraints());
+    ValidatedConstrainedImageSet result(this->domain(),this->state_function(),this->constraints());
+    const_cast<ExactBoxType&>(result.reduced_domain())=this->reduced_domain();
+    return result;
 }
 
 ValidatedConstrainedImageSet Enclosure::state_auxiliary_set() const
@@ -1278,7 +1280,7 @@ Void Enclosure::draw(CanvasInterface& canvas, const Projection2d& projection) co
 }
 
 Void Enclosure::box_draw(CanvasInterface& canvas, const Projection2d& projection) const {
-    this->reduce();
+    //this->reduce();
     BoxDrawer().draw(canvas,projection,this->state_time_auxiliary_set());
 }
 
