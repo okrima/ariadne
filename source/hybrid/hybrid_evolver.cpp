@@ -264,7 +264,7 @@ orbit(const HybridExactBoxType& initial_box,
     ARIADNE_LOG(2,"HybridEvolverBase::orbit(HybridAutomaton, HybridExactBox, HybridTime, Semantics)\n");
     ARIADNE_LOG(3,"factory="<<this->function_factory()<<"\n");
     ARIADNE_LOG(3,"initial_box="<<initial_box<<"\n");
-    HybridEnclosure initial_enclosure(initial_box,this->function_factory());
+    HybridEnclosure initial_enclosure(initial_box,this->enclosure_configuration());
     ARIADNE_LOG(3,"initial_enclosure="<<initial_enclosure<<"\n");
     return this->orbit(initial_enclosure,termination,semantics);
 }
@@ -278,7 +278,7 @@ orbit(const HybridBoxSet& initial_box,
     ARIADNE_LOG(2,"HybridEvolverBase::orbit(HybridAutomaton, HybridRealBox, HybridTime, Semantics)\n");
     ARIADNE_LOG(3,"factory="<<this->function_factory()<<"\n");
     ARIADNE_LOG(3,"initial_box="<<initial_box<<"\n");
-    HybridEnclosure initial_enclosure(initial_box,this->system().continuous_state_space(initial_box.location()),this->function_factory());
+    HybridEnclosure initial_enclosure(initial_box,this->system().continuous_state_space(initial_box.location()),this->enclosure_configuration());
     ARIADNE_LOG(3,"initial_enclosure="<<initial_enclosure<<"\n");
     return this->orbit(initial_enclosure,termination,semantics);
 }
@@ -290,7 +290,7 @@ orbit(const HybridBoundedConstraintSet& initial_set,
       Semantics semantics) const
 {
     ARIADNE_LOG(3,"initial_set="<<initial_set<<"\n");
-    HybridEnclosure initial_enclosure(initial_set,this->system().continuous_state_space(initial_set.location()),this->function_factory());
+    HybridEnclosure initial_enclosure(initial_set,this->system().continuous_state_space(initial_set.location()),this->enclosure_configuration());
     ARIADNE_LOG(3,"initial_enclosure="<<initial_enclosure<<"\n");
     return this->orbit(initial_enclosure,termination,semantics);
 }
@@ -347,6 +347,7 @@ HybridEvolverBase::_create(
     this->_sys_ptr=std::shared_ptr<SystemType>(system.clone());
     this->_function_factory_ptr=std::shared_ptr<FunctionFactoryType>(factory);
     this->_solver_ptr=std::shared_ptr<SolverInterface>(new IntervalNewtonSolver(1e-8,12));
+    this->_enclosure_configuration_ptr=std::shared_ptr<EnclosureConfigurationType>(new EnclosureConfiguration(*factory));
     this->ALLOW_CREEP=true;
     this->ALLOW_UNWIND=false;
     //this->_configuration_ptr=std::shared_ptr<ConfigurationType>(new ConfigurationType());
@@ -365,6 +366,18 @@ HybridEvolverBase::configuration()
     return *this->_configuration_ptr;
 }
 
+const HybridEvolverBase::EnclosureConfigurationType&
+HybridEvolverBase::enclosure_configuration() const
+{
+    return *this->_enclosure_configuration_ptr;
+}
+
+HybridEvolverBase::EnclosureConfigurationType&
+HybridEvolverBase::enclosure_configuration()
+{
+    return *this->_enclosure_configuration_ptr;
+}
+
 const HybridEvolverBase::ConfigurationType&
 HybridEvolverBase::configuration() const
 {
@@ -380,7 +393,7 @@ HybridEvolverBase::set_function_factory(const FunctionFactoryType& factory)
 const HybridEvolverBase::FunctionFactoryType&
 HybridEvolverBase::function_factory() const
 {
-    return*this->_function_factory_ptr;
+    return *this->_function_factory_ptr;
 }
 
 Void
@@ -389,23 +402,36 @@ HybridEvolverBase::set_integrator(const IntegratorInterface& integrator)
     this->_integrator_ptr=std::shared_ptr<IntegratorInterface>(integrator.clone());
 }
 
+const IntegratorInterface&
+HybridEvolverBase::integrator()
+{
+    return *this->_integrator_ptr;
+}
+
 Void
 HybridEvolverBase::set_solver(const SolverInterface& solver)
 {
     this->_solver_ptr=std::shared_ptr<SolverInterface>(solver.clone());
 }
 
+const SolverInterface&
+HybridEvolverBase::solver()
+{
+    return *this->_solver_ptr;
+}
+
+
 
 HybridEvolverBase::EnclosureType
 HybridEvolverBase::enclosure(const HybridExactBox& initial_box) const
 {
-    return HybridEnclosure(initial_box,this->function_factory());
+    return HybridEnclosure(initial_box,this->enclosure_configuration());
 }
 
 HybridEvolverBase::EnclosureType
 HybridEvolverBase::enclosure(const HybridBoundedConstraintSet& initial_set) const
 {
-    return HybridEnclosure(initial_set,this->system().continuous_state_space(initial_set.location()),this->function_factory());
+    return HybridEnclosure(initial_set,this->system().continuous_state_space(initial_set.location()),this->enclosure_configuration());
 }
 
 

@@ -99,19 +99,18 @@ Void TestMapEvolver::test() const
     ARIADNE_TEST_PRINT(image(initial_box,henon));
     ARIADNE_TEST_PRINT(jacobian_range(henon,initial_box));
 
-
+    // Set up the evaluators
+    MapEvolver evolver(henon);
+    evolver.configuration().set_maximum_enclosure_radius(0.25);
+    evolver.enclosure_configuration().set_function_factory(TaylorFunctionFactory(ThresholdSweeper<FloatDP>(dp,1e-10)));
 
     // Over-approximate the initial set by a grid cell
-    EnclosureType initial_set(initial_box,TaylorFunctionFactory(ThresholdSweeper<FloatDP>(dp,1e-10)));
+    EnclosureType initial_set(initial_box,evolver.enclosure_configuration());
     ARIADNE_TEST_PRINT(initial_set);
 
     // Set up the evolution parameters and grid
     IteratedMap::TimeType time(3);
-    double enclosure_radius(0.25);
 
-    // Set up the evaluators
-    MapEvolver evolver(henon);
-    evolver.configuration().set_maximum_enclosure_radius(enclosure_radius);
 
     // Compute the reachable sets
     ListSet<EnclosureType> evolve_set,reach_set;

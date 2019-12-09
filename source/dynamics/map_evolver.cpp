@@ -74,19 +74,20 @@ class DegenerateCrossingException { };
 MapEvolver::MapEvolver(const SystemType& system)
     : _sys_ptr(system.clone())
     , _configuration(new ConfigurationType())
+    , _enclosure_configuration(new EnclosureConfigurationType())
 {
 }
 
 typename MapEvolver::FunctionFactoryType const MapEvolver::function_factory() const {
-    return ValidatedFunctionModelDPFactory(make_taylor_function_factory());
+    return this->_enclosure_configuration->_function_factory;
 }
 
 typename MapEvolver::EnclosureType MapEvolver::enclosure(const ExactBoxType& box) const {
-    return Enclosure(box,this->function_factory());
+    return Enclosure(box,this->enclosure_configuration());
 }
 
 typename MapEvolver::EnclosureType MapEvolver::enclosure(const RealBox& box) const {
-    return Enclosure(box,this->function_factory());
+    return Enclosure(box,this->enclosure_configuration());
 }
 
 Orbit<MapEvolver::EnclosureType>

@@ -73,6 +73,7 @@ namespace Ariadne {
 #include "hybrid/hybrid_simulator.hpp"
 #include "hybrid/hybrid_reachability_analyser.hpp"
 
+#include "output/drawer.hpp"
 #include "output/graphics.hpp"
 #include "hybrid/hybrid_graphics.hpp"
 

@@ -100,20 +100,25 @@ VectorFieldEvolver::VectorFieldEvolver(const SystemType& system, const Integrato
     : _sys_ptr(system.clone())
     , _integrator(i.clone())
     , _configuration(new ConfigurationType())
+    , _enclosure_configuration(new EnclosureConfigurationType())
 {
 
 }
 
 typename VectorFieldEvolver::EnclosureType VectorFieldEvolver::enclosure(const ExactBoxType& box) const {
-    return Enclosure(box,this->function_factory());
+    return Enclosure(box,this->enclosure_configuration());
 }
 
 typename VectorFieldEvolver::EnclosureType VectorFieldEvolver::enclosure(const RealBox& box) const {
-    return Enclosure(box,this->function_factory());
+    return Enclosure(box,this->enclosure_configuration());
 }
 
-typename VectorFieldEvolver::FunctionFactoryType const& VectorFieldEvolver::function_factory() const {
-    return std::dynamic_pointer_cast<const IntegratorBase>(this->_integrator)->function_factory();
+const IntegratorInterface& VectorFieldEvolver::integrator() const {
+    return *this->_integrator;
+}
+
+Void VectorFieldEvolver::set_integrator(const IntegratorInterface& integrator) {
+    this->_integrator=std::shared_ptr<IntegratorInterface>(integrator.clone());
 }
 
 

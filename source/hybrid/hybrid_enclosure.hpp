@@ -115,6 +115,7 @@ class HybridEnclosure
     friend class SimpleHybridEvolver;
     friend class ConstraintHybridEvolver;
   public:
+    typedef EnclosureConfiguration ConfigurationType;
     typedef Enclosure ContinuousStateSetType;
   private:
     DiscreteLocation _location;
@@ -127,19 +128,19 @@ class HybridEnclosure
     //! \brief An empty enclosure.
     HybridEnclosure();
     //! \brief An enclosure corresponding to a hybrid box \a hbx with variables canonically ordered by \a spc.
-    HybridEnclosure(const HybridBoxSet& hbx, const RealSpace& spc, const ValidatedFunctionModelDPFactoryInterface& fac);
+    HybridEnclosure(const HybridBoxSet& hbx, const RealSpace& spc, const EnclosureConfiguration& config);
     //! \brief An enclosure corresponding to the hybrid set \a set using \a space to order the continuous variables.
-    HybridEnclosure(const HybridBoundedConstraintSet& set, const RealSpace& space, const ValidatedFunctionModelDPFactoryInterface& factory);
+    HybridEnclosure(const HybridBoundedConstraintSet& set, const RealSpace& space, const EnclosureConfiguration& config);
 
     //! \brief An enclosure corresponding to a Euclidean box \a bx in location \a q with variables ordered by \a spc.
-    HybridEnclosure(const DiscreteLocation& q, const RealSpace& spc, const RealBox& bx, const ValidatedFunctionModelDPFactoryInterface& fac);
+    HybridEnclosure(const DiscreteLocation& q, const RealSpace& spc, const RealBox& bx, const EnclosureConfiguration& config);
     //! \brief An enclosure corresponding to a hybrid box \a hbx.
-    explicit HybridEnclosure(const HybridRealBox& hbx, const ValidatedFunctionModelDPFactoryInterface& fac);
+    explicit HybridEnclosure(const HybridRealBox& hbx, const EnclosureConfiguration& config);
 
     //! \brief An enclosure corresponding to a hybrid box \a hbx.
-    explicit HybridEnclosure(const HybridExactBoxType& hbx, const ValidatedFunctionModelDPFactoryInterface& fac);
+    explicit HybridEnclosure(const HybridExactBoxType& hbx, const EnclosureConfiguration& config);
     //! \brief An enclosure corresponding to a hybrid box \a hbx.
-    explicit HybridEnclosure(const HybridExactBoxType& hbx, List<RealAssignment> aux, const ValidatedFunctionModelDPFactoryInterface& fac);
+    explicit HybridEnclosure(const HybridExactBoxType& hbx, List<RealAssignment> aux, const EnclosureConfiguration& config);
     //! \brief An enclosure constructed from a location \a q, a real space \a spc, and a (timed) enclosure \a es.
     explicit HybridEnclosure(const DiscreteLocation& q, const RealSpace& spc, const Enclosure& es);
 
@@ -150,6 +151,7 @@ class HybridEnclosure
 
     //! \brief The algorithms used to compute with the set.
     const EnclosureConfiguration& configuration() const;
+    EnclosureConfiguration& configuration();
     //! \brief The current location.
     const DiscreteLocation& location() const;
     //! \brief The Euclidean space of the location, including state, time and auxiliary functions.

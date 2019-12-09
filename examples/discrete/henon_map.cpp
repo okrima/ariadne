@@ -82,17 +82,17 @@ Int main()
     analyser.set_verbosity(3);
 
     // Set-up initial set and time for evolution
-    RealBoxSet initial_box_set={{0.5_dec,0.6_dec},{0.95_dec,1.05_dec}};
-    Enclosure initial_set(initial_box_set,TaylorFunctionFactory(ThresholdSweeper<FloatDP>(dp,1e-10)));
+    RealBoxSet initial_set={{0.5_dec,0.6_dec},{0.95_dec,1.05_dec}};
+    Enclosure initial_enclosure(initial_set,evolver.enclosure_configuration());
 
     // Set up the evolution parameters and grid
     IteratedMap::TimeType time(4);
 
     // Compute the reachable sets
     ListSet<Enclosure> evolve_set,reach_set;
-    tie(reach_set,evolve_set) = evolver.reach_evolve(initial_set,time);
-    reach_set = evolver.reach(initial_set,time);
-    evolve_set = evolver.evolve(initial_set,time);
+    tie(reach_set,evolve_set) = evolver.reach_evolve(initial_enclosure,time);
+    reach_set = evolver.reach(initial_enclosure,time);
+    evolve_set = evolver.evolve(initial_enclosure,time);
 
     ExactBoxType figure_bounding_box({{-4,2},{-3,3}});
     Figure fig(figure_bounding_box,0,1);
@@ -103,9 +103,9 @@ Int main()
     fig.write("henon_map-reach");
 
     // Compute the chain-reach set
-    GridTreePaving chain_reach_set = analyser.outer_chain_reach(initial_box_set);
+    GridTreePaving chain_reach_set = analyser.outer_chain_reach(initial_set);
 
     fig.clear();
-    fig << fill_colour(blue) << initial_box_set << fill_colour(cyan) << chain_reach_set;
+    fig << fill_colour(blue) << initial_set << fill_colour(cyan) << chain_reach_set;
     fig.write("henon_map-chain_reach");
 }

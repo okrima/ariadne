@@ -832,7 +832,7 @@ Void TestHybridEvolver::test_transverse_linear_crossing() const
     RealExpression ct=-guard; // Crossing time
     //EffectiveVectorMultivariateFunction function=make_function((x+ct,y+2-ct),final_space);
     EffectiveVectorMultivariateFunction function=join(make_function(x+ct,final_space),make_function(y+2-ct,final_space));
-    Enclosure expected_final_enclosure(initial_set.euclidean_set(q1,final_space),evolver_ptr->function_factory());
+    Enclosure expected_final_enclosure(initial_set.euclidean_set(q1,final_space),evolver_ptr->enclosure_configuration());
     expected_final_enclosure.apply_map(function);
 
     Vector<FloatDPBounds> tolerance(2,FloatDPBounds(-tol,+tol));

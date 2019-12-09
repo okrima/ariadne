@@ -66,6 +66,7 @@ class MapEvolver
 {
   public:
     typedef MapEvolverConfiguration ConfigurationType;
+    typedef EnclosureConfiguration EnclosureConfigurationType;
     typedef IteratedMap SystemType;
     typedef Integer TimeType;
     typedef Integer TerminationType;
@@ -97,6 +98,10 @@ class MapEvolver
     //! \brief A reference to the configuration.
     ConfigurationType& configuration() { return *this->_configuration; }
     const ConfigurationType& configuration() const { return *this->_configuration; }
+
+    //! \brief A reference to the configuration parameters of the enclosure type used.
+    EnclosureConfigurationType& enclosure_configuration() { return *this->_enclosure_configuration; }
+    const EnclosureConfigurationType& enclosure_configuration() const { return *this->_enclosure_configuration; }
 
     //! \brief The class which constructs functions for the enclosures.
     const FunctionFactoryType function_factory() const;
@@ -142,6 +147,7 @@ class MapEvolver
     std::shared_ptr< SystemType > _sys_ptr;
     //std::shared_ptr< EvolutionProfiler >  _profiler;
     std::shared_ptr< ConfigurationType > _configuration;
+    std::shared_ptr< EnclosureConfigurationType > _enclosure_configuration;
 };
 
 

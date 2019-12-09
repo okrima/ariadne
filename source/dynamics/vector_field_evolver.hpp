@@ -66,6 +66,7 @@ class VectorFieldEvolver
 {
   public:
     typedef VectorFieldEvolverConfiguration ConfigurationType;
+    typedef EnclosureConfiguration EnclosureConfigurationType;
     typedef VectorField SystemType;
     typedef typename VectorField::TimeType TimeType;
     typedef Dyadic TimeStepType;
@@ -77,7 +78,7 @@ class VectorFieldEvolver
     typedef ValidatedFunctionModelDPFactoryInterface FunctionFactoryType;
   public:
 
-    //! \brief Construct from parameters and an integrator to compute the flow.
+    //! \brief Construct from parameters, an integrator to compute the flow, and a configuration for the enclosures used.
     VectorFieldEvolver(
     		const SystemType& system,
             const IntegratorInterface& integrator);
@@ -100,8 +101,13 @@ class VectorFieldEvolver
     ConfigurationType& configuration() { return *this->_configuration; }
     const ConfigurationType& configuration() const { return *this->_configuration; }
 
-    //! \brief The class which constructs functions for the enclosures.
-    const FunctionFactoryType& function_factory() const;
+    //! \brief A reference to the configuration controlling the evolution.
+    EnclosureConfigurationType& enclosure_configuration() { return *this->_enclosure_configuration; }
+    const EnclosureConfigurationType& enclosure_configuration() const { return *this->_enclosure_configuration; }
+
+    //! \brief The class which integrates the vector field.
+    const IntegratorInterface& integrator() const;
+    Void set_integrator(const IntegratorInterface& integrator);
 
     //@}
 
@@ -141,6 +147,7 @@ class VectorFieldEvolver
     std::shared_ptr< IntegratorInterface > _integrator;
     //std::shared_ptr< EvolutionProfiler >  _profiler;
     std::shared_ptr< ConfigurationType > _configuration;
+    std::shared_ptr< EnclosureConfigurationType > _enclosure_configuration;
 };
 
 

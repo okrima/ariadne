@@ -63,6 +63,8 @@ class Drawer
   public:
     Drawer(SharedPointer<const DrawerInterface> ptr) : _ptr(ptr) { }
     Drawer(const DrawerInterface* ptr) : _ptr(ptr) { }
+    template<class D, EnableIf<IsBaseOf<DrawerInterface,D>> =dummy>
+        Drawer(D d) : _ptr(std::make_shared<D>(std::move(d))) { }
     inline Void draw(CanvasInterface& cnvs, const Projection2d& proj, const ValidatedConstrainedImageSet& set) const {
         return this->_ptr->draw(cnvs,proj,set); }
     friend inline OutputStream& operator<<(OutputStream& os, Drawer const& drw) {

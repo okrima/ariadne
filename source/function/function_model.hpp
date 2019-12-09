@@ -67,6 +67,8 @@ template<class P, class PR, class PRE> class FunctionModelFactory {
 
     explicit FunctionModelFactory(const FunctionModelFactoryInterface<P,PR,PRE>* p) : _ptr(p) { }
     explicit FunctionModelFactory(SharedPointer<const FunctionModelFactoryInterface<P,PR,PRE>> p) : _ptr(p) { }
+    template<class FACT, EnableIf<IsBaseOf<FunctionModelFactoryInterface<P,PR,PRE>,FACT>> = dummy>
+        FunctionModelFactory(FACT fact) : _ptr(std::make_shared<FACT>(fact)) { }
 
     CanonicalNumericType<P,PR,PRE> create(Number<P> const& c) const {
         return CanonicalNumericType<P,PR,PRE>(this->_ptr->_create(c)); }

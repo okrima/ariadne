@@ -32,6 +32,17 @@
 
 namespace Ariadne {
 
+template<class E> struct ConfigurationTypedef {
+    typedef typename E::ConfigurationType Type;
+};
+
+template<class E> using ConfigurationType = typename ConfigurationTypedef<E>::Type;
+
+class Enclosure;
+struct EnclosureConfiguration;
+template<> struct ConfigurationTypedef<Enclosure> { typedef EnclosureConfiguration Type; };
+
+
 
 template<class ES> class ListSet;
 template<class ES> class Orbit;
@@ -60,6 +71,8 @@ class EvolverInterface
     typedef TRM TerminationType;
     //! \brief The type of set used to enclose the flow tubes.
     typedef ES EnclosureType;
+    //! \brief The configuration parameters for the enclosure type.
+    typedef ConfigurationType<ES> EnclosureConfigurationType;
     //! \brief The type of a list of enclosure sets.
     typedef ListSet<EnclosureType> EnclosureListType;
 

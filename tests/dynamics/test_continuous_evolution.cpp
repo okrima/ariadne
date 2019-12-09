@@ -125,13 +125,14 @@ Void TestContinuousEvolution::test() const
     VectorField vanderpol(vdp);
     ARIADNE_TEST_PRINT(vanderpol);
 
+    TaylorFunctionFactory function_factory(ThresholdSweeper<FloatDP>(dp,1e-8));
     VectorFieldEvolver evolver(vanderpol,integrator);
     evolver.configuration().set_maximum_enclosure_radius(enclosure_radius);
     evolver.configuration().set_maximum_step_size(step_size);
+    evolver.enclosure_configuration().set_function_factory(function_factory);
 
     // Over-approximate the initial set by a grid cell
-    TaylorFunctionFactory function_factory(ThresholdSweeper<FloatDP>(dp,1e-8));
-    EnclosureType initial_set(initial_box,function_factory);
+    EnclosureType initial_set(initial_box,evolver.enclosure_configuration());
     ARIADNE_TEST_PRINT(initial_set);
 
     Semantics semantics=Semantics::UPPER;
@@ -171,6 +172,8 @@ Void TestContinuousEvolution::failure_test() const
     TaylorPicardIntegrator integrator(maximum_error=1e-6,sweep_threshold=1e-8,lipschitz_constant=0.5,
                                       step_maximum_error=1e-8,step_sweep_threshold=1e-10,maximum_temporal_order=6);
 
+    TaylorFunctionFactory function_factory(ThresholdSweeper<FloatDP>(dp,1e-10));
+
     // Define the initial box
     ExactBoxType initial_box = ExactBoxType{{0.0,0.0},{0.9,0.9}};
 
@@ -187,9 +190,9 @@ Void TestContinuousEvolution::failure_test() const
     VectorFieldEvolver evolverone(failone_vf,integrator);
     evolverone.configuration().set_maximum_enclosure_radius(enclosure_radius);
     evolverone.configuration().set_maximum_step_size(step_size);
+    evolverone.enclosure_configuration().set_function_factory(function_factory);
 
-    TaylorFunctionFactory function_factory(ThresholdSweeper<FloatDP>(dp,1e-10));
-    EnclosureType initial_set(initial_box,function_factory);
+    EnclosureType initial_set(initial_box,evolverone.enclosure_configuration());
     // cout << "initial_set=" << initial_set << endl << endl;
 
     Semantics semantics=Semantics::UPPER;
@@ -227,9 +230,10 @@ Void TestContinuousEvolution::failure_test() const
     VectorFieldEvolver evolvertwo(failtwo_vf,integrator);
     evolvertwo.configuration().set_maximum_enclosure_radius(enclosure_radius);
     evolvertwo.configuration().set_maximum_step_size(step_size);
-
+    evolvertwo.enclosure_configuration().set_function_factory(function_factory);
     ExactBoxType initial_box2 = ExactBoxType{{0.0,0.0},{1.0,1.0},{1.0,1.0}};
-    initial_set = EnclosureType(initial_box2,function_factory);
+
+    initial_set = EnclosureType(initial_box2,evolvertwo.enclosure_configuration());
 
     time = 1.5_dec;
 

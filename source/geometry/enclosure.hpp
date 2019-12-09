@@ -66,11 +66,16 @@ struct EnclosureConfiguration {
     ValidatedFunctionModelDPFactory _function_factory;
     Paver _paver;
     Drawer _drawer;
-    EnclosureConfiguration(ValidatedFunctionModelDPFactory function_factory);
-    EnclosureConfiguration(ValidatedFunctionModelDPFactoryInterface const& function_factory)
+    explicit EnclosureConfiguration();
+    explicit EnclosureConfiguration(ValidatedFunctionModelDPFactory function_factory);
+    explicit EnclosureConfiguration(ValidatedFunctionModelDPFactoryInterface const& function_factory)
         : EnclosureConfiguration(ValidatedFunctionModelDPFactory(function_factory.clone())) { }
-    EnclosureConfiguration(ValidatedFunctionModelDPFactory function_factory, Paver paver, Drawer drawer)
+    explicit EnclosureConfiguration(ValidatedFunctionModelDPFactory function_factory, Paver paver, Drawer drawer)
         : _function_factory(function_factory), _paver(paver), _drawer(drawer) { }
+//    ValidatedFunctionModelDPFactoryInterface const& function_factory() const { return _function_factory; }
+    EnclosureConfiguration& set_function_factory(ValidatedFunctionModelDPFactory factory) { _function_factory=factory; return *this; }
+    EnclosureConfiguration& set_function_factory(ValidatedFunctionModelDPFactoryInterface& factory) {
+        _function_factory=ValidatedFunctionModelDPFactory(factory.clone()); return *this; }
     EnclosureConfiguration& set_paver(Paver paver) { _paver=paver; return *this; }
     EnclosureConfiguration& set_drawer(Drawer drawer) { _drawer=drawer; return *this; }
     friend OutputStream& operator<<(OutputStream& os, EnclosureConfiguration const& ec);
@@ -91,6 +96,8 @@ class Enclosure
     mutable ExactBoxType _reduced_domain;
     mutable Bool _is_fully_reduced;
     EnclosureConfiguration _configuration;
+  public:
+    typedef EnclosureConfiguration ConfigurationType;
   public:
     //! \brief Construct a set with \f$D=\emptyset\f$ in \f$\mathbb{R}^0\f$.
     explicit Enclosure();
@@ -115,6 +122,7 @@ class Enclosure
 
     //! \brief The classes used to work with the set.
     const EnclosureConfiguration& configuration() const;
+    EnclosureConfiguration& configuration();
     //! \brief The class used to create new function instances.
     const ValidatedFunctionModelDPFactory& function_factory() const;
     //! \brief The class used to discretise the set.

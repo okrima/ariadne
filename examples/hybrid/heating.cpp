@@ -156,15 +156,14 @@ Int main(Int argc, const char* argv[])
     HybridSet initial_set(heating|off, {Tinitmin<=T<=Tinitmax,Cinitmin<=C<=Cinitmax} );
     cout << "initial_set=" << initial_set << endl;
     // Compute the initial set as a validated enclosure.
-    HybridEnclosure initial_enclosure = evolver.enclosure(initial_set);
-    cout << "initial_enclosure="<<initial_enclosure << endl << endl;
-
-    HybridTime evolution_time(2.75,127);
+    HybridTime evolution_time(1.0_decimal,127);
     cout << "evolution_time=" << evolution_time << endl;
 
     cout << "\nComputing orbit using series integrator... \n" << flush;
     evolver.set_integrator(series_integrator);
-    Orbit<HybridEnclosure> series_orbit = evolver.orbit(initial_enclosure,evolution_time,Semantics::UPPER);
+    evolver.enclosure_configuration().set_drawer(AffineDrawer(2));
+
+    Orbit<HybridEnclosure> series_orbit = evolver.orbit(initial_set,evolution_time,Semantics::UPPER);
     cout << "    done." << endl;
 
     cout << "\nComputed " << series_orbit.reach().size() << " reach enclosures and " << series_orbit.final().size() << " final enclosures.\n";
@@ -177,13 +176,12 @@ Int main(Int argc, const char* argv[])
     plot("heating-orbit-time.png",Axes2d(0<=t<=tmax,dTmin<=T<=dTmax), midnight_guard_colour, midnight_guard, guard_colour, guard, series_orbit_colour, series_orbit);
     cout << "done." << endl << endl;
 
-
-    HybridTerminationCriterion evolution_termination(2.75_bin,127,Set<DiscreteEvent>{midnight});
+    HybridTerminationCriterion evolution_termination(1.0_decimal,127,Set<DiscreteEvent>{midnight});
     cout << "evolution_termination=" << evolution_termination << endl;
 
     cout << "\nComputing event-terminated orbit using series integrator... \n" << flush;
     evolver.set_integrator(series_integrator);
-    series_orbit = evolver.orbit(initial_enclosure,evolution_termination,Semantics::UPPER);
+    series_orbit = evolver.orbit(initial_set,evolution_termination,Semantics::UPPER);
     cout << "    done." << endl;
 
     cout << "\nComputed " << series_orbit.reach().size() << " reach enclosures and " << series_orbit.final().size() << " final enclosures.\n";
@@ -191,7 +189,6 @@ Int main(Int argc, const char* argv[])
     cout << "\nPlotting time trace of orbit... " << flush;
     plot("heating-orbit-termination.png",Axes2d(0.0<=t<=1.25,dTmin<=T<=dTmax), midnight_guard_colour, midnight_guard, guard_colour, guard, series_orbit_colour, series_orbit);
     cout << "done." << endl << endl;
-
 
 
     HybridReachabilityAnalyser analyser(heating_system,evolver);

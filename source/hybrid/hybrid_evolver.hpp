@@ -99,6 +99,7 @@ class HybridEvolverBase
     friend class HybridEvolverBaseConfiguration;
   public:
     typedef HybridEvolverBaseConfiguration ConfigurationType;
+    typedef EnclosureConfiguration EnclosureConfigurationType;
     typedef ValidatedFunctionModelDPFactoryInterface FunctionFactoryType;
     typedef HybridAutomatonInterface SystemType;
     typedef SystemType::TimeType TimeType;
@@ -110,7 +111,7 @@ class HybridEvolverBase
 
   public:
 
-    //! \brief Default constructor.
+    //! \brief Construct an evolver for the given system.
     HybridEvolverBase(const SystemType& system);
 
     //! \brief Construct from parameters using a default integrator.
@@ -132,6 +133,10 @@ class HybridEvolverBase
     ConfigurationType& configuration();
     const ConfigurationType& configuration() const;
 
+    //! \brief A reference to the configuration parameters of the enclosure type used.
+    EnclosureConfigurationType& enclosure_configuration();
+    const EnclosureConfigurationType& enclosure_configuration() const;
+
     //! \brief Change the configuration from a \a domain and \a lengths (NOT IMPLEMENTED).
     virtual Void reconfigure(const HybridExactBoxes& domain, const HybridExactFloatVector& lengths) { }
 
@@ -142,8 +147,10 @@ class HybridEvolverBase
 
     //! \brief Set the class which integrates the continuous dynamics.
     Void set_integrator(const IntegratorInterface& integrator);
-    //! \brief Set the class which integrates the continuous dynamics.
+    const IntegratorInterface& integrator();
+    //! \brief Set the class which solves the crossing-time equation.
     Void set_solver(const SolverInterface& solver);
+    const SolverInterface& solver();
 
     Bool ALLOW_CREEP; //!< If true, a less-than-full evolution step may be taken to avoid splitting due to partially crossing a guard.
     Bool ALLOW_UNWIND; //!< If true, a less-than-full evolution step may be taken to try to restore all time values over the parameter domain to the same value.
@@ -342,7 +349,7 @@ class HybridEvolverBase
                       TimingData const& timing_data) const;
 
     //! \brief Apply the \a flow to the \a set for the time specified by \a timing_data
-    //! to obtain the single-step unconstrained evolved set.
+    //! to obtain the single-step 3unconstrained evolved set.
     virtual
     Void
     _apply_evolve_step(HybridEnclosure& set,
@@ -454,6 +461,7 @@ class HybridEvolverBase
     //std::shared_ptr< EvolutionProfiler >  _profiler;
   protected:
     std::shared_ptr< ConfigurationType > _configuration_ptr;
+    std::shared_ptr< EnclosureConfigurationType > _enclosure_configuration_ptr;
 };
 
 
