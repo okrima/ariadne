@@ -48,7 +48,7 @@ FunctionMixin<F,Void,SIG>::_base_evaluate(const ElementType<D,X>& x) const -> El
 /*
 template<class F, class D> template<class X> auto
 FunctionMixin<F,Void,D,IntervalDomainType>::_base_evaluate(const ElementType<D,X>& x) const -> X {
-    ElementType<IntervalDomainType,X> r=create_result<X>(this->codomain().dimension(),zero_element(x));
+    ElementType<IntervalDomainType,X> r=create_result<X>(this->result_size(),zero_element(x));
     static_cast<const F*>(this)->_compute(r,x); return r;
 }
 */

@@ -46,8 +46,10 @@
 #include "../function/domain.hpp"
 
 #include "../function/function_interface.hpp"
+#include "../function/function_patch_interface.hpp"
 #include "../function/function_mixin.hpp"
 #include "../function/function.hpp"
+#include "../function/function_patch_mixin.hpp"
 
 namespace Ariadne {
 
@@ -57,7 +59,7 @@ template<class FM, class P, class PR=DoublePrecision, class PRE=PR> using Vector
 
 template<class FM, class P, class ARG, class PR, class PRE> class FunctionModelMixin<FM,P,RealScalar(ARG),PR,PRE>
     : public virtual ScalarFunctionModelInterface<P,ARG,PR,PRE>
-    , public ScalarFunctionMixin<FM,P,ARG>
+    , public ScalarFunctionPatchMixin<FM,P,ARG>
     , public ElementaryAlgebraMixin<FM,CanonicalNumericType<P,PR,PRE>>
 {
     static_assert(IsSame<ARG,RealScalar>::value or IsSame<ARG,RealVector>::value);
@@ -79,6 +81,8 @@ template<class FM, class P, class ARG, class PR, class PRE> class FunctionModelM
     ScalarFunctionModelInterface<P,ARG,PR,PRE>* _create_zero() const override {
         return new FM(factory(static_cast<FM const&>(*this)).create_zero()); }
     ScalarFunctionModelInterface<P,ARG,PR,PRE>* _create_constant(CanonicalNumericType<P,PR,PRE> const& c) const override {
+        return new FM(factory(static_cast<FM const&>(*this)).create_constant(c)); }
+    ScalarFunctionModelInterface<P,D,PR,PRE>* _create_constant(Number<P> const& c) const override {
         return new FM(factory(static_cast<FM const&>(*this)).create_constant(c)); }
 
     ValueType const _value() const override {
@@ -157,6 +161,8 @@ template<class FM, class P, class ARG, class PR, class PRE> class FunctionModelM
         return new FM(antiderivative(static_cast<const FM&>(*this),j,c)); }
     NormType const _norm() const override {
          return norm(static_cast<const FM&>(*this)); }
+    RangeType const _range() const override {
+         return static_cast<const FM&>(*this).range(); }
     VectorFunctionModelInterface<P,ARG,PR,PRE>* _embed(const BoxDomainType& d1, const BoxDomainType& d2) const override {
         return heap_copy(embed(d1,static_cast<const FM&>(*this),d2)); }
     VectorFunctionModelInterface<P,ARG,PR,PRE>* _restriction(const BoxDomainType& d) const override {

@@ -154,6 +154,7 @@ template<class M> class ScaledFunctionPatch
     , public DispatchElementaryAlgebraOperations<ScaledFunctionPatch<M>, NumericType<M>>
     , public ProvideConcreteGenericArithmeticOperators<ScaledFunctionPatch<M>, ScalarMultivariateFunction<typename M::Paradigm>>
     , public DispatchConcreteGenericAlgebraNumberOperations<ScaledFunctionPatch<M>,NumericType<M>,Number<typename M::Paradigm>>
+    , public DispatchConcreteGenericLatticeAlgebraOperations<ScaledFunctionPatch<M>,NumericType<M>,Number<typename M::Paradigm>>
 {
     typedef BoxDomainType D;
     typedef IntervalDomainType C;
@@ -185,7 +186,7 @@ template<class M> class ScaledFunctionPatch
     typedef Number<Paradigm> GenericNumericType;
     typedef typename M::PropertiesType PropertiesType;
 
-    template<class Y> using Argument = typename ElementTraits<D>::template Type<Y>;
+    template<class Y> using Argument = ElementTraits<D>::template Type<Y>;
     template<class Y> using Result = ElementTraits<C>::template Type<Y>;
   private:
     static const CoefficientType _zero;
@@ -262,6 +263,7 @@ template<class M> class ScaledFunctionPatch
     //! \brief Construct a constant function over the same domain with the same computational properties.
     ScaledFunctionPatch<M> create_zero() const;
     //! \brief Construct a zero function over the same domain with the same computational properties.
+    ScaledFunctionPatch<M> create_constant(GenericNumericType const& c) const;
     ScaledFunctionPatch<M> create_constant(NumericType const& c) const;
     //@}
 
@@ -332,6 +334,8 @@ template<class M> class ScaledFunctionPatch
     //! \name Function operations.
     //! \brief An over-approximation to the range of the function.
     RangeType const range() const { return this->_model.range(); }
+    //! \brief An over-approximation to the norm of the function.
+    NormType const norm() const { return this->model().norm(); }
     //! \brief Evaluate the function at the point \a x.
     ArithmeticType<CoefficientType,FloatBounds<PR>> operator()(const Vector<FloatBounds<PR>>& x) const;
     ArithmeticType<CoefficientType,FloatBounds<PR>> operator()(const Vector<FloatValue<PR>>& x) const;
@@ -455,9 +459,9 @@ template<class M> class ScaledFunctionPatch
         return unchecked_evaluate(f,Vector<NumericType>(x,f.precision())); }
 
     friend NormType norm(const ScaledFunctionPatch<M>& f) {
-        return norm(f.model()); }
+        return f.norm(); }
     friend NormType distance(const ScaledFunctionPatch<M>& f1, const ScaledFunctionPatch<M>& f2) {
-        return norm(f1-f2); }
+        return (f1-f2).norm(); }
     friend NormType distance(const ScaledFunctionPatch<M>& f1, const ScalarMultivariateFunction<P>& f2) {
         return distance(f1,f1.create(f2)); }
 
@@ -574,7 +578,7 @@ template<class M> class VectorScaledFunctionPatch
     typedef FloatBounds<PR> ValidatedNumericType;
     typedef FloatValue<PR> ExactNumericType;
 
-    template<class Y> using Argument = typename ElementTraits<D>::template Type<Y>;
+    template<class Y> using Argument = ElementTraits<D>::template Type<Y>;
     template<class Y> using Result = ElementTraits<C>::template Type<Y>;
 
     //! \brief Default constructor constructs a Taylor model of order zero with no arguments and no result variables.
@@ -659,6 +663,8 @@ template<class M> class VectorScaledFunctionPatch
     const Vector<CoefficientType> centre() const;
     //! \brief The range of the Taylor model.
     const RangeType range() const;
+    //! \brief An over-approximation to the norm of the function.
+    const NormType norm() const;
     //! \brief The data used to define the Taylor models.
     const Vector<ModelType>& models() const;
     Vector<ModelType>& models();
@@ -1004,16 +1010,11 @@ template<class M> class VectorScaledFunctionPatch
         return antiderivative(f,k,NumericType(c,f.precision()));
     }
     friend NormType norm(const VectorScaledFunctionPatch<M>& f) {
-        NormType res=norm(f.zero_element());
-        for(SizeType i=0; i!=f.result_size(); ++i) {
-            res=max(res,norm(f[i]));
-        }
-        return res;
+        return f.norm(); }
+    friend NormType distance(const VectorScaledFunctionPatch<M>& f1, const VectorScaledFunctionPatch<M>& f2) {
+        return (f1-f2).norm();
     }
-    NormType distance(const VectorScaledFunctionPatch<M>& f1, const VectorScaledFunctionPatch<M>& f2) {
-        return norm(f1-f2);
-    }
-    NormType distance(const VectorScaledFunctionPatch<M>& f1, const VectorMultivariateFunction<P>& f2) {
+    friend NormType distance(const VectorScaledFunctionPatch<M>& f1, const VectorMultivariateFunction<P>& f2) {
         return distance(f1,VectorScaledFunctionPatch<M>(f1.domain(),f2,f1.properties()));
     }
 

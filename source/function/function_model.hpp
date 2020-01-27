@@ -225,9 +225,9 @@ template<class P, class ARG, class PR, class PRE> class FunctionModel<P,RealScal
         return this->_ptr->_evaluate(x); }
     inline DomainType const domain() const { return this->_ptr->domain(); }
     inline CodomainType const codomain() const { return this->_ptr->codomain(); }
-    inline RangeType const range() const { return this->_ptr->range(); }
+    inline RangeType const range() const { return this->_ptr->_range(); }
 
-    inline ValueType value() const { return this->_ptr->_value(); }
+    inline CoefficientType value() const { return this->_ptr->_value(); }
     inline ErrorType error() const { return this->_ptr->_error(); }
 
     inline Void clobber() { this->pointer()->clobber(); }
@@ -479,7 +479,7 @@ template<class P, class ARG, class PR, class PRE> class FunctionModel<P,RealVect
     inline DomainType const domain() const { return this->_ptr->domain(); }
     inline CodomainType const codomain() const { return this->_ptr->codomain(); }
     inline RangeType const range() const { return this->_ptr->range(); }
-    inline Vector<ValueType> const values() const { return this->_ptr->_values(); }
+    inline Vector<CoefficientType> const values() const { return this->_ptr->_values(); }
     inline Vector<ErrorType> const errors() const { return this->_ptr->_errors(); }
     inline ErrorType const error() const { return this->_ptr->_error(); }
     inline Void clobber() { this->pointer()->clobber(); }

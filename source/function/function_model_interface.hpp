@@ -33,11 +33,16 @@
 
 #include "../function/function.decl.hpp"
 #include "../function/function_interface.hpp"
+#include "../function/function_patch_interface.hpp"
 
 #include "../algebra/range.hpp"
 #include "../numeric/operators.hpp"
 
 namespace Ariadne {
+
+typedef Interval<FloatDPUpperBound> IntervalRangeType;
+typedef Box<Interval<FloatDPUpperBound>> BoxRangeType;
+
 
 template<class P, class PR, class PRE> class FunctionModelFactoryInterface;
 template<class P, class ARG, class PR, class PRE> class FunctionModelCreatorInterface;
@@ -83,6 +88,7 @@ template<class P, class ARG, class PR, class PRE> class FunctionModelAlgebraInte
 
 template<class P, class SIG, class PR, class PRE> class FunctionModelInterface
     : public virtual FunctionInterface<P,SIG>
+    , public virtual FunctionPatchInterface<P,SIG>
     , public virtual FunctionModelAlgebraInterface<P,SIG,PR,PRE>
 {
     using RES=typename SignatureTraits<SIG>::ResultKind; using ARG=typename SignatureTraits<SIG>::ArgumentKind;
