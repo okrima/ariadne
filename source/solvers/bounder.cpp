@@ -70,8 +70,13 @@ Pair<StepSizeType,UpperBoxType> EulerBounder::_compute(ValidatedVectorMultivaria
     UpperBoxType B=D;
     Bool success=false;
     while(!success) {
-        B=this->_formula(f,D,T,A,B,BOX_RADIUS_WIDENING,INITIAL_STARTING_WIDENING);
+        // Initially, have no estimate of the bounding box, so use the initial domain
+        // and widen the estimated reached set accordingly
+        // Revert to using D for the initial bounds estimate B when reducing the step size
+        // since otherwise B could be huge from the previous step
+        B=this->_formula(f,D,T,A,D,BOX_RADIUS_WIDENING,INITIAL_STARTING_WIDENING);
         for(Nat i=0; i<EXPANSION_STEPS; ++i) {
+            // Check if a flow step from D over time range T stays within D
             UpperBoxType Br=this->_refinement(f,D,T,A,B);
             if(not definitely(is_bounded(Br))) {
                 success=false;
