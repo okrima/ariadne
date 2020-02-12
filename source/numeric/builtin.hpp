@@ -68,8 +68,10 @@ class ExactDouble {
     ExactDouble() : _d() { }
     template<class N, EnableIf<IsBuiltinIntegral<N>> =dummy> ExactDouble(N n) : _d(n) { assert(_d==n); }
     template<class X, EnableIf<IsBuiltinFloatingPoint<X>> =dummy> explicit ExactDouble(X const& x) : _d(x) { assert(std::isnan(_d) || (_d==x)); }
-    static ExactDouble infinity() { return ExactDouble(std::numeric_limits<double>::infinity()); }
     operator ExactNumber() const;
+    static ExactDouble inf() { return ExactDouble(std::numeric_limits<double>::infinity()); }
+    static ExactDouble nan() { return ExactDouble(std::numeric_limits<double>::quiet_NaN()); }
+    friend Bool is_finite(ExactDouble x) { return std::isfinite(x._d); }
     friend ExactDouble operator+(ExactDouble x) { return ExactDouble(+x._d); }
     friend ExactDouble operator-(ExactDouble x) { return ExactDouble(-x._d); }
     friend Comparison cmp(ExactDouble const& x1, ExactDouble const& x2) {
