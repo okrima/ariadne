@@ -671,6 +671,20 @@ ValidatedVectorMultivariateFunction operator-(ValidatedVectorMultivariateFunctio
     }
 }
 
+ValidatedVectorMultivariateFunction operator*(ValidatedNumber const& c1, ValidatedVectorMultivariateFunction const& f2) {
+    auto f2p=std::dynamic_pointer_cast<ValidatedVectorMultivariateFunctionModelDP::Interface const>(f2.managed_pointer());
+    if(f2p) {
+        return c1 * ValidatedVectorMultivariateFunctionModelDP(*f2p);
+    } else {
+        VectorOfScalarFunction<ValidatedTag,RealVector> r(f2.result_size(),ValidatedScalarMultivariateFunction(f2.argument_size()));
+        for(SizeType i=0; i!=r.result_size(); ++i) {
+            r[i]=c1*f2[i];
+        }
+        return r;
+    }
+}
+
+
 template<class P, class R, class T, class... AS> inline
 Function<P,R(AS...)> _validated_compose(const Function<P,R(T)>& f, const Function<P,T(AS...)>& g) {
     ARIADNE_ASSERT(f.argument_size()==g.result_size());
