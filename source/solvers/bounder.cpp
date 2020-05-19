@@ -68,9 +68,9 @@ Pair<StepSizeType,UpperBoxType> BounderBase::compute(ValidatedVectorMultivariate
 ExpandContractBounderConfiguration::ExpandContractBounderConfiguration()
     : BounderBaseConfiguration()
 {
-    _expansion_steps=2;
-    _refinement_steps=2;
-    _domain_widening=1.0_x;
+    _expansion_steps=4;
+    _refinement_steps=4;
+    _domain_widening=1.25_x;
     _starting_widening=2;
     _expanding_widening=1.125_x;
 }
@@ -111,7 +111,7 @@ Pair<StepSizeType,UpperBoxType> ExpandContractBounder::compute(ValidatedVectorMu
     }
 
     IntervalDomainType T = to_time_bounds(t,t+h);
-
+    auto wD=D+(config.domain_widening()-1u)*(D-D.midpoint());
     UpperBoxType B=D;
 
     Bool success=false;
@@ -121,7 +121,6 @@ Pair<StepSizeType,UpperBoxType> ExpandContractBounder::compute(ValidatedVectorMu
         // Revert to using D for the initial bounds estimate B when reducing the step size
         // since otherwise B could be huge from the previous step
         auto wf=config.starting_widening()*f;
-        auto wD=widen(D,config.domain_widening());
         B=this->_formula(wf,D,T,A,wD);
         for(Nat i=0; i<config.expansion_steps(); ++i) {
             // Check if a flow step from D over time range T stays within D
