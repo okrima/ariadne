@@ -75,7 +75,7 @@ template<class F> class Error
     explicit Error<F>(PR const& pr) : _e(pr) { }
     // Check error not being negative to allow for NaN as a valid input.
     explicit Error<F>(F const& x) : _e(x) { ARIADNE_PRECONDITION_MSG(!(this->_e<0),"e="<<*this); }
-    template<class M, EnableIf<IsBuiltinUnsignedIntegral<M>> =dummy> Error<F>(M m, PR pr) : _e(m,pr) { }
+    template<BuiltinUnsignedIntegral M> Error<F>(M m, PR pr) : _e(m,pr) { }
     explicit Error<F>(UpperBound<F> const& x) : Error<F>(x._u) { }
     explicit Error<F>(ValidatedUpperNumber const& y, PR pr) : Error<F>(UpperBound<F>(y,pr)) { }
     explicit Error<F>(const ExactDouble& d, PR pr) : Error<F>(UpperBound<F>(d,pr)) { }

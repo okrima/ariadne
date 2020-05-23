@@ -50,11 +50,13 @@ class ApproximateDouble {
     typedef ApproximateTag Paradigm;
     ApproximateDouble() : _d() { }
     ApproximateDouble(int n) : _d(n) { }
-    template<class X, EnableIf<IsBuiltinArithmetic<X>> =dummy> ApproximateDouble(X const& x) : _d(x) { }
-    template<class X, DisableIf<IsBuiltinArithmetic<X>> =dummy> ApproximateDouble(X const& x) : _d(x.get_d()) { }
+    template<class X> ApproximateDouble(X const& x) : _d(_get_d(x)) { }
     friend ApproximateDouble operator+(ApproximateDouble x) { return ApproximateDouble(+x._d); }
     friend ApproximateDouble operator-(ApproximateDouble x) { return ApproximateDouble(-x._d); }
     operator double() const { return _d; }
+  private:
+    template<class X> static double _get_d(X const& x) {
+        if constexpr(BuiltinArithmetic<X>) { return x; } else { return x.get_d(); } }
 };
 
 //! \ingroup NumericModule
@@ -66,8 +68,8 @@ class ExactDouble {
     typedef ExactTag Paradigm;
     double get_d() const { return this->_d; }
     ExactDouble() : _d() { }
-    template<class N, EnableIf<IsBuiltinIntegral<N>> =dummy> ExactDouble(N n) : _d(n) { assert(_d==n); }
-    template<class X, EnableIf<IsBuiltinFloatingPoint<X>> =dummy> explicit ExactDouble(X const& x) : _d(x) { assert(std::isnan(_d) || (_d==x)); }
+    template<BuiltinIntegral N> ExactDouble(N n) : _d(n) { assert(_d==n); }
+    template<BuiltinFloatingPoint X> explicit ExactDouble(X const& x) : _d(x) { assert(std::isnan(_d) || (_d==x)); }
     static ExactDouble infinity() { return ExactDouble(std::numeric_limits<double>::infinity()); }
     operator ExactNumber() const;
     friend ExactDouble operator+(ExactDouble x) { return ExactDouble(+x._d); }

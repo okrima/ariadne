@@ -244,6 +244,9 @@ template<class P1, class P2> struct IsStronger : IsWeaker<P2,P1> { };
 
 template<class P1, class P2=P1> struct ParadigmTraits;
 
+template<class P1, class P2> concept WeakerThan = IsWeaker<P1,P2>::value;
+template<class P1, class P2> concept StrongerThan = IsWeaker<P2,P1>::value;
+
 //@{
 //! \ingroup ParadigmSubModule
 //! \name Information traits
