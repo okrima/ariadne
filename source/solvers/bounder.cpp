@@ -115,6 +115,7 @@ Pair<StepSizeType,UpperBoxType> ExpandContractBounder::compute(ValidatedVectorMu
     UpperBoxType B=D;
 
     Bool success=false;
+    StepSizeType hprev=h*1.5_dy;
     while(!success) {
         // Initially, have no estimate of the bounding box, so use the initial domain
         // and widen the estimated reached set accordingly
@@ -138,7 +139,9 @@ Pair<StepSizeType,UpperBoxType> ExpandContractBounder::compute(ValidatedVectorMu
             }
         }
         if(!success) {
-            h=hlf(h);
+            StepSizeType hnew=hlf(hprev);
+            hprev=h;
+            h=hnew;
             if (h < config.minimum_step_size())
                 ARIADNE_THROW(BoundingNotFoundException,"EulerBounder::_compute","The step size is lower than the minimum (" << config.minimum_step_size() << ") allowed, bounding could not be found.");
 
