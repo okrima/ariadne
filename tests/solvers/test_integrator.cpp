@@ -179,15 +179,16 @@ class TestIntegrator
         StepSizeType h=0.5_x;
         ValidatedVectorMultivariateFunctionModelDP flow=integrator_ptr->flow_step(f,d,h);
         ValidatedVectorMultivariateTaylorFunctionModelDP taylor_flow=dynamic_cast<ValidatedVectorMultivariateTaylorFunctionModelDP&>(flow.reference());
-        EffectiveVectorMultivariateFunction expected_flow={1/(1+(1/x0-1)*exp(-t))};
+        EffectiveVectorMultivariateFunction expected_flow={x0/(x0+(1-x0)*exp(-t))};
+        ValidatedVectorMultivariateTaylorFunctionModelDP flow_diffence=taylor_flow-expected_flow;
         ARIADNE_TEST_PRINT(*integrator_ptr);
         ARIADNE_TEST_PRINT(f);
         ARIADNE_TEST_PRINT(flow);
         ARIADNE_TEST_PRINT(expected_flow);
         ARIADNE_TEST_PRINT(taylor_flow.errors());
-        ARIADNE_TEST_PRINT(taylor_flow-expected_flow);
+        ARIADNE_TEST_PRINT(flow_diffence);
         ARIADNE_TEST_BINARY_PREDICATE(operator<,taylor_flow.error(),0.01);
-        ARIADNE_TEST_BINARY_PREDICATE(operator<,norm(taylor_flow-expected_flow),0.01+0.004);
+        ARIADNE_TEST_BINARY_PREDICATE(operator<,norm(flow_diffence),0.01+0.004);
     };
 
     Void test_time_variant() {
