@@ -291,8 +291,32 @@ class TaylorSeriesIntegrator
     using IntegratorBase::flow_step;
 
   private:
-
 };
+
+//! \brief An integrator which computes the Taylor series of the flow function with remainder term.
+class TaylorSeriesBounderIntegrator
+    : public TaylorSeriesIntegrator
+{
+  public:
+    //! \brief Constructor.
+    TaylorSeriesBounderIntegrator(MaximumError err, Order order);
+
+    //! \brief Constructor.
+    TaylorSeriesBounderIntegrator(MaximumError err, Sweeper<FloatDP> const& sweeper, LipschitzConstant lip,
+                                   Order order);
+
+    virtual TaylorSeriesBounderIntegrator* clone() const { return new TaylorSeriesBounderIntegrator(*this); }
+    virtual Void _write(OutputStream& os) const;
+
+    virtual FlowStepModelType
+    flow_step(const ValidatedVectorMultivariateFunction& vector_field,
+              const ExactBoxType& state_domain,
+              StepSizeType& suggested_time_step) const;
+
+    using TaylorSeriesIntegrator::flow_step;
+};
+
+
 
 
 //! \brief An integrator which computes the Taylor series of the flow function with remainder term.

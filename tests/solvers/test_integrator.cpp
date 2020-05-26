@@ -60,6 +60,8 @@ class TestIntegrator
     Int test() {
         ARIADNE_TEST_PRINT(integrator_ptr.operator->());
         ARIADNE_TEST_PRINT(*integrator_ptr);
+#warning
+//        ARIADNE_TEST_CALL(test_logistic()); return 0;
         ARIADNE_TEST_CALL(test_constant_derivative());
         ARIADNE_TEST_CALL(test_quadratic_flow());
         ARIADNE_TEST_CALL(test_linear());
@@ -168,27 +170,35 @@ class TestIntegrator
     // Equation: dx/dt = x*(1-x)
     // Solution:  x = 1/(1+(1/x0-1)*exp(-t))
     Void test_logistic() {
+        using FlowModelType = ValidatedVectorMultivariateTaylorFunctionModelDP;
 
         EffectiveScalarMultivariateFunction o=EffectiveScalarMultivariateFunction::constant(1,1);
         EffectiveScalarMultivariateFunction x=EffectiveScalarMultivariateFunction::coordinate(1,0);
         EffectiveScalarMultivariateFunction x0=EffectiveScalarMultivariateFunction::coordinate(2,0);
         EffectiveScalarMultivariateFunction t=EffectiveScalarMultivariateFunction::coordinate(2,1);
 
-        EffectiveVectorMultivariateFunction f={x*(o-x)};
-        ExactBoxType d={ExactIntervalType(0.25,0.5)};
-        StepSizeType h=0.5_x;
-        ValidatedVectorMultivariateFunctionModelDP flow=integrator_ptr->flow_step(f,d,h);
-        ValidatedVectorMultivariateTaylorFunctionModelDP taylor_flow=dynamic_cast<ValidatedVectorMultivariateTaylorFunctionModelDP&>(flow.reference());
-        EffectiveVectorMultivariateFunction expected_flow={x0/(x0+(1-x0)*exp(-t))};
-        ValidatedVectorMultivariateTaylorFunctionModelDP flow_diffence=taylor_flow-expected_flow;
         ARIADNE_TEST_PRINT(*integrator_ptr);
-        ARIADNE_TEST_PRINT(f);
+        ARIADNE_TEST_CONSTRUCT(EffectiveVectorMultivariateFunction,f,({x*(o-x)}));
+        ARIADNE_TEST_CONSTRUCT(ExactBoxType,d,({ExactIntervalType(0.25,0.5)}));
+//        ARIADNE_TEST_CONSTRUCT(StepSizeType,h,(0.5_x));
+        ARIADNE_TEST_CONSTRUCT(StepSizeType,h,(0.75_x));
+//        ARIADNE_TEST_CONSTRUCT(StepSizeType,h,(1.0_x));
+        ARIADNE_TEST_CONSTRUCT(EffectiveVectorMultivariateFunction,expected_flow,({x0/(x0+(1-x0)*exp(-t))}));
+        ValidatedVectorMultivariateFunctionModelDP flow=integrator_ptr->flow_step(f,d,h);
         ARIADNE_TEST_PRINT(flow);
-        ARIADNE_TEST_PRINT(expected_flow);
-        ARIADNE_TEST_PRINT(taylor_flow.errors());
-        ARIADNE_TEST_PRINT(flow_diffence);
+        FlowModelType taylor_flow=dynamic_cast<ValidatedVectorMultivariateTaylorFunctionModelDP&>(flow.reference());
+        ARIADNE_TEST_PRINT(taylor_flow);
+        ARIADNE_TEST_ASSIGN_CONSTRUCT(auto,flow_domain,(taylor_flow.domain()));
+        Sweeper sweeper = taylor_flow.models().zero_element().sweeper();
+        ARIADNE_TEST_PRINT(sweeper);
+        ARIADNE_TEST_CONSTRUCT(FlowModelType,taylor_expected_flow,(flow_domain,expected_flow,sweeper));
+//        ValidatedVectorMultivariateTaylorFunctionModelDP taylor_expected_flow(taylor_flow.domain(),expected_flow,sweeper);
+//        ARIADNE_TEST_PRINT(taylor_expected_flow);
+//        ARIANDE_TEST_CONSTRUCT(ValidatedVectorMultivariateTaylorFunctionModelDP,taylor_expected_flow,(taylor_flow.domain(),expected_flow,sweeper));
+//        ValidatedVectorMultivariateTaylorFunctionModelDP flow_difference=taylor_flow-expected_flow;
+        ARIADNE_TEST_ASSIGN_CONSTRUCT(FlowModelType,flow_difference,taylor_flow-taylor_expected_flow);
         ARIADNE_TEST_BINARY_PREDICATE(operator<,taylor_flow.error(),0.01);
-        ARIADNE_TEST_BINARY_PREDICATE(operator<,norm(flow_diffence),0.01+0.004);
+        ARIADNE_TEST_BINARY_PREDICATE(operator<,norm(flow_difference),0.01+0.004);
     };
 
     Void test_time_variant() {
@@ -259,6 +269,15 @@ Int main(Int argc, const char* argv[]) {
     auto verb = get_verbosity(argc,argv);
 
     ThresholdSweeper<FloatDP> sweeper(DoublePrecision(),1e-10);
+//    ThresholdSweeper<FloatDP> sweeper(DoublePrecision(),1e-10);
+#warning
+{
+    TaylorSeriesBounderIntegrator adaptive_taylor_series_integrator(
+            maximum_error=1e-6,sweeper,lipschitz_constant=0.5,order=8);
+    adaptive_taylor_series_integrator.verbosity=verb;
+    ARIADNE_TEST_CLASS("TaylorSeriesBounderIntegrator",TestIntegrator(adaptive_taylor_series_integrator));
+    return 0;
+}
 
     TaylorPicardIntegrator taylor_picard_integrator(
             maximum_error=1e-6,sweeper,lipschitz_constant=0.5,
@@ -271,6 +290,11 @@ Int main(Int argc, const char* argv[]) {
             maximum_error=1e-6,sweeper,lipschitz_constant=0.5,order=6);
     taylor_series_integrator.verbosity=verb;
     ARIADNE_TEST_CLASS("TaylorSeriesIntegrator",TestIntegrator(taylor_series_integrator));
+
+    TaylorSeriesBounderIntegrator adaptive_taylor_series_integrator(
+            maximum_error=1e-6,sweeper,lipschitz_constant=0.5,order=6);
+    adaptive_taylor_series_integrator.verbosity=verb;
+    ARIADNE_TEST_CLASS("TaylorSeriesBounderIntegrator",TestIntegrator(adaptive_taylor_series_integrator));
 
     GradedTaylorSeriesIntegrator graded_taylor_series_integrator(
             maximum_error=1e-6,sweeper,lipschitz_constant=0.5,step_maximum_error=1e-8,
