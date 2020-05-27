@@ -62,7 +62,7 @@ template<class X> class DifferentialFactory {
   public:
     DifferentialFactory<X>(PR const& pr) : _pr(pr) { }
 
-    template<class Y, EnableIf<IsConstructible<X,Y,PR>> =dummy> X create(Y const& y) { return X(y,_pr); }
+    template<class Y> requires Constructible<X,Y,PR> X create(Y const& y) { return X(y,_pr); }
     template<class Y> UnivariateDifferential<X> create(UnivariateDifferential<Y> const&);
     template<class Y> Differential<X> create(Differential<Y> const&);
     Differential<X>const& create(NonAssignableDifferential<X> const& dx) { return dx; }
@@ -119,7 +119,7 @@ class Differential
     //! \brief Default constructor constructs a differential with degree zero in no variables.
     Differential() = delete;
     //! \brief Constructs a differential with degree \a deg in \a as variables, and zero element based on \a prs.
-    template<class... PRS, EnableIf<IsConstructible<X,PRS...>> =dummy> explicit Differential(SizeType as, DegreeType deg, PRS... prs)
+    template<class... PRS> requires Constructible<X,PRS...> explicit Differential(SizeType as, DegreeType deg, PRS... prs)
         : Differential(as,deg,X(prs...)) { }
     explicit Differential(SizeType as, DegreeType deg, X const& z);
     //! \brief Construct a differential from a mapping giving a coefficient for a finite number of multi-indices.
@@ -130,18 +130,18 @@ class Differential
     //! \brief Construct a differential of degree \a deg from an initializer list of (index,coefficient) pairs.
     explicit Differential(SizeType as, DegreeType deg, InitializerList< Pair<InitializerList<DegreeType>,X> > lst);
     //! \brief Construct a differential of degree \a deg from an initializer list of (index,coefficient) pairs.
-    template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>> =dummy>
+    template<class... PRS> requires Constructible<X,Dbl,PRS...>
         explicit Differential(SizeType as, DegreeType deg, InitializerList< Pair<InitializerList<DegreeType>,Dbl> > lst, PRS... pr);
     //! \brief Construct a dense differential of degree \a deg from an initializer list of coefficient arranged in graded lexicographic order of the index.
-    template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>> =dummy>
+    template<class... PRS> requires Constructible<X,Dbl,PRS...>
         explicit Differential(SizeType as, DegreeType deg, InitializerList<Dbl> lst, PRS... prs);
 
     //! \brief Conversion constructor from a different numerical type.
-    template<class Y, class... PRS, EnableIf<IsConstructible<X,Y,PRS...>> =dummy> Differential(const Differential<Y>& dy, PRS... prs);
+    template<class Y, class... PRS> requires Constructible<X,Y,PRS...> Differential(const Differential<Y>& dy, PRS... prs);
 
     //! \brief Set the differential equal to a constant, without changing the degree or number of arguments.
     Differential<X>& operator=(const X& c);
-    template<class W, EnableIf<IsAssignable<X,W>> =dummy>
+    template<AssignableTo<X> W>
         Differential<X>& operator=(const W& c) { X xc=nul(this->value()); xc=c; return (*this)=xc; }
 
     //! \brief A constant differential of degree \a deg in \a as arguments with value \a c.
@@ -163,16 +163,16 @@ class Differential
     static Vector<Differential<X>> affine(SizeType rs, SizeType as, DegreeType deg, const Vector<X>& v, const Matrix<X>& G);
     static Vector<Differential<X>> affine(DegreeType deg, const Vector<X>& v, const Matrix<X>& G);
 
-    template<class Y, class PR, EnableIf<IsConstructible<X,Y,PR>> =dummy>
+    template<class Y, class PR> requires Constructible<X,Y,PR>
     static Differential<X> constant(SizeType as, DegreeType deg, const Y& c, const PR& pr) {
         return constant(as,deg,X(c,pr)); }
-    template<class Y, class PR, EnableIf<IsConstructible<X,Y,PR>> =dummy>
+    template<class Y, class PR> requires Constructible<X,Y,PR>
     static Differential<X> variable(SizeType as, DegreeType deg, const Y& v, SizeType j, const PR& pr) {
         return variable(as,deg,X(v,pr),j); }
-    template<class Y, class PR, EnableIf<IsConstructible<X,Y,PR>> =dummy>
+    template<class Y, class PR> requires Constructible<X,Y,PR>
     static Vector< Differential<X> > constants(SizeType as, DegreeType deg, const Vector<Y>& c, const PR& pr) {
         return constants(as,deg,Vector<X>(c,pr)); }
-    template<class Y, class PR, EnableIf<IsConstructible<X,Y,PR>> =dummy>
+    template<class Y, class PR> requires Constructible<X,Y,PR>
     static Vector< Differential<X> > variables(DegreeType deg, const Vector<Y>& v, const PR& pr) {
         return variables(deg,Vector<X>(v,pr)); }
 
@@ -294,7 +294,7 @@ class Differential
     OutputStream& _write(OutputStream& os) const;
 };
 
-template<class X, class Y, EnableIf<IsFloat<X>> =dummy, EnableIf<IsGenericNumericType<Y>> =dummy>
+template<class X, class Y> requires IsFloat<X>::value and IsGenericNumericType<Y>::value
 decltype(auto) operator+(Differential<X> const& x, Y const& y) { return x+factory(x).create(y); }
 
 template<class X> struct AlgebraOperations<Differential<X>> : GradedAlgebraOperations<Differential<X>> {
@@ -319,18 +319,18 @@ template<class X> struct AlgebraOperations<Differential<X>> : GradedAlgebraOpera
 };
 
 
-template<class X> template<class Y, class... PRS, EnableIf<IsConstructible<X,Y,PRS...>>>
+template<class X> template<class Y, class... PRS> requires Constructible<X,Y,PRS...>
 Differential<X>::Differential(const Differential<Y>& x, PRS... prs)
     : _expansion(x.expansion(),prs...), _degree(x.degree())
 {
 }
 
-template<class X> template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>>>
+template<class X> template<class... PRS> requires Constructible<X,Dbl,PRS...>
 Differential<X>::Differential(SizeType as, DegreeType deg, InitializerList< Pair<InitializerList<DegreeType>,Dbl> > lst, PRS... prs)
     : Differential<X>(Expansion<MultiIndex,X>(lst,prs...),deg)
 { }
 
-template<class X> template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>>>
+template<class X> template<class... PRS> requires Constructible<X,Dbl,PRS...>
 Differential<X>::Differential(SizeType as, DegreeType deg, InitializerList<Dbl> lst, PRS... prs) : _expansion(as,X(prs...)), _degree(deg) {
     auto iter = lst.begin();
     for(MultiIndex j(as); j.degree()<=deg; ++j) {
@@ -408,7 +408,7 @@ class Vector< Differential<X> >
 
     Vector() = delete;
     Vector(SizeType rs) = delete;
-    template<class... PRS, EnableIf<IsConstructible<X,PRS...>> =dummy> Vector(SizeType rs, SizeType as, DegreeType d, PRS... prs)
+    template<class... PRS> requires Constructible<X,PRS...> Vector(SizeType rs, SizeType as, DegreeType d, PRS... prs)
         : Vector<Differential<X>>(rs,as,d,X(prs...)) { }
     Vector(SizeType rs, SizeType as, DegreeType d, X const& z);
     Vector(SizeType rs, const Differential<X>& sd);
@@ -416,12 +416,12 @@ class Vector< Differential<X> >
     Vector(Array<Differential<X>> ary);
     template<class E> Vector(const VectorExpression<E>& ve);
     template<class E> Vector< Differential<X> >& operator=(const VectorExpression<E>& ve);
-    template<class G, EnableIf<IsInvocableReturning<Differential<X>,G,SizeType>> =dummy> Vector(SizeType n, G const& g);
-    template<class Y, class... PRS, EnableIf<IsConstructible<X,Y,PRS...>> =dummy> Vector(const Vector<Differential<Y>>& dv, PRS... prs);
+    template<class G> requires InvocableReturning<Differential<X>,G,SizeType> Vector(SizeType n, G const& g);
+    template<class Y, class... PRS> requires Constructible<X,Y,PRS...> Vector(const Vector<Differential<Y>>& dv, PRS... prs);
 
-    template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>> =dummy>
+    template<class... PRS> requires Constructible<X,Dbl,PRS...>
         Vector(SizeType rs, SizeType as, DegreeType d, InitializerList<InitializerList<Pair<InitializerList<DegreeType>,Dbl>>> lst, PRS... prs);
-    template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>> =dummy>
+    template<class... PRS> requires Constructible<X,Dbl,PRS...>
         explicit Vector<Differential<X>>(SizeType rs, SizeType as, DegreeType deg, InitializerList<InitializerList<Dbl>> lst, PRS... prs);
 
     const Differential<X>& operator[](SizeType i) const { return this->_ary[i]; }
@@ -496,26 +496,26 @@ class Vector< Differential<X> >
     OutputStream& _write(OutputStream& os) const;
 };
 
-template<class X> template<class Y, class... PRS, EnableIf<IsConstructible<X,Y,PRS...>>>
+template<class X> template<class Y, class... PRS> requires Constructible<X,Y,PRS...>
 Vector<Differential<X>>::Vector(const Vector<Differential<Y>>& dv, PRS... prs)
     : _chars(dv.argument_size(),dv.degree(),X(prs...)), _ary(dv._ary,prs...) {
 }
 
-template<class X> template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>>>
+template<class X> template<class... PRS> requires Constructible<X,Dbl,PRS...>
 Vector<Differential<X>>::Vector(SizeType rs, SizeType as, DegreeType d, InitializerList<InitializerList<Dbl>> lst, PRS... prs)
     : _chars(as,d), _ary(rs,Differential<X>(as,d)) {
     auto iter=lst.begin();
     for(SizeType i=0; i!=rs; ++i) { _ary[i]=Differential<X>(as,d,*iter,prs...); ++iter; }
 }
 
-template<class X> template<class... PRS, EnableIf<IsConstructible<X,Dbl,PRS...>>>
+template<class X> template<class... PRS> requires Constructible<X,Dbl,PRS...>
 Vector<Differential<X>>::Vector(SizeType rs, SizeType as, DegreeType d, InitializerList<InitializerList<Pair<InitializerList<DegreeType>,Dbl>>> lst, PRS... prs)
     : _chars(as,d), _ary(rs,Differential<X>(as,d)) {
     auto iter=lst.begin();
     for(SizeType i=0; i!=rs; ++i) { _ary[i]=Differential<X>(as,d,*iter,prs...); ++iter; }
 }
 
-template<class X> template<class G, EnableIf<IsInvocableReturning<Differential<X>,G,SizeType>>>
+template<class X> template<class G> requires InvocableReturning<Differential<X>,G,SizeType>
 Vector<Differential<X>>::Vector(SizeType n, G const& g)
     : _chars(g(0).argument_size(),g(0).degree()), _ary(n,g) { }
 

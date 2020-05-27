@@ -251,7 +251,7 @@ template<class I, class X> class ExpansionValueReference {
 };
 
 
-template<class I, class X> template<class Y, class... PRS, EnableIf<IsConstructible<X,Y,PRS...>>>
+template<class I, class X> template<class Y, class... PRS> requires Constructible<X,Y,PRS...>
 Expansion<I,X>::Expansion(Expansion<I,Y> const& other, PRS... prs)
     : Expansion(other.argument_size(),X(other.zero_coefficient(),prs...))
 {

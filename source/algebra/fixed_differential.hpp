@@ -47,14 +47,6 @@ template<class X> class Vector;
 template<class X> class Matrix;
 template<class X> class Series;
 
-template<class X, class T> struct EnableIfScalar { typedef T Type; };
-template<class X, class T> struct EnableIfScalar<Vector<X>,T> { };
-template<class X, class T> struct EnableIfScalar<Matrix<X>,T> { };
-template<class X, class T> struct EnableIfVector { };
-template<class X, class T> struct EnableIfVector<Vector<X>,T> { typedef T Type; };
-template<class X, class T> struct EnableIfMatrix { };
-template<class X, class T> struct EnableIfMatrix<Matrix<X>,T> { typedef T Type; };
-
 struct SeriesTag { };
 
 template<class X> class SecondDifferential;
@@ -163,6 +155,8 @@ class FirstDifferential
 
     //! \brief Set the differential equal to a constant, without changing the degree or number of arguments.
     FirstDifferential<X>& operator=(const X& c) { _value=c; for(SizeType i=0; i!=_gradient.size(); ++i) { _gradient[i]=_zero; } return *this; }
+    template<AssignableTo<X> W>
+        FirstDifferential<X>& operator=(const W& c) { X xc=nul(this->value()); xc=c; return (*this)=xc; }
 
     //! \brief A constant differential of degree \a deg in \a as arguments with value \a c.
     static FirstDifferential<X> constant(SizeType as, const X& c) {
@@ -417,7 +411,7 @@ class SecondDifferential
     typedef X ValueType;
 
     //! \brief Constructs the zero second differential in \a as variables.
-    template<class PR, EnableIf<IsConstructible<X,PR>> =dummy> explicit SecondDifferential(SizeType as, PR pr) : SecondDifferential<X>(as,X(pr)) { }
+    template<class PR> requires Constructible<X,PR> explicit SecondDifferential(SizeType as, PR pr) : SecondDifferential<X>(as,X(pr)) { }
 
     //! \brief Constructs a constant second differential in \a as variables with value \a c.
     explicit SecondDifferential(SizeType as, const X& c) : _value(c), _gradient(as,nul(c)), _half_hessian(as,as,nul(c)) { }
@@ -439,7 +433,7 @@ class SecondDifferential
     SecondDifferential<X>& operator=(const X& c) {
         _value=c; for(SizeType j=0; j!=this->argument_size(); ++j) { _gradient[j]=_zero;
             for(SizeType k=0; k!=this->argument_size(); ++k) { _half_hessian[j][k]=_zero; } } return *this; }
-    template<class W, EnableIf<IsAssignable<X,W>> =dummy>
+    template<AssignableTo<X> W>
         SecondDifferential<X>& operator=(const W& c) { X xc=nul(this->value()); xc=c; return (*this)=xc; }
 
     //! \brief A constant differential of degree \a deg in \a as arguments with value \a c.

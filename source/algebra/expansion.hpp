@@ -133,11 +133,11 @@ template<class I, class X> class Expansion {
     explicit Expansion(ArgumentSizeType as); // DEPRECATED
     explicit Expansion(ArgumentSizeType as, X const& z, SizeType cap=DEFAULT_CAPACITY);
     Expansion(InitializerList<Pair<IndexInitializerType,X>> lst);
-    template<class PR, EnableIf<IsConstructible<X,PR>> =dummy>
+    template<class PR> requires Constructible<X,PR>
         explicit Expansion(ArgumentSizeType as, PR pr, SizeType cap=DEFAULT_CAPACITY);
-    template<class PR, EnableIf<IsConstructible<X,Dbl,PR>> =dummy>
+    template<class PR> requires Constructible<X,Dbl,PR>
         Expansion(InitializerList<Pair<IndexInitializerType,Dbl>> lst, PR prs);
-    template<class Y, class... PRS, EnableIf<IsConstructible<X,Y,PRS...>> =dummy>
+    template<class Y, class... PRS> requires Constructible<X,Y,PRS...>
         explicit Expansion(Expansion<I,Y> const&, PRS... prs);
     Expansion(const Expansion<I,X>&);
     Expansion<I,X>& operator=(const Expansion<I,X>&);
@@ -236,14 +236,14 @@ public:
 };
 
 
-template<class I, class X> template<class PR, EnableIf<IsConstructible<X,PR>>>
+template<class I, class X> template<class PR> requires Constructible<X,PR>
 Expansion<I,X>::Expansion(ArgumentSizeType as, PR pr, SizeType cap)
     : Expansion(as,X(0,pr),cap)
 {
 }
 
 
-template<class I, class X> template<class PR, EnableIf<IsConstructible<X,Dbl,PR>>>
+template<class I, class X> template<class PR> requires Constructible<X,Dbl,PR>
 Expansion<I,X>::Expansion(InitializerList<Pair<IndexInitializerType,Dbl>> lst, PR pr) : Expansion(0)
 {
     ARIADNE_PRECONDITION(lst.size()!=0);

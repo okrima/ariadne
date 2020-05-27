@@ -68,16 +68,16 @@ template<class X> class Covector
     Array<X> _ary;
   public:
     typedef X ScalarType;
-    template<class XX, EnableIf<IsConvertible<XX,X>> =dummy>
+    template<ConvertibleTo<X> XX>
         Covector(InitializerList<XX> const& lst) : _ary(lst) { }
-    template<class XX, EnableIf<IsConstructible<X,XX>> =dummy, DisableIf<IsConvertible<XX,X>> =dummy>
+    template<ExplicitlyConvertibleTo<X> XX>
         explicit Covector(InitializerList<XX> const& lst) : _ary(lst._ary) { }
-    template<class XX, EnableIf<IsConvertible<XX,X>> =dummy>
+    template<ConvertibleTo<X> XX>
         Covector(Covector<XX> const& u) : _ary(u._ary) { }
-    template<class XX, EnableIf<IsConstructible<X,XX>> =dummy, DisableIf<IsConvertible<XX,X>> =dummy>
+    template<ExplicitlyConvertibleTo<X> XX>
         explicit Covector(Covector<XX> const& u) : _ary(u._ary) { }
-    template<class... PRS, EnableIf<IsConstructible<X,PRS...>> =dummy> Covector(SizeType n, PRS... prs) : _ary(n,X(prs...)) { }
-    template<class XX, class PR, EnableIf<IsConstructible<X,XX,PR>> =dummy> Covector(Covector<XX> const& u, PR pr) : _ary(u.array(),pr) { }
+    template<class... PRS> requires Constructible<X,PRS...> Covector(SizeType n, PRS... prs) : _ary(n,X(prs...)) { }
+    template<class XX, class PR> requires Constructible<X,XX,PR> Covector(Covector<XX> const& u, PR pr) : _ary(u.array(),pr) { }
     explicit Covector() : _ary() { }
     explicit Covector(SizeType n) : _ary(n) { }
     explicit Covector(SizeType n, const X& x) : _ary(n,x) { }
@@ -92,10 +92,10 @@ template<class X> class Covector
     X zero_element() const { ARIADNE_DEBUG_ASSERT(not _ary.empty()); return create_zero(_ary[0]); }
     Array<X> const& array() const { return _ary; }
 
-    template<class CVE, EnableIf<IsConvertible<typename CVE::ScalarType,X>> =dummy>
+    template<class CVE> requires Convertible<typename CVE::ScalarType,X>
     Covector(CovectorExpression<CVE> const& cve) : _ary(cve().size(),cve().zero_element()) {
         for(SizeType i=0; i!=this->size(); ++i) { this->_ary[i]=cve()[i]; } }
-    template<class CVE, EnableIf<IsAssignable<typename CVE::ScalarType,X>> =dummy>
+    template<class CVE> requires Assignable<typename CVE::ScalarType,X>
     Covector<X> const& operator=(CovectorExpression<CVE> const& cve) {
         this->resize(cve.size()); for(SizeType i=0; i!=this->size(); ++i) { this->_ary[i]=cve()[i]; } }
 };
