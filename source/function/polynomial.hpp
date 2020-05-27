@@ -139,9 +139,9 @@ class Polynomial
     //! \brief The zero polynomial in \a as variables.
     explicit Polynomial(ArgumentSizeType as);
     //! \brief Copy/conversion constructor.
-    template<class XX, EnableIf<IsConvertible<XX,X>> =dummy> Polynomial(const Polynomial<I,XX>& p);
+    template<ConvertibleTo<X> XX> Polynomial(const Polynomial<I,XX>& p);
     //! \brief Copy/conversion constructor.
-    template<class XX> explicit Polynomial(const Expansion<I,XX>& e);
+    template<ConvertibleTo<X> XX> explicit Polynomial(const Expansion<I,XX>& e);
     //! \brief A sparse polynomial with coefficients given by an initializer list of indices and coefficients.
     Polynomial(InitializerList<Pair<IndexInitializerType,X>> lst);
     //@}
@@ -269,19 +269,19 @@ class Polynomial
   private:
     SortedExpansion<I,X,ReverseLexicographicIndexLess> _expansion;
   private: // FIXME: Put these concrete-generic operations in proper place
-    template<class Y, EnableIf<IsAssignable<X,Y>> =dummy>
+    template<AssignableTo<X> Y>
         friend Polynomial<I,X> operator+(Polynomial<I,X> p, const Y& c) {
             X xc=p.value(); xc=c; return p+xc; }
-    template<class Y, EnableIf<IsAssignable<X,Y>> =dummy>
+    template<AssignableTo<X> Y>
         friend Polynomial<I,X> operator-(Polynomial<I,X> p, const Y& c) {
             X xc=p.value(); xc=c; return p-xc; }
-    template<class Y, EnableIf<IsAssignable<X,Y>> =dummy>
+    template<AssignableTo<X> Y>
         friend Polynomial<I,X> operator*(const Y& c, Polynomial<I,X> p) {
             X xc=p.value(); xc=c; return xc*p; }
-    template<class Y, EnableIf<IsAssignable<X,Y>> =dummy>
+    template<AssignableTo<X> Y>
         friend Polynomial<I,X> operator*(Polynomial<I,X> p, const Y& c) {
             X xc=p.value(); xc=c; return p*xc; }
-    template<class Y, EnableIf<IsAssignable<X,Y>> =dummy>
+    template<AssignableTo<X> Y>
         friend Polynomial<I,X> operator/(Polynomial<I,X> p, const Y& c) {
             X xc=p.value(); xc=c; return p/xc; }
 
@@ -306,10 +306,10 @@ template<class I, class X> struct AlgebraOperations<Polynomial<I,X>> {
 };
 
 
-template<class I, class X> template<class XX, EnableIf<IsConvertible<XX,X>>> Polynomial<I,X>::Polynomial(const Polynomial<I,XX>& p)
+template<class I, class X> template<ConvertibleTo<X> XX> Polynomial<I,X>::Polynomial(const Polynomial<I,XX>& p)
     : _expansion(p._expansion) { }
 
-template<class I, class X> template<class XX> Polynomial<I,X>::Polynomial(const Expansion<I,XX>& e)
+template<class I, class X> template<ConvertibleTo<X> XX> Polynomial<I,X>::Polynomial(const Expansion<I,XX>& e)
     : _expansion(e) { this->cleanup(); }
 
 template<class I, class X> template<class XX> EqualityType<X,XX> Polynomial<I,X>::operator==(const Polynomial<I,XX>& p) const {

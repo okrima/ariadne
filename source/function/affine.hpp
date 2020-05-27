@@ -96,19 +96,19 @@ template<class X> struct ProvideAlgebraOperations<Affine<X>,X> {
     //! \brief The derivative of an affine expression gives a constant.
     friend inline X derivative(const Affine<X>& f, Nat k) { return f.derivative(k); }
 
-    template<class Y, EnableIf<IsGenericNumericType<Y>> =dummy>
+    template<GenericNumber Y>
         friend decltype(auto) operator+(Affine<X> const& x, Y const& y) { return x+factory(x).create(y); }
-    template<class Y, EnableIf<IsGenericNumericType<Y>> =dummy>
+    template<GenericNumber Y>
         friend decltype(auto) operator-(Affine<X> const& x, Y const& y) { return x-factory(x).create(y); }
-    template<class Y, EnableIf<IsGenericNumericType<Y>> =dummy>
+    template<GenericNumber Y>
         friend decltype(auto) operator*(Affine<X> const& x, Y const& y) { return x*factory(x).create(y); }
-    template<class Y, EnableIf<IsGenericNumericType<Y>> =dummy>
+    template<GenericNumber Y>
         friend decltype(auto) operator/(Affine<X> const& x, Y const& y) { return x/factory(x).create(y); }
-    template<class Y, EnableIf<IsGenericNumericType<Y>> =dummy>
+    template<GenericNumber Y>
         friend decltype(auto) operator+(Y const& y, Affine<X> const& x) { return factory(x).create(y)+x; }
-    template<class Y, EnableIf<IsGenericNumericType<Y>> =dummy>
+    template<GenericNumber Y>
         friend decltype(auto) operator-(Y const& y, Affine<X> const& x) { return factory(x).create(y)-x; }
-    template<class Y, EnableIf<IsGenericNumericType<Y>> =dummy>
+    template<GenericNumber Y>
         friend decltype(auto) operator*(Y const& y, Affine<X> const& x) { return factory(x).create(y)*x; }
 };
 
@@ -116,17 +116,17 @@ template<class X> FloatFactory<PrecisionType<X>> factory(Affine<X> const& a) {
     return FloatFactory<PrecisionType<X>>(a.value().precision()); }
 
 /*
-template<class X, class Y, EnableIf<IsFloat<X>> =dummy, EnableIf<IsGenericNumericType<Y>> =dummy>
+template<ConcreteNumber X, GenericNumber Y>
 decltype(auto) operator+(Affine<X> const& x, Y const& y) { return x+factory(x).create(y); }
-template<class X, class Y, EnableIf<IsFloat<X>> =dummy, EnableIf<IsGenericNumericType<Y>> =dummy>
+template<ConcreteNumber X, GenericNumber Y>
 decltype(auto) operator-(Affine<X> const& x, Y const& y) { return x-factory(x).create(y); }
-template<class X, class Y, EnableIf<IsFloat<X>> =dummy, EnableIf<IsGenericNumericType<Y>> =dummy>
+template<ConcreteNumber X, GenericNumber Y>
 decltype(auto) operator*(Affine<X> const& x, Y const& y) { return x*factory(x).create(y); }
-template<class X, class Y, EnableIf<IsFloat<X>> =dummy, EnableIf<IsGenericNumericType<Y>> =dummy>
+template<ConcreteNumber X, GenericNumber Y>
 decltype(auto) operator/(Affine<X> const& x, Y const& y) { return x/factory(x).create(y); }
-template<class X, class Y, EnableIf<IsFloat<X>> =dummy, EnableIf<IsGenericNumericType<Y>> =dummy>
+template<ConcreteNumber X, GenericNumber Y>
 decltype(auto) operator+(Y const& y, Affine<X> const& x) { return factory(x).create(y)+y; }
-template<class X, class Y, EnableIf<IsFloat<X>> =dummy, EnableIf<IsGenericNumericType<Y>> =dummy>
+template<ConcreteNumber X, GenericNumber Y>
 decltype(auto) operator*(Y const& y, Affine<X> const& x) { return factory(x).create(y)*y; }
 */
 
