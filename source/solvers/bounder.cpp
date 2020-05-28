@@ -142,6 +142,7 @@ Pair<StepSizeType,UpperBoxType> ExpandContractBounder::compute(ValidatedVectorMu
             StepSizeType hnew=hlf(hprev);
             hprev=h;
             h=hnew;
+            h=StepSizeType(h.get_d());
             if (h < config.minimum_step_size())
                 ARIADNE_THROW(BoundingNotFoundException,"EulerBounder::_compute","The step size is lower than the minimum (" << config.minimum_step_size() << ") allowed, bounding could not be found.");
 
