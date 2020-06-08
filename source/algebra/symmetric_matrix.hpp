@@ -55,7 +55,7 @@ class NonSymmetricMatrixException { };
 template<class X> class SymmetricMatrix
     : public MatrixContainer<Matrix<X>>
 {
-    static_assert(IsDefaultConstructible<X>::value,"");
+    static_assert(DefaultConstructible<X>);
 
     X _zero;
     SizeType _s;

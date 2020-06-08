@@ -162,7 +162,7 @@ class Vector
     //! \brief Default constructor constructs a vector with no elements.
     Vector() : _ary() { }
     //! \brief Construct a vector of size \a n, with elements initialised to the default value.
-    explicit Vector(SizeType n) : _ary(n,X()) { static_assert(IsDefaultConstructible<X>::value,""); }
+    explicit Vector(SizeType n) : _ary(n,X()) { static_assert(DefaultConstructible<X>); }
     //! \brief Construct a vector of size \a n, with elements initialised to \a t.
     explicit Vector(SizeType n, const X& t) : _ary(n,t) {  }
     //! Construct a vector from parameters of \a X.
