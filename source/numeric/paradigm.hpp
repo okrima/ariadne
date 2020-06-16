@@ -234,7 +234,7 @@ template<bool b> using BooleanConstant = std::integral_constant<bool,b>;
 
 //! \ingroup ParadigmSubModule
 //! \brief Inherits from \c TrueType if \a P is a paradigm tag class.
-template<class P> struct IsParadigm : IsSame<decltype(P::code()),ParadigmCode> { };
+template<class P> concept IsParadigm = Same<decltype(P::code()),ParadigmCode>;
 //! \ingroup ParadigmSubModule
 //! \brief Inherits from \c TrueType if paradigm \a P1 is weaker than \a P2.
 template<class P1, class P2> struct IsWeaker : BooleanConstant<is_weaker(P1::code(),P2::code())> { };
@@ -243,6 +243,9 @@ template<class P1, class P2> struct IsWeaker : BooleanConstant<is_weaker(P1::cod
 template<class P1, class P2> struct IsStronger : IsWeaker<P2,P1> { };
 
 template<class P1, class P2=P1> struct ParadigmTraits;
+
+template<class P1, class P2> concept WeakerThan = IsWeaker<P1,P2>::value;
+template<class P1, class P2> concept StrongerThan = IsWeaker<P2,P1>::value;
 
 //@{
 //! \ingroup ParadigmSubModule
@@ -350,7 +353,7 @@ template<> struct ParadigmTraits<ApproximateTag,ApproximateTag> {
 template<class P> using Opposite = ParadigmClass<opposite(P::code())>;
 template<class P> using Negated = ParadigmClass<negate(P::code())>;
 template<class P> using Inverted = ParadigmClass<invert(P::code())>;
-template<class P> using Generic = ParadigmClass<strengthen(P::code())>;
+template<class P> using Generify = ParadigmClass<strengthen(P::code())>;
 template<class P> using Unsigned = ParadigmClass<unsign(P::code())>;
 template<class P> using Signed = ParadigmClass<sign(P::code())>;
 template<class P> using Widen = ParadigmClass<widen(P::code())>;

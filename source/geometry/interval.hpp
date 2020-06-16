@@ -166,11 +166,8 @@ template<class F> struct DeclareIntervalArithmeticOperations<Approximation<F>>
 
 template<class F> struct DeclareIntervalArithmeticOperations<Value<F>> : DeclareIntervalArithmeticOperations<UpperBound<F>> { };
 
-template<class T, class U> struct IsConstructibleGivenDefaultPrecision {
-    template<class TT, class UU, class=decltype(declval<TT>()=TT(declval<UU>(),declval<TT>().precision()))> static std::true_type test(int);
-    template<class TT, class UU> static std::false_type test(...);
-    static const bool value = decltype(test<T,U>(1))::value;
-};
+template<class T, class U> concept ConstructibleGivenDefaultPrecision
+    = requires(T const& t, U const& u) { T(u,t.precision()); };
 
 //! \ingroup GeometryModule
 //! \brief Intervals with upper endoint of type \a U.
@@ -232,39 +229,41 @@ template<class U> class Interval
     static Interval<U> singleton_interval(MidpointType x);
 
     //! \brief Construct a singleton interval from a number.
-    template<class V, EnableIf<And<IsConstructible<L,V>,IsConstructible<U,V>>> = dummy>
+    template<class V> requires Constructible<L,V> and Constructible<U,V>
         explicit Interval(const V& v) : _l(v), _u(v) { }
     //! \brief Assign a singleton interval from a number.
-    template<class V, EnableIf<And<IsAssignable<L,V>,IsAssignable<U,V>>> = dummy>
+    template<class V> requires Assignable<L,V> and Assignable<U,V>
         Interval<U>& operator=(const V& v) { _l=v; _u=v; return *this; }
     //! \brief Construct a singleton interval from a number.
-    template<class Y, class PR, EnableIf<And<IsConstructible<L,Y,PR>,IsConstructible<U,Y,PR>>> = dummy>
+    template<class Y, class PR> requires Constructible<L,Y,PR> and Constructible<U,Y,PR>
         explicit Interval(const Y& y, PR pr) : _l(y,pr), _u(y,pr) { }
 
     //! \brief Convert from an interval of a different type.
-    template<class UU, EnableIf<IsConvertible<UU,U>> = dummy>
+    template<class UU> requires Convertible<UU,U>
         Interval(Interval<UU> const& x) : _l(x.lower()), _u(x.upper()) { }
     //! \brief Construct from an interval of a different type.
-    template<class UU, EnableIf<And<IsConstructible<U,UU>,Not<IsConvertible<UU,U>>>> =dummy>
+    template<class UU> requires Constructible<U,UU> and (not Convertible<UU,U>)
         explicit Interval(Interval<UU> const& x) : _l(x.lower()), _u(x.upper()) { }
     //! \brief Construct from an interval of a different type using the given precision.
-    template<class UU, class PR, EnableIf<IsConstructible<U,UU,PR>> =dummy>
+    template<class UU, class PR> requires Constructible<U,UU,PR>
         explicit Interval(Interval<UU> const& x, PR pr) : _l(x.lower(),pr), _u(x.upper(),pr) { }
     //! \brief Construct from an interval of a different type using a default precision.
-    template<class UU, EnableIf<IsConstructibleGivenDefaultPrecision<U,UU>> =dummy, DisableIf<IsConstructible<U,UU>> =dummy>
+    template<class UU> requires ConstructibleGivenDefaultPrecision<U,UU> and (not Constructible<U,UU>)
         explicit Interval(Interval<UU> const& x) : Interval(x,PrecisionType<U>()) { }
     //! \brief Construct from an interval of a different type using a default precision.
-    template<class UU, EnableIf<IsConstructibleGivenDefaultPrecision<U,UU>> =dummy, DisableIf<IsConstructible<U,UU>> =dummy>
+    template<class UU> requires ConstructibleGivenDefaultPrecision<U,UU> and (not Constructible<U,UU>)
         explicit Interval(NegationType<UU> const& l, UU const& u) : Interval(L(l,PrecisionType<U>()),U(u,PrecisionType<U>())) { }
 
     //! \brief Construct an interval with the lower and upper bounds.
     //! FIXME: Should be explicit, but this would clash with Box constructor from initializer list of double/FloatDP.
-    template<class LL, class UU, EnableIf<And<IsConstructible<L,LL>,IsConstructible<U,UU>,Not<And<IsConvertible<LL,L>,IsConvertible<UU,U>>>>> =dummy,
-    DisableIf<And<IsConstructible<L,LL,UU>,IsConstructible<U,LL,UU>>> =dummy> // Disambiguate Interval(Y,PR)
+    template<class LL, class UU> requires
+        Constructible<L,LL> and Constructible<U,UU>
+            and (not (Convertible<LL,L> and Convertible<UU,U>))
+            and (not (Constructible<L,LL,UU> and Constructible<U,LL,UU>)) // Disambiguate Interval(Y,PR)
         Interval(const LL& l, const UU& u) : _l(l), _u(u) { }
 
     //! \brief Construct an interval with the lower and upper bounds using the given precision.
-    template<class LL, class UU, class PR, EnableIf<And<IsConstructible<L,LL,PR>,IsConstructible<U,UU,PR>>> =dummy>
+    template<class LL, class UU, class PR> requires Constructible<L,LL,PR> and Constructible<U,UU,PR>
         Interval(const LL& l, const UU& u, PR pr) : _l(l,pr), _u(u,pr) { }
 
   public:

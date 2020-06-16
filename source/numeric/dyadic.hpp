@@ -66,7 +66,7 @@ class Dyadic
 {
     static Writer<Dyadic> _default_writer;
   public:
-//    template<class W, EnableIf<IsBaseOf<WriterInterface<Dyadic>,W>> =dummy> static Void set_default_writer(W w) {
+//    template<class W> requires BaseOf<WriterInterface<Dyadic>,W> static Void set_default_writer(W w) {
 //        _default_writer=std::make_shared<W>(std::move(w)); }
 //    static Void set_default_writer(Writer<Dyadic> w) { _default_writer=w.managed_pointer(); }
     static Void set_default_writer(Writer<Dyadic> w) { _default_writer=w; }
@@ -92,10 +92,8 @@ class Dyadic
     //! \brief Assignment constructor.
     Dyadic& operator=(Dyadic const& n);
     Dyadic& operator=(Dyadic&& n);
-    //! \brief Convert from a built-in positive integer.
-    template<class M, EnableIf<And<IsBuiltinIntegral<M>,IsBuiltinUnsigned<M>>> = dummy> Dyadic(M m);
     //! \brief Convert from a built-in integer.
-    template<class N, EnableIf<And<IsBuiltinIntegral<N>,IsBuiltinSigned<N>>> = dummy> Dyadic(N n);
+    template<BuiltinIntegral N> Dyadic(N n);
     //! \brief Convert from an exact double-precision number.
     Dyadic(const ExactDouble& d);
     //! \brief Convert from an integer.
@@ -177,8 +175,7 @@ template<> class RepresentationWriter<Dyadic> : public WriterInterface<Dyadic> {
 };
 
 
-template<class M, EnableIf<And<IsBuiltinIntegral<M>,IsBuiltinUnsigned<M>>>> inline Dyadic::Dyadic(M m) : Dyadic(Integer(m)) { }
-template<class N, EnableIf<And<IsBuiltinIntegral<N>,IsBuiltinSigned<N>>>> inline Dyadic::Dyadic(N n) : Dyadic(Integer(n)) { }
+template<BuiltinIntegral N> inline Dyadic::Dyadic(N n) : Dyadic(Integer(n)) { }
 
 using DyadicBounds = Bounds<Dyadic>; //!< Alias for dyadic bounds on a number. //!< \ingroup NumericModule
 
@@ -187,7 +184,7 @@ template<> class Bounds<Dyadic> {
   public:
     Bounds<Dyadic>(Dyadic w) : _l(w), _u(w) { }
     Bounds<Dyadic>(Dyadic l, Dyadic u) : _l(l), _u(u) { }
-    template<class X, EnableIf<IsConstructible<Dyadic,X>> =dummy> Bounds<Dyadic>(Bounds<X> const& x)
+    template<class X> requires Constructible<Dyadic,X> Bounds<Dyadic>(Bounds<X> const& x)
         : Bounds<Dyadic>(Dyadic(x.lower_raw()),Dyadic(x.upper_raw())) { }
     operator ValidatedNumber() const;
     Bounds<Dyadic> pm(Dyadic e) { return DyadicBounds(_l-e,_u+e); }
@@ -218,7 +215,8 @@ template<> class Ball<Dyadic,Dyadic> {
   public:
     Ball<Dyadic,Dyadic>(Dyadic w) : _v(w), _e(0) { }
     Ball<Dyadic,Dyadic>(Dyadic v, Dyadic e) : _v(v), _e(e) { }
-    template<class X, class XE, EnableIf<And<IsConstructible<Dyadic,X>,IsConstructible<Dyadic,XE>>> =dummy> Ball<Dyadic,Dyadic>(Ball<X,XE> const& x)
+    template<class X, class XE> requires Constructible<Dyadic,X> and Constructible<Dyadic,XE>
+    Ball<Dyadic,Dyadic>(Ball<X,XE> const& x)
         : Ball<Dyadic,Dyadic>(Dyadic(x.value_raw()),Dyadic(x.error_raw())) { }
     explicit Ball<Dyadic,Dyadic>(Bounds<Dyadic> const& w) : _v(hlf(w.lower()+w.upper())), _e(hlf(w.upper()-w.lower())) { }
     explicit operator Bounds<Dyadic>() const { return Bounds<Dyadic>(_v-_e,_v+_e); }

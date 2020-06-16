@@ -133,11 +133,11 @@ template<class I, class X> class Expansion {
     explicit Expansion(ArgumentSizeType as); // DEPRECATED
     explicit Expansion(ArgumentSizeType as, X const& z, SizeType cap=DEFAULT_CAPACITY);
     Expansion(InitializerList<Pair<IndexInitializerType,X>> lst);
-    template<class PR, EnableIf<IsConstructible<X,PR>> =dummy>
+    template<class PR> requires Constructible<X,PR>
         explicit Expansion(ArgumentSizeType as, PR pr, SizeType cap=DEFAULT_CAPACITY);
-    template<class PR, EnableIf<IsConstructible<X,Dbl,PR>> =dummy>
+    template<class PR> requires Constructible<X,Dbl,PR>
         Expansion(InitializerList<Pair<IndexInitializerType,Dbl>> lst, PR prs);
-    template<class Y, class... PRS, EnableIf<IsConstructible<X,Y,PRS...>> =dummy>
+    template<class Y, class... PRS> requires Constructible<X,Y,PRS...>
         explicit Expansion(Expansion<I,Y> const&, PRS... prs);
     Expansion(const Expansion<I,X>&);
     Expansion<I,X>& operator=(const Expansion<I,X>&);
@@ -210,6 +210,7 @@ template<class I, class X> class Expansion {
     friend Expansion<MultiIndex,CoefficientType> embed(SizeType as1, Expansion<IndexType,CoefficientType> const& e2, SizeType as3) { return _embed(as1,e2,as3); }
   private:
     static Expansion<MultiIndex,CoefficientType> _embed(SizeType as1, Expansion<IndexType,CoefficientType> const& e2, SizeType as3);
+    template<class Y, class... PRS> Void _fill(Expansion<I,Y> const& other, PRS... prs);
 };
 
 template<class I, class X, class CMP> class SortedExpansion : public Expansion<I,X> {
@@ -236,14 +237,22 @@ public:
 };
 
 
-template<class I, class X> template<class PR, EnableIf<IsConstructible<X,PR>>>
+
+template<class I, class X> template<class Y, class... PRS> requires Constructible<X,Y,PRS...>
+Expansion<I,X>::Expansion(Expansion<I,Y> const& other, PRS... prs)
+    : Expansion(other.argument_size(),X(other.zero_coefficient(),prs...))
+{
+    this->_fill(other,prs...);
+}
+
+template<class I, class X> template<class PR> requires Constructible<X,PR>
 Expansion<I,X>::Expansion(ArgumentSizeType as, PR pr, SizeType cap)
     : Expansion(as,X(0,pr),cap)
 {
 }
 
 
-template<class I, class X> template<class PR, EnableIf<IsConstructible<X,Dbl,PR>>>
+template<class I, class X> template<class PR> requires Constructible<X,Dbl,PR>
 Expansion<I,X>::Expansion(InitializerList<Pair<IndexInitializerType,Dbl>> lst, PR pr) : Expansion(0)
 {
     ARIADNE_PRECONDITION(lst.size()!=0);
@@ -267,5 +276,7 @@ Expansion<I,X>::Expansion(InitializerList<Pair<IndexInitializerType,Dbl>> lst, P
 
 
 } // namespace Ariadne
+
+#include "expansion.inl.hpp"
 
 #endif

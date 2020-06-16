@@ -146,7 +146,7 @@ template<class X> class Matrix
     Matrix(SizeType m, SizeType n, const X& z);
 
     //! Construct a matrix from parameters of \a X.
-    template<class... PRS, EnableIf<IsConstructible<X,PRS...>> =dummy> explicit Matrix(SizeType m, SizeType n, PRS... prs) : Matrix(m,n,X(prs...)) { }
+    template<class... PRS> requires Constructible<X,PRS...> explicit Matrix(SizeType m, SizeType n, PRS... prs) : Matrix(m,n,X(prs...)) { }
 
     //! Construct a matrix with \a r rows and \a c columns, with values initialised from the C-style array beginning at \a ptr in row-major format. The value in the \a i<sup>th</sup> row and \a j<sup>th</sup> column of the resulting matrix is \a ptr[i*c+j].
     Matrix(SizeType m, SizeType n, const X* p);
@@ -155,7 +155,7 @@ template<class X> class Matrix
     Matrix(InitializerList<InitializerList<X>> lst);
 
     //! Construct a matrix using initializer lists.
-    template<class... PRS, EnableIf<IsConstructible<X,ExactDouble,PRS...>> =dummy> Matrix(InitializerList<InitializerList<double>> lst, PRS... prs);
+    template<class... PRS> requires Constructible<X,ExactDouble,PRS...> Matrix(InitializerList<InitializerList<double>> lst, PRS... prs);
 
     //! Construct a matrix as a linear map from functionals.
     Matrix(Vector<Covector<X>>);
@@ -168,17 +168,17 @@ template<class X> class Matrix
     //! \brief The itentity matrix with \a n rows and \a n columns.
     static Matrix<X> identity(SizeType n);
     //! Construct the identity matrix from parameters of \a X.
-    template<class... PRS, EnableIf<IsConstructible<X,PRS...>> =dummy> static Matrix<X> identity(SizeType n, PRS... prs);
+    template<class... PRS> requires Constructible<X,PRS...> static Matrix<X> identity(SizeType n, PRS... prs);
     //@}
 
-    template<class M, EnableIf<And<IsMatrixExpression<M>,IsConvertible<typename M::ScalarType,X>>> =dummy>
+    template<AMatrixExpressionOver<X> M>
         Matrix(const M& A);
-    template<class M, EnableIf<And<IsMatrixExpression<M>,IsConvertible<typename M::ScalarType,X>>> =dummy>
+    template<AMatrixExpressionOver<X> M>
         Matrix<X>& operator=(const M& A);
-    template<class M, EnableIf<And<IsMatrixExpression<M>,IsConstructible<X,typename M::ScalarType>,Not<IsConvertible<typename M::ScalarType,X>>>> =dummy>
+    template<AMatrixExpression M> requires ExplicitlyConvertible<typename M::ScalarType,X>
         explicit Matrix(const M& A);
 
-    template<class M, class... PRS, EnableIf<And<IsMatrixExpression<M>,IsConstructible<X,typename M::ScalarType,PRS...>>> =dummy>
+    template<AMatrixExpression M, class... PRS> requires Constructible<X,typename M::ScalarType,PRS...>
         explicit Matrix(const M& A, PRS... prs);
 
 
@@ -198,7 +198,7 @@ template<class X> class Matrix
     const X& get(SizeType i, SizeType j) const ;
     //! \brief %Set the value stored in the \a i<sup>th</sup> row and \a j<sup>th</sup> column to \a x.
     Void set(SizeType i, SizeType j, const X& x);
-    template<class Y, EnableIf<IsAssignable<X,Y>> =dummy> Void set(SizeType i, SizeType j, const Y& y);
+    template<AssignableTo<X> Y> Void set(SizeType i, SizeType j, const Y& y);
     //! \brief A pointer to the first element of the data storage.
     const X* begin() const;
 
@@ -233,11 +233,11 @@ template<class X> class Matrix
 template<class X> struct IsMatrix<Matrix<X>> : True { };
 template<class X> struct IsMatrixExpression<Matrix<X>> : True { };
 
-template<class M1, class M2, EnableIf<And<IsMatrixExpression<M1>,IsMatrixExpression<M2>>> =dummy>
+template<AMatrixExpression M1, AMatrixExpression M2>
 auto operator==(M1 const& A1, M2 const& A2) -> decltype(declval<ScalarType<M1>>()==declval<ScalarType<M2>>());
 
 template<class X> OutputStream& operator<<(OutputStream& os, Matrix<X> const& A);
-template<class M, EnableIf<IsMatrixExpression<M>> =dummy> OutputStream& operator<<(OutputStream& os, M const& A);
+template<AMatrixExpression M> OutputStream& operator<<(OutputStream& os, M const& A);
 
 /************ Combinatorial Matrices *********************************************************/
 
@@ -442,14 +442,14 @@ template<class X> inline MatrixRows<Matrix<X>> Matrix<X>::operator[](Range is) {
 }
 #endif
 
-template<class M1, class M2, EnableIf<And<IsMatrixExpression<M1>,IsMatrixExpression<M2>>>> inline
+template<AMatrixExpression M1, AMatrixExpression M2> inline
 auto operator==(M1 const& A1, M2 const& A2) -> decltype(declval<ScalarType<M1>>()==declval<ScalarType<M2>>()) {
     typedef ScalarType<M1> X1;typedef ScalarType<M2> X2; return Matrix<X1>(A1)==Matrix<X2>(A2); }
 
 /* Dispatching Matrix expression template operators
 
 
-template<class M, EnableIf<IsMatrix<M>> =dummy> inline
+template<AMatrix M> inline
 MatrixScalarQuotient<M,typename M::ScalarType> operator/(const M& A1, typename M::ScalarType const& x2) {
     return MatrixScalarQuotient<M,typename M::ScalarType>(A1,x2); }
 
@@ -457,7 +457,7 @@ template<class X1, class X2> inline MatrixVectorProduct<X1,X2> operator*(Matrix<
     return MatrixVectorProduct<X1,X2>(A1,v2);
 }
 
-template<class X1, class V2, EnableIf<IsVectorExpression<V2>> =dummy> inline MatrixVectorProduct<X1,ScalarType<V2>> operator*(Matrix<X1> const& A1, V2 const& v2) {
+template<class X1, AVectorExpression V2> inline MatrixVectorProduct<X1,ScalarType<V2>> operator*(Matrix<X1> const& A1, V2 const& v2) {
     typedef typename V2::ScalarType X2; return MatrixVectorProduct<X1,X2>(A1,Vector<X2>(v2));
 }
 
@@ -576,13 +576,13 @@ template<class X> Matrix<X>& Matrix<X>::operator=(const MatrixMatrixProduct<X,X>
 }
 #endif
 
-template<class X> template<class M, EnableIf<And<IsMatrixExpression<M>,IsConvertible<typename M::ScalarType,X>>>> Matrix<X>::Matrix(const M& A)
+template<class X> template<AMatrixExpressionOver<X> M> Matrix<X>::Matrix(const M& A)
     : Matrix(A.row_size(),A.column_size(),A.zero_element())
 {
     this->operator=(A);
 }
 
-template<class X> template<class M, EnableIf<And<IsMatrixExpression<M>,IsConstructible<X,typename M::ScalarType>,Not<IsConvertible<typename M::ScalarType,X>>>>>
+template<class X> template<AMatrixExpression M> requires ExplicitlyConvertible<typename M::ScalarType,X>
 Matrix<X>::Matrix(const M& A) : Matrix(A.row_size(),A.column_size(),X(A.zero_element()))
 {
     for(SizeType i=0; i!=this->row_size(); ++i) {
@@ -592,7 +592,7 @@ Matrix<X>::Matrix(const M& A) : Matrix(A.row_size(),A.column_size(),X(A.zero_ele
     }
 }
 
-template<class X> template<class M, class... PRS, EnableIf<And<IsMatrixExpression<M>,IsConstructible<X,typename M::ScalarType,PRS...>>>>
+template<class X> template<AMatrixExpression M, class... PRS> requires Constructible<X,typename M::ScalarType,PRS...>
 Matrix<X>::Matrix(const M& A, PRS... prs) : Matrix(A.row_size(),A.column_size(),X(A.zero_element(),prs...)) {
     for(SizeType i=0; i!=this->row_size(); ++i) {
         for(SizeType j=0; j!=this->column_size(); ++j) {
@@ -602,7 +602,7 @@ Matrix<X>::Matrix(const M& A, PRS... prs) : Matrix(A.row_size(),A.column_size(),
 }
 
 
-template<class X> template<class M, EnableIf<And<IsMatrixExpression<M>,IsConvertible<typename M::ScalarType,X>>>> Matrix<X>& Matrix<X>::operator=(const M& A) {
+template<class X> template<AMatrixExpressionOver<X> M> Matrix<X>& Matrix<X>::operator=(const M& A) {
     this->resize(A.row_size(),A.column_size());
     for(SizeType i=0; i!=this->row_size(); ++i) {
         for(SizeType j=0; j!=this->column_size(); ++j) {
@@ -612,7 +612,7 @@ template<class X> template<class M, EnableIf<And<IsMatrixExpression<M>,IsConvert
     return *this;
 }
 
-template<class M, EnableIf<IsMatrixExpression<M>>> inline OutputStream& operator<<(OutputStream& os, const M& A) {
+template<AMatrixExpression M> inline OutputStream& operator<<(OutputStream& os, const M& A) {
     return os << Matrix<ScalarType<M>>(A); }
 
 
@@ -849,7 +849,7 @@ struct ProvideMatrixOperations {
 
 };
 
-template<class X> template<class... PRS, EnableIf<IsConstructible<X,ExactDouble,PRS...>>>
+template<class X> template<class... PRS> requires Constructible<X,ExactDouble,PRS...>
 Matrix<X>::Matrix(InitializerList<InitializerList<double>> lst, PRS... prs) : _rs(lst.size()), _cs(lst.begin()->size()), _ary(_rs*_cs,X(prs...)) {
     typename InitializerList<InitializerList<double>>::const_iterator row_iter=lst.begin();
     for(SizeType i=0; i!=this->row_size(); ++i, ++row_iter) {
@@ -861,7 +861,7 @@ Matrix<X>::Matrix(InitializerList<InitializerList<double>> lst, PRS... prs) : _r
     }
 }
 
-template<class X> template<class... PRS, EnableIf<IsConstructible<X,PRS...>>> auto
+template<class X> template<class... PRS> requires Constructible<X,PRS...> auto
 Matrix<X>::identity(SizeType n, PRS... prs) -> Matrix<X> {
     Matrix<X> I(n,n,X(prs...));
     for(SizeType i=0; i!=n; ++i) {
@@ -870,7 +870,7 @@ Matrix<X>::identity(SizeType n, PRS... prs) -> Matrix<X> {
     return I;
 }
 
-template<class X> template<class Y, EnableIf<IsAssignable<X,Y>>>
+template<class X> template<AssignableTo<X> Y>
 Void Matrix<X>::set(SizeType i, SizeType j, Y const& y) {
     this->at(i,j)=y;
 }

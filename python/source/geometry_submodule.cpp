@@ -240,7 +240,7 @@ template<class IVL> IVL interval_from_dict(pybind11::dict dct) {
     pybind11::detail::dict_iterator::reference item = *dct.begin();
     pybind11::handle lh = item.first;
     pybind11::handle uh = item.second;
-    if constexpr (IsConstructibleGivenDefaultPrecision<UB,Dyadic>::value) {
+    if constexpr (ConstructibleGivenDefaultPrecision<UB,Dyadic>) {
         typedef PrecisionType<UB> PR; PR pr;
         try {
             LB lb(pybind11::cast<Dyadic>(lh),pr);
@@ -368,16 +368,16 @@ template<class IVL> Void export_interval(pybind11::module& module, std::string n
     interval_class.def(pybind11::init([](pybind11::dict pydct){return interval_from_dict<IntervalType>(pydct);}));
     pybind11::implicitly_convertible<pybind11::dict, IntervalType>();
 
-    if constexpr (IsConstructible<IntervalType,DyadicInterval>::value and not IsSame<IntervalType,DyadicInterval>::value) {
+    if constexpr (Constructible<IntervalType,DyadicInterval> and not Same<IntervalType,DyadicInterval>) {
         interval_class.def(pybind11::init<DyadicInterval>());
     }
-    if constexpr (IsConstructible<IntervalType,DyadicInterval>::value and not IsSame<IntervalType,DyadicInterval>::value) {
+    if constexpr (Constructible<IntervalType,DyadicInterval> and not Same<IntervalType,DyadicInterval>) {
         interval_class.def(pybind11::init([](Dyadic l, Dyadic u){return IntervalType(DyadicInterval(l,u));}));
     }
 
     export_interval_arithmetic(module,interval_class);
 
-    if constexpr (HasEquality<IVL,IVL>::value) {
+    if constexpr (HasEquality<IVL,IVL>) {
         interval_class.def("__eq__",  &__eq__<IVL,IVL , Return<EqualityType<IVL,IVL>> >);
         interval_class.def("__ne__",  &__ne__<IVL,IVL , Return<InequalityType<IVL,IVL>> >);
     }
@@ -438,11 +438,11 @@ template<class BX> Void export_box(pybind11::module& module, std::string name)
     box_class.def(pybind11::init(&box_from_list<BoxType>));
     pybind11::implicitly_convertible<pybind11::list,BoxType>();
 
-    if constexpr (IsConstructible<BoxType,DyadicBox>::value and not IsSame<BoxType,DyadicBox>::value) {
+    if constexpr (Constructible<BoxType,DyadicBox> and not Same<BoxType,DyadicBox>) {
          box_class.def(pybind11::init<Box<Interval<Dyadic>>>());
     }
 
-    if constexpr (HasEquality<BX,BX>::value) {
+    if constexpr (HasEquality<BX,BX>) {
         box_class.def("__eq__",  __eq__<BX,BX , Return<EqualityType<BX,BX>> >);
         box_class.def("__ne__",  __ne__<BX,BX , Return<InequalityType<BX,BX>> >);
     }

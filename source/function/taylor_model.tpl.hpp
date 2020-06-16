@@ -76,7 +76,7 @@ FloatMP& operator/=(FloatMP& x1, FloatMP const& x2);
 template<class F> F UnknownError<F>::raw() const {
     return F(0u,this->precision()); }
 template<class F> typename F::PrecisionType UnknownError<F>::precision() const {
-    if constexpr (IsSame<F,FloatMP>::value) { return MultiplePrecision(64_bits); }
+    if constexpr (Same<F,FloatMP>) { return MultiplePrecision(64_bits); }
     else { return typename F::PrecisionType(); } }
 template<class F> UnknownError<F>::operator PositiveApproximation<F> () const {
     return PositiveApproximation<F>(0,this->precision()); }
@@ -1041,7 +1041,7 @@ template<class P, class F> inline Void _sma(TaylorModel<P,F>& r, const TaylorMod
     typedef typename F::PrecisionType PR;
     using namespace std::placeholders;
 
-    if constexpr (IsSame<decltype(c),FloatBounds<PR>>::value) {
+    if constexpr (Same<decltype(c),FloatBounds<PR>>) {
         ARIADNE_DEBUG_ASSERT_MSG(c.lower().raw()<=c.upper().raw(),c);
         ARIADNE_DEBUG_ASSERT_MSG(x.error().raw()>=0,"x="<<x);
         ARIADNE_DEBUG_ASSERT_MSG(y.error().raw()>=0,"y="<<y);
@@ -1347,7 +1347,7 @@ template<class P, class F> auto TaylorModel<P,F>::range() const -> RangeType {
     }
     err=err+tm.error();
     RangeType r(-err,+err);
-    if constexpr(IsSame<P,ValidatedTag>::value) {
+    if constexpr(Same<P,ValidatedTag>) {
         r=r+constant_term;
         const RangeType unit_ivl(-1,+1,this->precision());
         // If the ratio b/a is very large, then roundoff error can cause a significant
@@ -1560,7 +1560,7 @@ compose(const AnalyticFunction& fn, const TaylorModel<P,F>& tm) {
 // Inplace operators manipulating the error term
 
 template<class P, class F> TaylorModel<P,F> TaylorModel<P,F>::_embed_error(const TaylorModel<P,F>& tm) {
-    if constexpr (IsSame<ErrorType,UnknownError<F>>::value) { return tm; }// do nothing
+    if constexpr (Same<ErrorType,UnknownError<F>>) { return tm; }// do nothing
     else {
         const SizeType as=tm.argument_size();
         TaylorModel<P,F> rtm(as+1u,tm.sweeper());
@@ -1725,7 +1725,7 @@ template<class P, class F> auto TaylorModel<P,F>::_evaluate(const TaylorModel<P,
 }
 
 template<class P, class F> auto TaylorModel<P,F>::_evaluate(const TaylorModel<P,F>& tm, const Vector<ValidatedNumericType>& x) -> ArithmeticType<CoefficientType,ValidatedNumericType> {
-    if constexpr (IsSame<NumericType,ValidatedNumericType>::value) {
+    if constexpr (Same<NumericType,ValidatedNumericType>) {
         return horner_evaluate(tm.expansion(),x)+pm(tm.error());
     } else {
         return horner_evaluate(tm.expansion(),Vector<NumericType>(x))+pm(tm.error());
@@ -1954,7 +1954,7 @@ template<class F> inline Bool inconsistent(UpperInterval<F> const& x1, UpperInte
 }
 
 template<class P, class F> TaylorModel<P,F> TaylorModel<P,F>::_refinement(const TaylorModel<P,F>& x, const TaylorModel<P,F>& y) {
-    if constexpr (IsSame<P,ValidatedTag>::value) {
+    if constexpr (Same<P,ValidatedTag>) {
         TaylorModel<P,F> r(x.argument_size(),x.sweeper());
 
         ErrorType max_error=nul(r.error());
@@ -2001,7 +2001,7 @@ template<class P, class F> TaylorModel<P,F> TaylorModel<P,F>::_refinement(const 
                 ++yiter;
             }
 
-            if constexpr (IsInterval<CoefficientType>::value) {
+            if constexpr (AnInterval<CoefficientType>) {
                 auto xve=xv+pm(xe); auto yve=yv+pm(ye);
                 if (definitely(disjoint(xve,yve))) {
                     ARIADNE_THROW(IntersectionException,"refinement(TaylorModel<ValidatedTag,F>,TaylorModel<ValidatedTag,F>)",x<<" and "<<y<<" are inconsistent.");

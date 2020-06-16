@@ -265,7 +265,7 @@ class UnivariateSecondDifferential
     //! \brief Set the differential equal to a constant, without changing the degree or number of arguments.
     UnivariateSecondDifferential<X>& operator=(const X& c) {
         _value=c; _gradient=nul(c); _half_hessian=nul(c); return *this; }
-    template<class W, EnableIf<IsAssignable<X,W>> =dummy>
+    template<AssignableTo<X> W>
         UnivariateSecondDifferential<X>& operator=(const W& c) { X xc=nul(this->value()); xc=c; return (*this)=xc; }
 
     //! \brief A constant differential of degree \a deg in \a as arguments with value \a c.
