@@ -32,7 +32,7 @@ template<class F> inline Value<F> make_split_point(Ball<F> const& bm) { return b
 
 template<class U> Interval<U>::Interval() : Interval(EmptyInterval()) { }
 template<class U> Interval<U>::Interval(EmptyInterval const&) {
-    if constexpr(IsConstructibleGivenDefaultPrecision<U,Dyadic>::value) {
+    if constexpr(ConstructibleGivenDefaultPrecision<U,Dyadic>) {
         _l = L(Dyadic::inf(Sign::POSITIVE),L::RawType::get_default_precision());
         _u = U(Dyadic::inf(Sign::NEGATIVE),U::RawType::get_default_precision());
     } else {
@@ -42,7 +42,7 @@ template<class U> Interval<U>::Interval(EmptyInterval const&) {
 }
 template<class U> Interval<U>::Interval(UnitInterval const&) : Interval(-1,+1) { }
 template<class U> Interval<U>::Interval(EntireInterval const&) {
-    if constexpr(IsConstructibleGivenDefaultPrecision<U,Dyadic>::value) {
+    if constexpr(ConstructibleGivenDefaultPrecision<U,Dyadic>) {
         _l = L(Dyadic::inf(Sign::NEGATIVE),L::RawType::get_default_precision());
         _u = U(Dyadic::inf(Sign::POSITIVE),U::RawType::get_default_precision());
     } else {

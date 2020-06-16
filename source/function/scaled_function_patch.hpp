@@ -86,18 +86,10 @@ template<class X> X operator/(const GenericType<X>& y1, const X& x2) { return x2
 */
 
 // FIXME: Try to abstract away this template
-template<class R, class F, class X> class CanEvaluate {
-    template<class RR, class FF, class XX, class=decltype(declval<RR>()=evaluate(declval<FF>(),declval<XX>()))> static True test(int);
-    template<class RR, class FF, class XX> static False test(...);
-  public:
-    static const bool value = decltype(test<R,F,X>(1))::value;
-};
-template<class R, class F, class X> class CanCall {
-    template<class RR, class FF, class XX, class=decltype(declval<RR>()=declval<FF>()(declval<XX>()))> static True test(int);
-    template<class RR, class FF, class XX> static False test(...);
-  public:
-    static const bool value = decltype(test<R,F,X>(1))::value;
-};
+template<class R, class F, class X> concept CanEvaluate
+    = requires(F const& f, X const& x) { { evaluate(f,x) } -> AssignableTo<R>; };
+template<class R, class F, class X> concept CanCall
+    = requires(F const& f, X const& x) { { f(x) } -> AssignableTo<R>; };
 
 template<class M> class ScaledFunctionPatchFactory;
 template<class M> class ScaledFunctionPatchCreator;
@@ -436,7 +428,7 @@ template<class M> class ScaledFunctionPatch
         return partial_evaluate(f,k,NumericType(c,f.precision())); }
     friend ArithmeticType<CoefficientType,NumericType> evaluate(const ScaledFunctionPatch<M>& f, const Vector<NumericType>& x) {
         // TODO: Simplify
-        if constexpr (IsInterval<CoefficientType>::value) {
+        if constexpr (AnInterval<CoefficientType>) {
             for(SizeType i=0; i!=x.size(); ++i) {
                 if (!definitely(contains(f.domain()[i],cast_singleton(x[i])))) {
                     ARIADNE_THROW(DomainException,"evaluate(f,x) with f="<<f<<", x="<<x,"x is not a subset of f.domain()="<<f.domain()); } }
@@ -464,7 +456,7 @@ template<class M> class ScaledFunctionPatch
 
 
 template<class M> template<class X> Void ScaledFunctionPatch<M>::_compute(X& r, const Vector<X>& a) const {
-    if constexpr (CanCall<X,M,Vector<X>>::value) {
+    if constexpr (CanCall<X,M,Vector<X>>) {
         r = this->_model(unscale(a,this->_domain));
     } else {
         assert(false);
@@ -1021,7 +1013,7 @@ template<class M> class VectorScaledFunctionPatch
 };
 
 template<class M> template<class X> Void VectorScaledFunctionPatch<M>::_compute(Vector<X>& r, const Vector<X>& a) const {
-    if constexpr(CanCall<X,M,Vector<X>>::value) {
+    if constexpr(CanCall<X,M,Vector<X>>) {
         ARIADNE_DEBUG_ASSERT_MSG(r.size()==this->result_size(),"\nr="<<r<<"\nf="<<(*this)<<"\n");
         Vector<X> sa=Ariadne::unscale(a,this->_domain);
         for(SizeType i=0; i!=r.size(); ++i) {

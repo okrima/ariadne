@@ -353,7 +353,7 @@ template<> struct ParadigmTraits<ApproximateTag,ApproximateTag> {
 template<class P> using Opposite = ParadigmClass<opposite(P::code())>;
 template<class P> using Negated = ParadigmClass<negate(P::code())>;
 template<class P> using Inverted = ParadigmClass<invert(P::code())>;
-template<class P> using Generic = ParadigmClass<strengthen(P::code())>;
+template<class P> using Generify = ParadigmClass<strengthen(P::code())>;
 template<class P> using Unsigned = ParadigmClass<unsign(P::code())>;
 template<class P> using Signed = ParadigmClass<sign(P::code())>;
 template<class P> using Widen = ParadigmClass<widen(P::code())>;

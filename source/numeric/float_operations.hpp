@@ -111,7 +111,7 @@ template<class PR, class P1, class P2> using FloatProductType = FloatType<Widen<
 template<class PR, class P1, class P2> using FloatQuotientType = FloatType<Widen<Weaker<P1,Inverted<P2>>>,PR>;
 
 template<class PR, class P1, class P2> using FloatEqualsType = LogicalType<Equality<Weaker<P1,Negated<P2>>>>;
-template<class PR, class P1, class P2> using FloatLessType = LogicalType<Generic<Weaker<P1,Negated<P2>>>>;
+template<class PR, class P1, class P2> using FloatLessType = LogicalType<Generify<Weaker<P1,Negated<P2>>>>;
 
 } // namespace Ariadne
 

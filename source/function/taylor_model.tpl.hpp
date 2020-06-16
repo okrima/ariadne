@@ -2001,7 +2001,7 @@ template<class P, class F> TaylorModel<P,F> TaylorModel<P,F>::_refinement(const 
                 ++yiter;
             }
 
-            if constexpr (IsInterval<CoefficientType>::value) {
+            if constexpr (AnInterval<CoefficientType>) {
                 auto xve=xv+pm(xe); auto yve=yv+pm(ye);
                 if (definitely(disjoint(xve,yve))) {
                     ARIADNE_THROW(IntersectionException,"refinement(TaylorModel<ValidatedTag,F>,TaylorModel<ValidatedTag,F>)",x<<" and "<<y<<" are inconsistent.");

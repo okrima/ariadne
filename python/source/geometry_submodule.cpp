@@ -240,7 +240,7 @@ template<class IVL> IVL interval_from_dict(pybind11::dict dct) {
     pybind11::detail::dict_iterator::reference item = *dct.begin();
     pybind11::handle lh = item.first;
     pybind11::handle uh = item.second;
-    if constexpr (IsConstructibleGivenDefaultPrecision<UB,Dyadic>::value) {
+    if constexpr (ConstructibleGivenDefaultPrecision<UB,Dyadic>) {
         typedef PrecisionType<UB> PR; PR pr;
         try {
             LB lb(pybind11::cast<Dyadic>(lh),pr);

@@ -52,12 +52,12 @@ namespace Ariadne {
 
 /************ Number *********************************************************/
 
-template<class X> struct IsNumericType;
+template<class X> struct IsNumber;
 
 class NumberInterface;
 
 template<class P> class Number;
-template<class P> struct IsNumericType<Number<P>> : True { };
+template<class P> struct IsNumber<Number<P>> : True { };
 
 struct DispatchException : public std::runtime_error {
     using std::runtime_error::runtime_error;
@@ -97,23 +97,6 @@ class DeclareNumberOperators {
     operator+(Number<P> const& y1, R const& r2) { return y1+Number<Paradigm<R>>(r2); }
 };
 
-template<class X, class P=Void> struct HasOperatorNumber {
-    template<class XX, class PP, class=decltype(declval<XX>().operator Number<PP>())> static True test(int);
-    template<class XX, class PP> static False test(...);
-    static const bool value = decltype(test<X,P>(1))::value;
-};
-
-template<class X> struct HasOperatorNumber<X,Void> {
-    template<class XX, class=decltype(declval<XX>().operator Number<Paradigm<XX>>())> static True test(int);
-    template<class XX> static False test(...);
-    static const bool value = decltype(test<X>(1))::value;
-};
-
-template<class X, class P> struct HasOperatorStrongerNumber {
-    template<class XX, class PP, class=decltype(Number<P>(declval<XX>().operator Number<Paradigm<XX>>()))> static True test(int);
-    template<class XX, class PP> static False test(...);
-    static const bool value = decltype(test<X,P>(1))::value;
-};
 
 template<class X, class P> concept ConvertibleBuiltinFloatingPointToNumber
     = Same<P,ApproximateTag> and BuiltinFloatingPoint<X>;
@@ -130,8 +113,7 @@ template<class P> class Number
 {
     static_assert(IsParadigm<P>,"P must be a paradigm");
     template<class PP> friend class Number;
-//    template<class X> using IsGettableAs = And<IsNumericType<X>,IsWeaker<typename X::Paradigm,P>,Not<IsSame<typename X::Paradigm,ExactTag>>>;
-    template<class X> static const bool IsGettableAs = IsNumericType<X>::value and IsWeaker<typename X::Paradigm,P>::value and (not Same<typename X::Paradigm,ExactTag>);
+    template<class X> static const bool IsGettableAs = ANumber<X> and WeakerThan<typename X::Paradigm,P> and (not Same<typename X::Paradigm,ExactTag>);
   private:
     typedef Opposite<P> NP;
     typedef Weaker<P,NP> SP;
