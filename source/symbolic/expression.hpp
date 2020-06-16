@@ -119,7 +119,7 @@ class Expression
     template<class A> const Expression<A>& cmp2(A* dummy=0) const;
     friend OutputStream& operator<<(OutputStream& os, Expression<T> const& e) { return e._write(os); }
   public:
-    template<class X> requires AreSame<T,X,Real> operator ElementaryAlgebra<X>() const;
+    operator ElementaryAlgebra<Real>() const;
   public:
     //! \brief The variables needed to compute the expression.
     Set<UntypedVariable> arguments() const;

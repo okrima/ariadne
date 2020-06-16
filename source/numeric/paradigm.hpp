@@ -234,7 +234,7 @@ template<bool b> using BooleanConstant = std::integral_constant<bool,b>;
 
 //! \ingroup ParadigmSubModule
 //! \brief Inherits from \c TrueType if \a P is a paradigm tag class.
-template<class P> struct IsParadigm : IsSame<decltype(P::code()),ParadigmCode> { };
+template<class P> concept IsParadigm = Same<decltype(P::code()),ParadigmCode>;
 //! \ingroup ParadigmSubModule
 //! \brief Inherits from \c TrueType if paradigm \a P1 is weaker than \a P2.
 template<class P1, class P2> struct IsWeaker : BooleanConstant<is_weaker(P1::code(),P2::code())> { };

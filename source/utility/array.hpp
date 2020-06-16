@@ -92,7 +92,7 @@ class Array {
     Array(InitializerList<ExactDouble> lst, PR pr) : _size(lst.size()), _ptr(uninitialized_new(_size)) {
         this->_uninitialized_fill(lst.begin(),pr); }
     //! \brief Generate from a function (object) \a g of type \a G mapping an index to a value.
-    template<class G> requires IsInvocableReturning<ValueType,G,SizeType>::value
+    template<class G> requires InvocableReturning<ValueType,G,SizeType>
     Array(SizeType n, G const& g) : _size(n), _ptr(uninitialized_new(_size)) {
         this->_uninitialized_generate(g); }
 

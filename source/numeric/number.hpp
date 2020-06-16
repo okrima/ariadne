@@ -116,11 +116,11 @@ template<class X, class P> struct HasOperatorStrongerNumber {
 };
 
 template<class X, class P> concept ConvertibleBuiltinFloatingPointToNumber
-    = And<IsSame<P,ApproximateTag>,IsBuiltinFloatingPoint<X>>::value;
+    = Same<P,ApproximateTag> and BuiltinFloatingPoint<X>;
 template<class X, class P> concept ConvertibleViaRealToNumber
-    = And<IsWeaker<P,ParadigmTag<X>>,IsConvertible<X,Real>>::value;
+    = WeakerThan<P,ParadigmTag<X>> and Convertible<X,Real>;
 template<class X, class P> concept ConvertibleViaNumberToNumber
-    = And<IsWeaker<P,ParadigmTag<X>>,Not<IsConvertible<X,Real>>,IsConvertible<X,Number<ParadigmTag<X>>>>::value;
+    = WeakerThan<P,ParadigmTag<X>> and (not Convertible<X,Real>) and Convertible<X,Number<ParadigmTag<X>>>;
 
 //! \ingroup NumericModule
 //! \brief Generic numbers with computational paradigm \a P, which may be %EffectiveTag, %ValidatedTag, %UpperTag, %LowerTag or %ApproximateTag.
@@ -128,9 +128,10 @@ template<class P> class Number
     : public Handle<NumberInterface>
     , public DeclareNumberOperators
 {
-    static_assert(IsParadigm<P>::value,"P must be a paradigm");
+    static_assert(IsParadigm<P>,"P must be a paradigm");
     template<class PP> friend class Number;
-    template<class X> using IsGettableAs = And<IsNumericType<X>,IsWeaker<typename X::Paradigm,P>,Not<IsSame<typename X::Paradigm,ExactTag>>>;
+//    template<class X> using IsGettableAs = And<IsNumericType<X>,IsWeaker<typename X::Paradigm,P>,Not<IsSame<typename X::Paradigm,ExactTag>>>;
+    template<class X> static const bool IsGettableAs = IsNumericType<X>::value and IsWeaker<typename X::Paradigm,P>::value and (not Same<typename X::Paradigm,ExactTag>);
   private:
     typedef Opposite<P> NP;
     typedef Weaker<P,NP> SP;
