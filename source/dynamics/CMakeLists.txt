@@ -4,6 +4,7 @@ add_library(ariadne-dynamics OBJECT
     inclusion_vector_field.cpp
     inclusion_evolver.cpp
     first_order_pde.cpp
+    1D_pde.cpp
     map_evolver.cpp
     vector_field_evolver.cpp
     reachability_analyser.cpp
