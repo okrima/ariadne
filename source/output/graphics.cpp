@@ -625,6 +625,7 @@ void GnuplotCanvas::setMultiplot(Gnuplot& gp, bool s)
 void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor)
 {
     Array<double> data(tensor.size(0), 0);
+    std::cout << "\n\nPlotting with GNUPLOT\n";
     for (SizeType step = 0; step < tensor.size(1); step++)
     {
         for (SizeType x = 0; x < data.size(); x++)
