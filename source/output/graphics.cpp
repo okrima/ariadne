@@ -591,6 +591,7 @@ GnuplotCanvas::GnuplotCanvas()
 {
     noCanvas = true;
     isMultiplot = false;
+    is3DPalette = false;
 }
 
 GnuplotCanvas::GnuplotCanvas(Image2D& image, int X, int Y)
@@ -609,6 +610,7 @@ GnuplotCanvas::GnuplotCanvas(Image3D& image, int X, int Y)
     ARIADNE_ASSERT(sizeY >= 0);
     noCanvas = false;
     isMultiplot = false;
+    is3DPalette = false;
     sizeX = X;
     sizeY = Y;
 }
@@ -617,6 +619,7 @@ void GnuplotCanvas::setMultiplot(Gnuplot& gp, bool s)
 {
     if (s)
     {
+        isMultiplot = true;
         gp << "set multiplot\n";
     }
     
@@ -625,7 +628,7 @@ void GnuplotCanvas::setMultiplot(Gnuplot& gp, bool s)
 void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor)
 {
     Array<double> data(tensor.size(0), 0);
-    std::cout << "\n\nPlotting with GNUPLOT\n";
+    std::cout << "\n\nPlotting 2D with GNUPLOT\n";
     for (SizeType step = 0; step < tensor.size(1); step++)
     {
         for (SizeType x = 0; x < data.size(); x++)
@@ -636,27 +639,58 @@ void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>
     }
 }
 
-void GnuplotCanvas::plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor)
+void GnuplotCanvas::plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor, String filename)
 {
     ARIADNE_ASSERT(tensor.size(0) == tensor.size(1));
-    Matrix<double> data(tensor.size(0), tensor.size(1), 0);
+
+    //Array<Array<double>> data;
+    
+    std::cout << "\n\nPlotting 3D with GNUPLOT\n";
+/*
     for (SizeType step = 0; step < tensor.size(2); step++)
     {
-        for (SizeType y = 0; y < data.column_size(); y++)
+        for (SizeType y = 0; y < data.size(); y++)
         {
-            for (SizeType x = 0; x < data.row_size(); x++)
+            data[y].resize(tensor.size(0), 0);
+            for (SizeType x = 0; x < data.size(); x++)
             {
-                data[x][y] = (tensor[{x, y, step}]).get_d();
+                data[y][x] = tensor[{x, y, step}].get_d();
             }
         }
         plot3D(gp, image, data);
     }
+*/
+    std::ofstream f;
+    std::ofstream temp("prova.dat");
+    for (SizeType step = 0; step < tensor.size(2); step++)
+    {
+        f.open(filename);
+        
+        for (SizeType y = 0; y < tensor.size(1); y++)
+        {
+            for (SizeType x = 0; x < tensor.size(0); x++)
+            {
+                f << tensor[{x, y, step}].get_d();
+                f << "\n";
+                temp << tensor[{x, y, step}].get_d();
+                temp << "\n";
+            }
+            f << "\n";
+            temp << "\n";
+        }
+        f.close();
+        plot3D(gp, image, filename);
+        
+        temp << "\n";
+        temp << "--------------------------\n";
+        temp << "\n";
+    }
 }
 
-void GnuplotCanvas::plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, Vector<Bounds<FloatMP>>>& tensor)
+/*void GnuplotCanvas::plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, Vector<Bounds<FloatMP>>>& tensor)
 {
 
-}
+}*/
 
 void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, Array<double> data)
 {
@@ -687,45 +721,7 @@ void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, Array<double> data)
     //Send data through pipe gp
     gp.send1d(data);
 }
-/*
-void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, Tensor<2, double>& tensor)
-{
-    Array<double> data(tensor.size(0), 0);
-    for (SizeType i = 0; i < tensor.size(1); i++)
-    {
-        for (SizeType n = 0; n < tensor.size(0); n++)
-        {
-            data[n] = tensor[{n,i}];
-        }
-        // START PLOT SINTAX
-        gp << "plot ";
-        // set Range
-        if (!to_string(image.range2D.Xmax).empty()){
-            gp << "[" << to_string(image.range2D.Xmin) << ":" << to_string(image.range2D.Xmax-1) << "] ";
-        }else
-        {
-            gp << "[] ";
-        }
-        if (!to_string(image.range2D.Ymax).empty()){
-            gp << "[" << to_string(image.range2D.Ymin) << ":" << to_string(image.range2D.Ymax) << "] ";
-        }
-        else
-        {
-            gp << "[] ";
-        }
 
-        // Gnuplot wait for input
-        gp << "'-' ";
-        // set linestyle
-        gp << "with " << _linestyle2D[image.linestyle2D.style] << " ls " << to_string(image.linestyle2D.ls) <<
-            " lw " << to_string(image.linestyle2D.lw);
-        // set colour
-        gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
-        gp.send1d(data);
-    }
-    
-}
-*/
 void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, String filename)
 {
     // START PLOT SINTAX
@@ -746,65 +742,16 @@ void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, String filename)
     }
 
     // Gnuplot wait for input
-    gp << "'"<< filename << "' ";
+    gp << "'" << filename << "' ";
     // set linestyle
     gp << "with " << _linestyle2D[image.linestyle2D.style] << " ls " << to_string(image.linestyle2D.ls) <<
         " lw " << to_string(image.linestyle2D.lw);
     // set colour
     gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
 }
-/*
-void GnuplotCanvas::plot3D(Gnuplot& gp, Image3D& image, Tensor<3, double>& tensor)
-{
-    Matrix<double> data(tensor.size(0), tensor.size(1), 0);
-    for (SizeType step = 0; step < tensor.size(2); step++)
-    {
-        for (SizeType i = 0; i < tensor.size(1); i++)
-        {
-            for (SizeType n = 0; n < tensor.size(0); n++)
-            {
-                data[n][i] = tensor[{n, i, step}];
-            }
-        }
-        // START PLOT SINTAX
-        gp << "splot ";
-        // get Range
-        if (!to_string(image.range3D.Xmax).empty()){
-            gp << "[" << to_string(image.range3D.Xmin) << ":" << to_string(image.range3D.Xmax) << "] ";
-        }else
-        {
-            gp << "[ ] ";
-        }
-        if (!to_string(image.range3D.Ymax).empty()){
-            gp << "[" << to_string(image.range3D.Ymin) << ":" << to_string(image.range3D.Ymax) << "] ";
-        }
-        else
-        {
-            gp << "[ ] ";
-        }
-        if (!to_string(image.range3D.Zmax).empty()){
-            gp << "[" << to_string(image.range3D.Zmin) << ":" << to_string(image.range3D.Zmax) << "] ";
-        }
-        else
-        {
-            gp << "[ ] ";
-        }
-        // Gnuplot wait for input 
-        gp << "'-' ";
-        // get linestyle
-        gp << "with " << _linestyle3D[image.linestyle3D.style];
-        if (image.linestyle3D.style != surface3D)
-        {
-            gp << " ls " << to_string(image.linestyle3D.ls) << " lw " << to_string(image.linestyle3D.lw);
-        }
-        // get colour
-        gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
-        gp.send2d(data);
-    }  
-}
-*/
 
-void GnuplotCanvas::plot3D(Gnuplot& gp, Image3D& image, Matrix<double> data)
+
+void GnuplotCanvas::plot3D(Gnuplot& gp, Image3D& image, Array<Array<double>> data)
 {  
     // START PLOT SINTAX
     gp << "splot ";
@@ -832,15 +779,20 @@ void GnuplotCanvas::plot3D(Gnuplot& gp, Image3D& image, Matrix<double> data)
     // Gnuplot wait for input 
     gp << "'-' ";
     // get linestyle
-    gp << "with " << _linestyle3D[image.linestyle3D.style];
+    gp << "with " << _linestyle3D[image.linestyle3D.style] << " ";
+
     if (image.linestyle3D.style != surface3D)
     {
         gp << " ls " << to_string(image.linestyle3D.ls) << " lw " << to_string(image.linestyle3D.lw);
     }
     // get colour
-    gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
+    if (!is3DPalette)
+    {
+        gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
+    }
+
     //Send data through pipe gp
-    //gp.send2d(data);
+    gp.send2d(data);
 }
 
 void GnuplotCanvas::plot3D(Gnuplot& gp, Image3D& image, String filename)
@@ -869,20 +821,28 @@ void GnuplotCanvas::plot3D(Gnuplot& gp, Image3D& image, String filename)
         gp << "[ ] ";
     }
     // Gnuplot wait for input 
-    gp << " '" << filename << "' ";
+    gp << " \"" << filename << "\" ";
     // get linestyle
     gp << "with " << _linestyle3D[image.linestyle3D.style];
-    if (image.linestyle3D.style != surface3D)
+    if (image.linestyle3D.style != surface3D && image.linestyle3D.style != pm3d)
     {
         gp << " ls " << to_string(image.linestyle3D.ls) << " lw " << to_string(image.linestyle3D.lw);
     }
     // get colour
-    gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
+    if (!is3DPalette)
+    {
+        gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
+    }
+    else
+    {
+        gp<< "\n";
+
+    }
+    
 }
 
 void GnuplotCanvas::setTerminal(Gnuplot& gp, Image2D& image, _Format format, String nameFile)
 {
-
     if (format == _gif)
         {
             gp << "set term " << _format[format] << " animate\n"; 
@@ -903,6 +863,7 @@ void GnuplotCanvas::setTerminal(Gnuplot& gp, Image2D& image, _Format format, Str
     // create file
     gp << "set output \"" << nameFile << "." << _format[format] << "\"\n";
 
+    _filename = nameFile + "." + _format[format];
     setColour(image);
     setLineStyle(image);
 }
@@ -929,6 +890,7 @@ void GnuplotCanvas::setTerminal(Gnuplot& gp, Image3D& image, _Format format, Str
     // create file
     gp << "set output \"" << nameFile << "." << _format[format] << "\"\n";
 
+    _filename = nameFile + "." + _format[format];
     setColour(image);
     setLineStyle(image);
 }
@@ -1008,7 +970,7 @@ void GnuplotCanvas::setRange3D(Image3D& image, FloatMP maxX, FloatMP maxY, Float
     image.range3D.Xmax = maxX;
     image.range3D.Ymin = 0;
     image.range3D.Ymax = maxY;
-    image.range3D.Zmin = 0;
+    image.range3D.Zmin = -maxZ;
     image.range3D.Zmax = maxZ;
 }
 
@@ -1107,34 +1069,24 @@ void GnuplotCanvas::setLegend(Gnuplot& gp)
 {
     gp << "set key default\n";
 }
-
-void GnuplotCanvas::setViewXY(Gnuplot& gp)
+void GnuplotCanvas::setMap(Gnuplot& gp)
 {
-    gp << "set view projection xy\n";
+    gp << "set pm3d map\n";
+}
+void GnuplotCanvas::set3DPalette(Gnuplot& gp, Image3D& image, bool s)
+{
+    if (s)
+    {
+        is3DPalette = true;
+        gp << " set palette defined (-1.2 \"black\",-1.0 \"red\",-0.8 \"yellow\",-0.6 \"orange\",-0.4 \"yellow\",-0.2 \"light-green\",0 \"green\",0.2 \"light-green\",0.4 \"yellow\",0.6 \"orange\",0.8 \"yellow\",1.0 \"red\",1.2 \"black\")\n";
+        image.linestyle3D.style = pm3d;
+    }  
+}
+void GnuplotCanvas::unsetColorbox(Gnuplot& gp)
+{
+    gp << "unset colorbox\n";
 }
 
-void GnuplotCanvas::setViewXZ(Gnuplot& gp)
-{
-    gp << "set view projection xz\n";
-}
-
-void GnuplotCanvas::setViewYZ(Gnuplot& gp)
-{
-    gp << "set view projection yz\n";  
-}
-void GnuplotCanvas::set3DPalette(Gnuplot& gp)
-{
-    gp << "set pm3D\n";
-}
-void GnuplotCanvas::setHidden3D(Gnuplot& gp)
-{
-    gp << "set hidden3D\n";
-}
-
-
-// TODO
-// 1 - Continue to build the member function from p. 119
-// 2 - Fix gp.send1d()
 
 } // namespace Ariadne
 

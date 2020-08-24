@@ -87,6 +87,7 @@ enum _LineStyle3D // %s - es: ls, fs
 {
     lines3D,
     surface3D,
+    pm3d,
     points3D,
 };
 
@@ -97,7 +98,7 @@ struct _Line3D
     int ls = 1;
 };
 
-const char *_linestyle3D[] = {"lines", "surface", "point",/* "impulse", "solid"*/};
+const char *_linestyle3D[] = {"lines", "surface", "pm3d", "point",/* "impulse", "solid"*/};
 
 enum _Format
 {
@@ -150,9 +151,11 @@ class GnuplotCanvas
 private:
     int sizeX;
     int sizeY;
+    String _filename;
 protected:  
     bool noCanvas;
     bool isMultiplot;
+    bool is3DPalette;
 public:
     ~GnuplotCanvas();
     // Constructors - Create the canvas
@@ -168,9 +171,9 @@ public:
     //Plot 2D data from Tensor
     void plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor);
     // Plot 3D data from Tensor
-    void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor);
+    void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor, String filename);
     // Plot 3D data from Array Tensor
-    void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, Vector<Bounds<FloatMP>>>& tensor);//TODO - Prof responce
+    //void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, Vector<Bounds<FloatMP>>>& tensor);//TODO - Prof responce
 
     // Plot from Array
     void plot2D(Gnuplot& gp, Image2D& image, Array<double> data);
@@ -178,7 +181,7 @@ public:
     // 2D Plot from file
     void plot2D(Gnuplot& gp, Image2D& image, String filename);
     // 3D Plot with tensor - Evolution in Time
-    void plot3D(Gnuplot& gp, Image3D& image, Matrix<double> data);
+    void plot3D(Gnuplot& gp, Image3D& image, Array<Array<double>> data);
 
     // 3D plot from file
     void plot3D(Gnuplot& gp, Image3D& image, String filename);
@@ -238,17 +241,11 @@ public:
     // Set Legend
     void setLegend(Gnuplot& gp);
     // Set View Projection of a 3D rapresentation
-    // Projection XY
-    void setViewXY(Gnuplot& gp);
-    // Projection XZ
-    void setViewXZ(Gnuplot& gp);
-    //Projection YZ
-    void setViewYZ(Gnuplot& gp);
+    void setMap(Gnuplot& gp);
     //Set 3D palette
-    void set3DPalette(Gnuplot& gp);
-    //Set hidden 3D line
-    void setHidden3D(Gnuplot& gp);
-
+    void set3DPalette(Gnuplot& gp, Image3D& image, bool s);
+    //Unset colorbox
+    void unsetColorbox(Gnuplot& gp);
     
 
 };
