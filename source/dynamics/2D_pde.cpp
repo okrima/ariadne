@@ -50,11 +50,10 @@ namespace Ariadne
         auto dy2 = pow(dy, 2);
 
         FloatMP c = 10.0;
-        FloatMP T = 20;
+        FloatMP T = 5;
 
         FloatMP stability_limit = (1/c)*(1/sqrt(1/dx2 + 1/dy2));
         FloatMP dt = 0.01;
-        //ARIADNE_ASSERT(dt < stability_limit);
         if (dt <= 0)
         {
             FloatMP safetyFact = -dt;
@@ -75,19 +74,7 @@ namespace Ariadne
         Tensor<3, FloatMP> uts({Nx, Ny, Ntime}, 0);
 
         std::cout << "Start Computing";
-        //Set boundary condition
-    /*
-        for (SizeType i = 0; i < Nx; i++)
-        {
-            uts[{i, 0}] = 0;
-            uts[{i, Ny - 1}] = 0;
-        }
-        for (SizeType i = 0; i < Ny; i++)
-        {
-            uts[{0, i}] = 0;
-            uts[{Nx - 1, i}] = 0;
-        }
-    */
+
         uts = setIC(uts, phi0, Nx, Ny, spaceX, spaceY);
         std::cout << " .";
         //Compute first time step
@@ -103,19 +90,6 @@ namespace Ariadne
             }
         }
         std::cout << " .";
-    /*
-        //Set boundary condition
-        for (SizeType i = 0; i < Nx; i++)
-        {
-            uts[{i, 0}] = 0;
-            uts[{i, Ny - 1}] = 0;
-        }
-        for (SizeType i = 0; i < Ny; i++)
-        {
-            uts[{0, i}] = 0;
-            uts[{Nx - 1, i}] = 0;
-        }
-    */
         //Compute each time step
         for (n = 1; n < Ntime; n++)
         {

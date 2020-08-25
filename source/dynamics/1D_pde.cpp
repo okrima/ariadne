@@ -38,12 +38,12 @@ namespace Ariadne{
     }
 
     //Solving one dimensional pde
-    Tensor<2, FloatMP> pde_1Dsolver(std::function<FloatMP(FloatMP)>& phi0, std::function<FloatMP(FloatMP, FloatMP)>& source,string1D& stringParameter, SizeType Nx)
+    Tensor<2, FloatMP> pde_1Dsolver(std::function<FloatMP(FloatMP)>& phi0, std::function<FloatMP(FloatMP, FloatMP)>& source, Parameter1D& stringParameter, SizeType Nx)
     {
         FloatMP c = sqrt((stringParameter.tension/(stringParameter.mass/stringParameter.length)));
         //Real c = stringParameter.frequency*stringParameter.wavelength;
         //Real c = 342;
-        FloatMP T = 2.0;
+        FloatMP T = 0.125;
 
         FloatMP C2 = pow(stringParameter.CourantNumber, 2);
 
