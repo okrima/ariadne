@@ -167,24 +167,16 @@ public:
 
     //Set Multiplot - Multiple plot on same screen
     void setMultiplot(Gnuplot& gp, bool s);
-
     //Plot 2D data from Tensor
     void plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor);
     // Plot 3D data from Tensor
-    void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor, String filename);
-    // Plot 3D data from Array Tensor
-    //void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, Vector<Bounds<FloatMP>>>& tensor);//TODO - Prof responce
-
+    void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor);
     // Plot from Array
     void plot2D(Gnuplot& gp, Image2D& image, Array<double> data);
-    
     // 2D Plot from file
     void plot2D(Gnuplot& gp, Image2D& image, String filename);
     // 3D Plot with tensor - Evolution in Time
     void plot3D(Gnuplot& gp, Image3D& image, Array<Array<double>> data);
-
-    // 3D plot from file
-    void plot3D(Gnuplot& gp, Image3D& image, String filename);
     // Set Terminal output 2D
     void setTerminal(Gnuplot& gp, Image2D& image, _Format format, String nameFile);
     // Set Terminal output 3D
@@ -243,7 +235,7 @@ public:
     // Set View Projection of a 3D rapresentation
     void setMap(Gnuplot& gp);
     //Set 3D palette
-    void set3DPalette(Gnuplot& gp, Image3D& image, bool s);
+    void set3DPalette(Gnuplot& gp, Image3D& image, FloatMP min, FloatMP max, bool s);
     //Unset colorbox
     void unsetColorbox(Gnuplot& gp);
     
