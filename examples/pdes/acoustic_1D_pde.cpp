@@ -12,18 +12,15 @@
 #include <cstdlib>
 #include <unistd.h>
 
-//#include "gnuplot-iostream.h"
-
 using namespace Ariadne;
 using namespace std;
-//using  std::ofstream;
 
-int main(int argc, const char** argv) {
+int main() {
 
-    SizeType Nx = 11;                // # point in space
+    SizeType Nx = 10;                // # point in space
 
     //pde_solution_1D solution;
-    string1D stringModel;
+    Parameter1D stringModel;
 
     stringModel.length = 1.0;  // Length
     stringModel.tension = 100000;
@@ -46,18 +43,18 @@ int main(int argc, const char** argv) {
     FloatMP omega = 2*pi_opp()*stringModel.frequency;
 
     // Set function initial position condition
-    std::function<FloatMP(FloatMP)> PosInitSteady = [&](FloatMP x){return sin(k*x);};  //Steady-state wave
-/*   
+    //std::function<FloatMP(FloatMP)> PosInitSteady = [&](FloatMP x){return sin(k*x);};  //Steady-state wave
+   
     std::function<FloatMP(FloatMP)> PosInitTri = [&](FloatMP x){ //Triangular
         if (x.get_d() < x0.get_d())
             return amp*(x/x0);
         else
             return amp*(stringModel.length - x)/(stringModel.length - x0);
     };
-*/
+
     std::function<FloatMP(FloatMP, FloatMP)> source = [&](FloatMP x, FloatMP t){return (sin(k*x)*cos(omega*t));};
-    
-    auto data = pde_1Dsolver(PosInitSteady, source, stringModel, Nx);
+
+    auto data = pde_1Dsolver(PosInitTri, source, stringModel, Nx+1);
   
 
     //auto VelInitCond = [&](Real x){return 0;};            // Set function initial velocity position
@@ -67,12 +64,12 @@ int main(int argc, const char** argv) {
 
     Image2D image;
 
-    canvas.setTerminal(gp, image, _gif, "string-TimeEvol");
-    canvas.setMultiplot(gp, false);
+    canvas.setTerminal(gp, image, _png, "string-SpaceEvol");
+    canvas.setMultiplot(gp, true);
     canvas.setTitle(gp, "String Evolution with triangular IC");
     canvas.setXLabel(gp, "x - Space");
     canvas.setYLabel(gp, "Amplitude");
-    canvas.setRange2D(image, 0, Nx, -1, 1);
+    canvas.setRange2D(image, 0, Nx+1, -1, 1);
 
     canvas.plotTensor2D(gp, image, data);
 

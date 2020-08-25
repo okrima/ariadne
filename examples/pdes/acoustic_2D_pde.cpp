@@ -30,7 +30,7 @@ int main(){
 
     std::function<FloatMP(FloatMP, FloatMP, FloatMP)> source = [&](FloatMP x, FloatMP y, FloatMP t){return 0;};
 
-    auto data = pde_2Dsolver(IC, source, firstDim, secondDim, Nx+1, Ny+1);
+    auto data = pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
 
     Gnuplot gp;
     GnuplotCanvas canvas;
@@ -47,10 +47,10 @@ int main(){
     canvas.setZLabel(gp, "Amplitude");
     canvas.setRange3D(image, Nx, Ny, 1);
     canvas.setLineStyle(image, line3D);
-    canvas.set3DPalette(gp, image, true);
+    canvas.set3DPalette(gp, image, -1, 1, true);
     //canvas.setMap(gp);
 
-    canvas.plotTensor3D(gp, image, data, "temp.dat");
+    canvas.plotTensor3D(gp, image, data);
 
     return 0;
 }
