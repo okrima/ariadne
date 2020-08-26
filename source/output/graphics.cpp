@@ -621,12 +621,49 @@ void GnuplotCanvas::setMultiplot(Gnuplot& gp, bool s)
     {
         isMultiplot = true;
         gp << "set multiplot\n";
-    }
-    
+    }  
 }
 
+void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor, Bool file)
+{
+    if (file)   
+    {
+        std::ofstream fileStream;
+        String name = "data.dat";
+
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n";
+
+        for (SizeType step = 0; step < tensor.size(1); step++)
+        {
+            fileStream.open(name);
+            for (SizeType x = 0; x < tensor.size(0); x++)
+            {
+                fileStream << tensor[{x, step}].get_d();
+                fileStream << "\n";
+            }
+            fileStream.close();
+            plot2D(gp, image, name);   
+        }
+    }
+    else
+    {
+        //Create Array<double> and feed into plot2D w/ array data
+        Array<double> data(tensor.size(0), 0);
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n";
+        for (SizeType step = 0; step < tensor.size(1); step++)
+        {
+            for (SizeType x = 0; x < data.size(); x++)
+            {
+                data[x] = (tensor[{x, step}]).get_d();
+            }
+            plot2D(gp, image, data);
+        }
+    }
+}
+/*
 void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor)
 {
+    //Create Array<double> and feed into plot2D w/ array data
     Array<double> data(tensor.size(0), 0);
     std::cout << "\n\nPlotting 2D with GNUPLOT\n";
     for (SizeType step = 0; step < tensor.size(1); step++)
@@ -638,11 +675,10 @@ void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>
         plot2D(gp, image, data);
     }
 }
-
+*/
 void GnuplotCanvas::plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor)
 {
-    //TODO
-    //Create Array<Array<double>> and send into plot3D w/ realtime array data
+    //Create Array<Array<double>> and send into plot3D w/ array data
     SizeType dimX = tensor.size(0);
     SizeType dimY = tensor.size(1);
     SizeType dimTime = tensor.size(2);
@@ -722,7 +758,6 @@ void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, String filename)
     // set colour
     gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
 }
-
 
 void GnuplotCanvas::plot3D(Gnuplot& gp, Image3D& image, Array<Array<double>> data)
 {  
