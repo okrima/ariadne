@@ -586,12 +586,14 @@ Void CairoCanvas::finalise()
 
 #endif
 
+#ifdef HAVE_GNUPLOT_H
+
 //Create the canvas
 GnuplotCanvas::GnuplotCanvas()
 {
     noCanvas = true;
     isMultiplot = false;
-    is3DPalette = false;
+    is3DPalette = false;  
 }
 
 GnuplotCanvas::GnuplotCanvas(Image2D& image, int X, int Y)
@@ -624,29 +626,8 @@ void GnuplotCanvas::setMultiplot(Gnuplot& gp, bool s)
     }  
 }
 
-void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor, Bool file)
+void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor)
 {
-    if (file)   
-    {
-        std::ofstream fileStream;
-        String name = "data.dat";
-
-        std::cout << "\n\nPlotting 2D with GNUPLOT\n";
-
-        for (SizeType step = 0; step < tensor.size(1); step++)
-        {
-            fileStream.open(name);
-            for (SizeType x = 0; x < tensor.size(0); x++)
-            {
-                fileStream << tensor[{x, step}].get_d();
-                fileStream << "\n";
-            }
-            fileStream.close();
-            plot2D(gp, image, name);   
-        }
-    }
-    else
-    {
         //Create Array<double> and feed into plot2D w/ array data
         Array<double> data(tensor.size(0), 0);
         std::cout << "\n\nPlotting 2D with GNUPLOT\n";
@@ -658,7 +639,6 @@ void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>
             }
             plot2D(gp, image, data);
         }
-    }
 }
 /*
 void GnuplotCanvas::plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor)
@@ -729,6 +709,7 @@ void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, Array<double> data)
     gp << " lc rgb \"" << _colours[image.colour] << "\"\n";
     //Send data through pipe gp
     gp.send1d(data);
+
 }
 
 void GnuplotCanvas::plot2D(Gnuplot& gp, Image2D& image, String filename)
@@ -810,11 +791,12 @@ void GnuplotCanvas::setTerminal(Gnuplot& gp, Image2D& image, _Format format, Str
 {
     if (format == _gif)
         {
-            gp << "set term " << _format[format] << " animate\n"; 
+            gp << "set term " << _format[format] << " animate\n";
         }
         else
         {
             gp << "set term " << _format[format] << " \n";
+
         }   
 
     if (noCanvas == true){ // If no dimensions
@@ -824,9 +806,11 @@ void GnuplotCanvas::setTerminal(Gnuplot& gp, Image2D& image, _Format format, Str
     {
         gp << "size " << to_string(sizeX) << " " <<
             to_string(sizeY) << "\n";
+
     }
     // create file
     gp << "set output \"" << nameFile << "." << _format[format] << "\"\n";
+    
 
     _filename = nameFile + "." + _format[format];
     setColour(image);
@@ -1054,6 +1038,7 @@ void GnuplotCanvas::unsetColorbox(Gnuplot& gp)
     gp << "unset colorbox\n";
 }
 
+#endif // DEBUG
 
 } // namespace Ariadne
 

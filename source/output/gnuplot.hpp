@@ -30,6 +30,8 @@
 #include <string>
 #include <ctype.h>
 
+#ifdef HAVE_GNUPLOT_H
+
 #include "gnuplot-iostream.h"
 
 namespace Ariadne{
@@ -167,8 +169,10 @@ public:
 
     //Set Multiplot - Multiple plot on same screen
     void setMultiplot(Gnuplot& gp, bool s);
+    //Plot 2D data to file
+    void plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor); 
     //Plot 2D data from Tensor
-    void plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor);
+    //void plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor);
     // Plot 3D data from Tensor
     void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor);
     // Plot from Array
@@ -238,8 +242,6 @@ public:
     void set3DPalette(Gnuplot& gp, Image3D& image, FloatMP min, FloatMP max, bool s);
     //Unset colorbox
     void unsetColorbox(Gnuplot& gp);
-    
-
 };
 
 GnuplotCanvas::~GnuplotCanvas()
@@ -249,3 +251,5 @@ GnuplotCanvas::~GnuplotCanvas()
 
 
 } // namespace Ariadne
+
+#endif // DEBUG
