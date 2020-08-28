@@ -62,6 +62,8 @@ include(CheckIncludeFiles)
 include(CheckIncludeFileCXX)
 include(CheckLibraryExists)
 
+include(cmake/FindGnuplot.cmake)
+
 check_type_size("char" SIZEOF_CHAR)
 check_type_size("short int" SIZEOF_SHORT_INT)
 check_type_size("int" SIZEOF_INT)
@@ -108,13 +110,25 @@ else()
     message(WARNING "Unable to find Cairo. You will not be able to use graphics.")
 endif()
 
+find_package(Boost COMPONENTS system filesystem iostreams REQUIRED)
+if(Boost_FOUND)
+    set(HAVE_GNUPLOT_H ON)
+    include_directories(SYSTEM ${BOOST_INCLUDE_DIRS})
+    if(GNUPLOT_FOUND)
+        set(HAVE_GNUPLOT_H ON)
+    else()
+        message(WARNING "Unable to find GNUPLOT. You will not be able to use GNUPLOT.")
+        set(HAVE_GNUPLOT_H OFF)
+    endif()
+else()
+    message(WARNING "Unable to find BOOST. You will not be able to use GNUPLOT.")
+endif()
+
+find_package(Kirk)
+
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.hpp.cmake ${PROJECT_SOURCE_DIR}/source/config.hpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/source)
-
-find_package(Boost 1.65.1 REQUIRED COMPONENTS system)
-
-find_package(Kirk)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   add_definitions(-Wno-non-template-friend)
@@ -190,11 +204,10 @@ add_library(ariadne SHARED
 target_link_libraries(ariadne dl)
 target_link_libraries(ariadne-kernel dl)
 target_link_libraries(ariadne-core dl)
-#target_link_libraries(
 
-target_link_libraries(ariadne ${GMP_LIBRARIES} ${MPFR_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(ariadne-kernel ${GMP_LIBRARIES} ${MPFR_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(ariadne-core ${GMP_LIBRARIES} ${MPFR_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(ariadne ${GMP_LIBRARIES} ${MPFR_LIBRARIES})
+target_link_libraries(ariadne-kernel ${GMP_LIBRARIES} ${MPFR_LIBRARIES})
+target_link_libraries(ariadne-core ${GMP_LIBRARIES} ${MPFR_LIBRARIES})
 
 if(COVERAGE)
     target_link_libraries(ariadne coverage_config)
@@ -213,11 +226,11 @@ if(CAIRO_FOUND)
     target_link_libraries(ariadne-kernel ${CAIRO_LIBRARIES})
 endif()
 
-#if(Boost_FOUND)
-#    target_link_libraries(ariadne ${Boost_LIBRARIES})
-#    #target_link_libraries(aradne-kernel ${Boost_LIBRARIES})
-#    target_link_libraries(ariadne-core ${Boost_LIBRARIES})
-#endif()
+if(Boost_FOUND AND GNUPLOT_FOUND)
+    target_link_libraries(ariadne ${Boost_LIBRARIES})
+    target_link_libraries(ariadne-core ${Boost_LIBRARIES})
+    target_link_libraries(ariadne-kernel ${Boost_LIBRARIES})
+endif()
 
 install(TARGETS ariadne DESTINATION lib)
 install(DIRECTORY source/ DESTINATION include/ariadne FILES_MATCHING PATTERN "*.hpp")
