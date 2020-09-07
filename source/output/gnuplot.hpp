@@ -74,16 +74,22 @@ enum _LineStyle2D // %s - es: ls, fs
 {
     lines2D,
     linespoints2D, //lp
+    points2D,
+    dots2D,
+    steps2D,
+    impulses2D,
 };
 
 struct _Line2D
 {
-    _LineStyle2D style;
+    _LineStyle2D style = lines2D;
+    //line weight
     int lw = 1;
+    //line size
     int ls = 1;
 };
 
-const char *_linestyle2D[] = {"lines", "linespoints"};// "points", "dots", "steps", "impulses"};
+const char *_linestyle2D[] = {"lines", "linespoints", "points", "dots", "steps", "impulses"};
 
 enum _LineStyle3D // %s - es: ls, fs
 {
@@ -95,7 +101,7 @@ enum _LineStyle3D // %s - es: ls, fs
 
 struct _Line3D
 {
-    _LineStyle3D style;
+    _LineStyle3D style = lines3D;
     int lw = 1;
     int ls = 1;
 };
@@ -112,52 +118,56 @@ const char *_format[] = {"png", "gif"};
 
 struct _Range2D
 {
-    FloatMP Xmin = 0;
-    FloatMP Xmax;
-    FloatMP Ymin = 0;
-    FloatMP Ymax;
+    FloatDP Xmin = 0;
+    FloatDP Xmax;
+    FloatDP Ymin = 0;
+    FloatDP Ymax;
 };
 
 struct _Range3D
 {
-    FloatMP Xmin = 0;
-    FloatMP Xmax;
-    FloatMP Ymin = 0;
-    FloatMP Ymax;
-    FloatMP Zmin = 0;
-    FloatMP Zmax;
+    FloatDP Xmin = 0;
+    FloatDP Xmax;
+    FloatDP Ymin = 0;
+    FloatDP Ymax;
+    FloatDP Zmin = 0;
+    FloatDP Zmax;
 };
 
 struct Image2D
 {
-    _Colours colour;
+    _Colours colour = _black;
     _Line2D linestyle2D;
-    _Range2D range2D;
+    //_Range2D range2D;
 
 };
 
 struct Image3D
 {
-    _Colours colour;
+    _Colours colour = _black;
     _Line3D linestyle3D;
-    _Range3D range3D;
+    //_Range3D range3D;
     
 };
-
-//Command
-// show colorname
-// test
 
 class GnuplotCanvas
 {
 private:
     int sizeX;
     int sizeY;
-    String _filename;
 protected:  
     bool noCanvas;
     bool isMultiplot;
     bool is3DPalette;
+private:
+    // Plot from Array
+    void plot2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<double> data);
+    // Plot from Array
+    void plot2D(Gnuplot& gp, Image2D& image, Array<double> data);
+    // 2D Plot from file
+    //void plot2D(Gnuplot& gp, Image2D& image, _Range2D range2D, String filename);
+    // 3D Plot with tensor - Evolution in Time
+    void plot3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Array<Array<double>> data);
 public:
     ~GnuplotCanvas();
     // Constructors - Create the canvas
@@ -169,39 +179,44 @@ public:
 
     //Set Multiplot - Multiple plot on same screen
     void setMultiplot(Gnuplot& gp, bool s);
-    //Plot 2D data to file
-    void plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor); 
-    //Plot 2D data from Tensor
-    //void plotTensor2D(Gnuplot& gp, Image2D& image, Tensor<2, FloatMP>& tensor);
-    // Plot 3D data from Tensor
-    void plotTensor3D(Gnuplot& gp, Image3D& image, Tensor<3, FloatMP>& tensor);
-    // Plot from Array
-    void plot2D(Gnuplot& gp, Image2D& image, Array<double> data);
-    // 2D Plot from file
-    void plot2D(Gnuplot& gp, Image2D& image, String filename);
-    // 3D Plot with tensor - Evolution in Time
-    void plot3D(Gnuplot& gp, Image3D& image, Array<Array<double>> data);
-    // Set Terminal output 2D
-    void setTerminal(Gnuplot& gp, Image2D& image, _Format format, String nameFile);
-    // Set Terminal output 3D
-    void setTerminal(Gnuplot& gp, Image3D& image, _Format format, String nameFile);
-    // Set Title and Label
+    //Set Multiplot Layout
+    void setMultiplotLayout(Gnuplot& gp, int nRow, int nCol, String Title);
+    //Plot 2D Array
+    void plotArray2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<FloatDP>& array);
+    //Plot 2D Array
+    void plotArray2D(Gnuplot& gp, Image2D& image, Array<FloatDP>& array);
+    //Plot 2D Array with list
+    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, _Range2D& range2D, Array<Array<FloatDP>> dataList);
+    //Plot 2D Array with list
+    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, Array<Array<FloatDP>> dataList);
+    //Plot 2D data from Tensor - time evolution
+    void plotTensor2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Tensor<2, FloatDP>& tensor);
+    // Plot 3D data from Tensor - time evolution
+    void plotTensor3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Tensor<3, FloatDP>& tensor);
+    // Set Terminal output
+    void setTerminal(Gnuplot& gp, /*Image2D& image, */_Format format, String nameFile);
+    // Set X Label
     void setXLabel(Gnuplot& gp, String xLabel);
+    // Set Y Label
     void setYLabel(Gnuplot& gp, String yLabel);
+    // Set Z Label
     void setZLabel(Gnuplot& gp, String zLabel);
+    // Set Title
     void setTitle(Gnuplot& gp, String title);
+    // Set Labels
     void setXYZLabel(Gnuplot& gp, String xLabel, String yLabel, String zLabel);
+    // Set Labels and Title
     void setLabels(Gnuplot& gp, String xLabel, String yLabel, String zLabel, String title);
+    // Set X, Y specular symmetric range
+    void setRange2D(_Range2D& range2D, FloatDP maxX, FloatDP maxY);
     // Set X, Y range
-    void setRange2D(Image2D& image, FloatMP maxX, FloatMP maxY);
-    // Set X, Y range
-    void setRange2D(Image2D& image, FloatMP minX, FloatMP maxX, 
-                FloatMP minY, FloatMP maxY);
+    void setRange2D(_Range2D& range2D, FloatDP minX, FloatDP maxX, 
+                FloatDP minY, FloatDP maxY);
     // Set X, Y, Z range
-    void setRange3D(Image3D& image, FloatMP minX, FloatMP maxX, 
-                FloatMP minY, FloatMP maxY,
-                FloatMP minZ, FloatMP maxZ);
-    void setRange3D(Image3D& image, FloatMP maxX, FloatMP maxY, FloatMP maxZ);
+    void setRange3D(_Range3D& range3D, FloatDP minX, FloatDP maxX, 
+                FloatDP minY, FloatDP maxY,
+                FloatDP minZ, FloatDP maxZ);
+    void setRange3D(_Range3D& range3D, FloatDP maxX, FloatDP maxY, FloatDP maxZ);
     // Set default 2D Linestyle
     void setLineStyle(Image2D& image);
     // Set default 3D linestyle
@@ -239,9 +254,10 @@ public:
     // Set View Projection of a 3D rapresentation
     void setMap(Gnuplot& gp);
     //Set 3D palette
-    void set3DPalette(Gnuplot& gp, Image3D& image, FloatMP min, FloatMP max, bool s);
+    void set3DPalette(Gnuplot& gp, Image3D& image, FloatDP min, FloatDP max, bool s);
     //Unset colorbox
     void unsetColorbox(Gnuplot& gp);
+
 };
 
 GnuplotCanvas::~GnuplotCanvas()
@@ -252,4 +268,4 @@ GnuplotCanvas::~GnuplotCanvas()
 
 } // namespace Ariadne
 
-#endif // DEBUG
+#endif
