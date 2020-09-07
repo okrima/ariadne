@@ -1,13 +1,10 @@
 #include "2D_pde.hpp"
-#include "1D_pde.hpp"
 
 namespace Ariadne
 {
-/*    
-    Array<FloatMP> linspace(FloatMP L, SizeType n)
+    Array<FloatDP> pde2D::linspace2D(FloatDP L, SizeType n)
     {
-        Array<FloatMP> linspaced(n);
-
+        Array<FloatDP> linspaced(n);
         if (n == 0)
             return linspaced;
         if (n == 1)
@@ -15,9 +12,7 @@ namespace Ariadne
             linspaced[0] = L;
             return linspaced;
         }
-
-        FloatMP delta = L/(n - 1);
-
+        FloatDP delta = L/(n - 1);
         for (SizeType i = 0; i < (n - 1); i++)
         {
             linspaced[i] = (0 + delta*i);
@@ -26,8 +21,8 @@ namespace Ariadne
         
         return linspaced;
     }
-*/
-    Tensor<3, FloatMP> setIC(Tensor<3, FloatMP>& uts, std::function<FloatMP(FloatMP, FloatMP)> &phi0, SizeType Nx, SizeType Ny, Array<FloatMP> spacePointX, Array<FloatMP> spacePointY)
+
+    Tensor<3, FloatDP> pde2D::setIC(Tensor<3, FloatDP>& uts, std::function<FloatDP(FloatDP, FloatDP)> &phi0, SizeType Nx, SizeType Ny, Array<FloatDP> spacePointX, Array<FloatDP> spacePointY)
     {
         for (SizeType i = 1; i < Nx -1; i++)
         {
@@ -39,39 +34,38 @@ namespace Ariadne
         return uts;
     }
 
-    Tensor<3, FloatMP> pde_2Dsolver(std::function<FloatMP(FloatMP, FloatMP)> &phi0, std::function<FloatMP(FloatMP, FloatMP, FloatMP)>& source, Parameter2D& firstDim, Parameter2D& secondDim, SizeType Nx, SizeType Ny)
+    Tensor<3, FloatDP> pde2D::pde_2Dsolver(std::function<FloatDP(FloatDP, FloatDP)> &phi0, std::function<FloatDP(FloatDP, FloatDP, FloatDP)>& source, Parameter2D& firstDim, Parameter2D& secondDim, SizeType Nx, SizeType Ny)
     {
-        auto spaceX = linspace(firstDim.length, Nx);    //Mesh point x
-        auto spaceY = linspace(secondDim.length, Ny);   //Mesh point y
+        auto spaceX = linspace2D(firstDim.length, Nx);    //Mesh point x
+        auto spaceY = linspace2D(secondDim.length, Ny);   //Mesh point y
 
         auto dx = spaceX[1] - spaceX[0];
         auto dy = spaceY[1] - spaceY[0];
         auto dx2 = pow(dx, 2);
         auto dy2 = pow(dy, 2);
 
-        FloatMP c = 10.0;
-        FloatMP T = 5;
+        FloatDP c = 10.0;
+        FloatDP T = 5;
 
-        FloatMP stability_limit = (1/c)*(1/sqrt(1/dx2 + 1/dy2));
-        FloatMP dt = 0.01;
+        FloatDP stability_limit = (1/c)*(1/sqrt(1/dx2 + 1/dy2));
+        FloatDP dt = 0.01;
         if (dt <= 0)
         {
-            FloatMP safetyFact = -dt;
+            FloatDP safetyFact = -dt;
             dt = safetyFact*stability_limit;
         }
         
-
-        FloatMP Nt = round(T/dt);
+        FloatDP Nt = round(T/dt);
         SizeType Ntime = Nt.get_d();
 
-        auto time = linspace(T, Ntime);                 //Mesh point t
+        auto time = linspace2D(T, Ntime);                 //Mesh point t
 
-        FloatMP Cx = (c*dt/dx);                         //Courant Numbers
-        FloatMP Cy = (c*dt/dy);
-        FloatMP Cx2 = pow(Cx, 2);
-        FloatMP Cy2 = pow(Cy, 2);
+        FloatDP Cx = (c*dt/dx);                         //Courant Numbers
+        FloatDP Cy = (c*dt/dy);
+        FloatDP Cx2 = pow(Cx, 2);
+        FloatDP Cy2 = pow(Cy, 2);
 
-        Tensor<3, FloatMP> uts({Nx, Ny, Ntime}, 0);
+        Tensor<3, FloatDP> uts({Nx, Ny, Ntime}, 0);
 
         std::cout << "Start Computing";
 

@@ -1,41 +1,48 @@
-//#include "ariadne.hpp"
-
 #include "numeric/numeric.hpp"
-#include "numeric/real.hpp"
-#include "algebra/algebra.hpp"
-#include "algebra/vector.hpp"
 #include "utility/array.hpp"
-#include "function/function.decl.hpp"
 #include "algebra/tensor.hpp"
-//#include "typedefs.hpp"
 
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <unistd.h>
 
 namespace Ariadne
 {
     struct Parameter1D
     {
-        FloatMP length;    //Length of string
-        FloatMP tension;
-        FloatMP mass;
-        FloatMP frequency; //Frequency of oscillation
-        FloatMP wavelength;    // n*L
-        FloatMP damping;   //damping
-        FloatMP CourantNumber; //Courant Number 
-        FloatMP c; //velocity
+        FloatDP length;    //Length of string
+        FloatDP tension;
+        FloatDP mass;
+        //FloatDP frequency; //Frequency of oscillation
+        //FloatDP wavelength;    // n*L
+        FloatDP damping;   //damping
+        FloatDP CourantNumber; //Courant Number 
     };    
 
-
     // Solving the one dimensional pde
-    Tensor<2, FloatMP> pde_1Dsolver(std::function<FloatMP(FloatMP)> &phi0, std::function<FloatMP(FloatMP, FloatMP)>& source, Parameter1D& stringParameter, SizeType Nx);
+    //Tensor<2, FloatDP> pde_1Dsolver(std::function<FloatDP(FloatDP)> &phi0, std::function<FloatDP(FloatDP, FloatDP)>& source, Parameter1D& stringParameter, SizeType Nx);
     
     // Set initial condition
-    Tensor<2, FloatMP> setIC(Tensor<2, FloatMP>& uts, std::function<FloatMP(FloatMP)> &phi0, SizeType Nx, Array<FloatMP> spacePoint);
+    //Tensor<2, FloatDP> setIC(Tensor<2, FloatDP>& uts, std::function<FloatDP(FloatDP)> &phi0, SizeType Nx, Array<FloatDP> spacePoint);
 
-    // Create the linspace
-    Array<FloatMP> linspace(FloatMP L, SizeType n);
+    //Array<FloatDP> linspace1D(FloatDP L, SizeType n);
+
+class pde1D
+{
+private:
+    
+    Tensor<2, FloatDP> setIC(Tensor<2, FloatDP>& uts, std::function<FloatDP(FloatDP)> &phi0, SizeType Nx, Array<FloatDP> spacePoint);
+    Array<FloatDP> linspace1D(FloatDP L, SizeType n);  
+public:
+    pde1D();
+    ~pde1D();
+    Tensor<2, FloatDP> pde_1Dsolver(std::function<FloatDP(FloatDP)> &phi0, std::function<FloatDP(FloatDP, FloatDP)>& source, Parameter1D& stringParameter, SizeType Nx);
+};
+pde1D::pde1D()
+{
+}
+pde1D::~pde1D()
+{
+}
+
+
 
 }   // namespace Ariadne
+
