@@ -182,17 +182,106 @@ public:
     //Set Multiplot Layout
     void setMultiplotLayout(Gnuplot& gp, int nRow, int nCol, String Title);
     //Plot 2D Array
-    void plotArray2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<FloatDP>& array);
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, Array<T>& array)
+    {
+        //Create Array<double> and feed into plot2D w/ array data
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(array.size(), 0);
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            data[x] = array[x].get_d();
+        }
+        plot2D(gp, image, data);
+    }
     //Plot 2D Array
-    void plotArray2D(Gnuplot& gp, Image2D& image, Array<FloatDP>& array);
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<T>& array)
+    {
+        //Create Array<double> and feed into plot2D w/ array data
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(array.size(), 0);
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            data[x] = array[x].get_d();
+        }
+        plot2D(gp, image, range2D, data);
+    }
     //Plot 2D Array with list
-    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, _Range2D& range2D, Array<Array<FloatDP>> dataList);
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, Array<Array<T>> dataList)
+    {
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(dataList[0].size(), 0);
+        for (SizeType i = 0; i < dataList.size(); i++)
+        {
+            for (SizeType j = 0; j < data.size(); j++)
+            {
+                data[j] = dataList[i].at(j).get_d();
+            }
+            
+            plot2D(gp, imgList[i], data);
+        }
+    }
     //Plot 2D Array with list
-    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, Array<Array<FloatDP>> dataList);
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, _Range2D& range2D, Array<Array<T>> dataList)
+    {
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(dataList[0].size(), 0);
+        for (SizeType i = 0; i < dataList.size(); i++)
+        {
+            for (SizeType j = 0; j < data.size(); j++)
+            {
+                data[j] = dataList[i].at(j).get_d();
+            }
+            
+            plot2D(gp, imgList[i], range2D, data);
+        }
+    }
     //Plot 2D data from Tensor - time evolution
-    void plotTensor2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Tensor<2, FloatDP>& tensor);
+    template<typename T>
+    void plotTensor2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Tensor<2, T>& tensor)
+    {
+        //Create Array<double> and feed into plot2D w/ array data
+        Array<double> data(tensor.size(0), 0);
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        for (SizeType step = 0; step < tensor.size(1); step++)
+        {
+            for (SizeType x = 0; x < data.size(); x++)
+            {
+                data[x] = (tensor[{x, step}]).get_d();
+            }
+            plot2D(gp, image, range2D, data);
+        }
+    }
     // Plot 3D data from Tensor - time evolution
-    void plotTensor3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Tensor<3, FloatDP>& tensor);
+    template<typename T>
+    void plotTensor3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Tensor<3, T>& tensor)
+    {
+        //Create Array<Array<double>> and send into plot3D w/ array data
+        SizeType dimX = tensor.size(0);
+        SizeType dimY = tensor.size(1);
+        SizeType dimTime = tensor.size(2);
+        Array<Array<double>> data(dimX);
+
+        std::cout << "\n\nPlotting 3D with GNUPLOT\n\n";
+
+        for(SizeType step = 0; step < dimTime; step++)
+        {
+            for (SizeType i = 0; i < dimX; i++)
+            {
+                data[i].resize(dimY);
+                for (SizeType j = 0; j < dimY; j++)
+                {
+                    data[i].at(j) = tensor[{i, j, step}].get_d();
+                }    
+            }
+            plot3D(gp, image, range3D, data);
+        }
+    }
     // Set Terminal output
     void setTerminal(Gnuplot& gp, /*Image2D& image, */_Format format, String nameFile);
     // Set X Label
@@ -264,8 +353,8 @@ GnuplotCanvas::~GnuplotCanvas()
 {
 }
 
-
-
 } // namespace Ariadne
+
+
 
 #endif
