@@ -187,7 +187,7 @@ class TestGnuplot
             std::function<FloatDP(FloatDP)> fun = [](FloatDP x)
             {   if (x != 0)
                 {
-                    return sin(x)*x;
+                    return sin(x)/x;
                 }
                 else
                 {
