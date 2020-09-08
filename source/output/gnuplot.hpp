@@ -254,7 +254,7 @@ public:
     // Set View Projection of a 3D rapresentation
     void setMap(Gnuplot& gp);
     //Set 3D palette
-    void set3DPalette(Gnuplot& gp, Image3D& image, FloatDP min, FloatDP max, bool s);
+    void set3DPalette(Gnuplot& gp, Image3D& image, FloatDP min, FloatDP max, FloatDP step, bool s);
     //Unset colorbox
     void unsetColorbox(Gnuplot& gp);
 

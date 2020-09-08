@@ -1063,13 +1063,13 @@ void GnuplotCanvas::setMap(Gnuplot& gp)
 {
     gp << "set pm3d map\n";
 }
-void GnuplotCanvas::set3DPalette(Gnuplot& gp, Image3D& image, FloatDP min, FloatDP max, bool s)
+void GnuplotCanvas::set3DPalette(Gnuplot& gp, Image3D& image, FloatDP min, FloatDP max, FloatDP step, bool s)
 {
     if (s)
     {
         is3DPalette = true;
         gp << "set cbrange [" << to_string(min) << ":" << to_string(max) << "]\n";
-        gp << "set cbtics 0.2\n";
+        gp << "set cbtics " << to_string(step) << "\n";
         gp << "set palette defined\n";
         image.linestyle3D.style = pm3d;
     }  
