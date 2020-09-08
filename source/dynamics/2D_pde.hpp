@@ -11,14 +11,6 @@ namespace Ariadne
         FloatDP damping;   //damping
     }; 
 
-    // Solving the one dimensional pde
-    //Tensor<3, FloatDP> pde_2Dsolver(std::function<FloatDP(FloatDP, FloatDP)> &phi0, std::function<FloatDP(FloatDP, FloatDP, FloatDP)>& source, Parameter2D& firstDim, Parameter2D& secondDim, SizeType Nx, SizeType Ny);
-    
-    // Set initial condition
-    //Tensor<3, FloatDP> setIC(Tensor<3, FloatDP>& uts, std::function<FloatDP(FloatDP, FloatDP)> &phi0, SizeType Nx, SizeType Ny, Array<FloatDP> spacePointX, Array<FloatDP> spacePointY);
-
-    //Array<FloatDP> linspace2D(FloatDP L, SizeType n);
-
 class pde2D
 {
 private:
