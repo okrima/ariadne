@@ -25,6 +25,7 @@
 #include "utility/gnuplot-iostream.h"
 #include "output/gnuplot.hpp"
 #include "dynamics/1D_pde.hpp"
+#include "dynamics/2D_pde.hpp"
 
 using namespace Ariadne;
 using namespace std;
@@ -254,11 +255,9 @@ class TestGnuplot
 
             auto data = solver1D.pde_1Dsolver(PosInitTri, source, stringModel, Nx+1);
         
-
             //auto VelInitCond = [&](Real x){return 0;};            // Set function initial velocity position
         
             Gnuplot gp = Gnuplot("tee test_gnuplot-StringEvol.gnu | gnuplot -persist");
-
             GnuplotCanvas canvas = GnuplotCanvas();
 
             Image2D image;
@@ -271,16 +270,86 @@ class TestGnuplot
             canvas.setYLabel(gp, "Amplitude");
             canvas.setRange2D(range, 0, Nx+1, -1, 1);
 
-            //Array<FloatDP> space = linspace(stringModel.length, Nx+1);
-
             canvas.plotTensor2D(gp, image, range, data);
         }//String Evolution over time
 
         void gauss3D()
-        {}
+        {
+            Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D | gnuplot -persist");
+            GnuplotCanvas canvas = GnuplotCanvas();
+
+            Image3D gauss;
+            SizeType dim = 50;
+            Tensor<3, FloatDP> data({dim, dim, 1}, 0);
+
+            std::function<FloatDP(FloatDP, FloatDP)> fun = [&](FloatDP x, FloatDP y){return (exp(-0.005*pow(x-dim/2, 2)-0.005*pow(y-dim/2, 2)));};
+
+            for (SizeType step = 0; step < 1; step++)
+            {
+                for (SizeType x = 0; x < dim; x++)
+                {
+                    for (SizeType y = 0; y < dim; y++)
+                    {
+                        data[{x, y, step}] = fun(x, y);
+                    }   
+                }
+            }
+
+            _Range3D range;
+
+            canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D");
+            canvas.setTitle(gp, "3D plot");
+            canvas.setXYZLabel(gp, "x", "y", "z");
+
+            canvas.set3DPalette(gp, gauss, -0.5, 1, 0.2, true);
+
+            canvas.setMultiplot(gp, false);
+            
+            canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
+
+            canvas.plotTensor3D(gp, gauss, range, data);
+        }//Gauss 3D
 
         void gauss3DAnimation()
-        {}
+        {
+            SizeType Nx = 10;   //Mesh 1° dim
+            SizeType Ny = 10;   //Mesh 2° dim
+
+            pde2D solver2D = pde2D();
+
+            Parameter2D firstDim, secondDim;
+
+            firstDim.length = 10;
+            secondDim.length = 10;
+
+            
+            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
+
+            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
+
+            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
+
+            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation | gnuplot -persist");
+            GnuplotCanvas canvas;
+
+            Image3D image;
+            _Range3D range3D;
+            _Line3D line3D;
+            line3D.style = surface3D;
+
+            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation");
+            canvas.setMultiplot(gp, false);
+            canvas.setTitle(gp, "Evolution");
+            canvas.setXLabel(gp, "x - Space");
+            canvas.setYLabel(gp, "y - Space");
+            canvas.setZLabel(gp, "Amplitude");
+            canvas.setRange3D(range3D, Nx, Ny, 1);
+            canvas.setLineStyle(image, line3D);
+            canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
+            //canvas.setMap(gp);
+
+            canvas.plotTensor3D(gp, image, range3D, data);
+        }
 };
 
 int main(int argc, const char** argv) {
