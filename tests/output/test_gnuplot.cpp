@@ -21,6 +21,7 @@
 #include "../test.hpp"
 
 #include "numeric/numeric.hpp"
+#include "numeric/float_bounds.hpp"
 
 #include "utility/gnuplot-iostream.h"
 #include "output/gnuplot.hpp"
@@ -41,6 +42,7 @@ class TestGnuplot
             ARIADNE_TEST_CALL(stringAnimation());
             ARIADNE_TEST_CALL(gauss3D());
             ARIADNE_TEST_CALL(gauss3DAnimation());
+            ARIADNE_TEST_CALL(BoundsData());
         }
 
         void LinFun()
@@ -172,6 +174,7 @@ class TestGnuplot
             imgList[1] = img2;
 
             canvas.plotArray2D(gp, imgList, dataList);
+            
         }//Exponential Function
 
         void defaultSincFunc()
@@ -275,7 +278,7 @@ class TestGnuplot
 
         void gauss3D()
         {
-            Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D | gnuplot -persist");
+            Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D.gnu | gnuplot -persist");
             GnuplotCanvas canvas = GnuplotCanvas();
 
             Image3D gauss;
@@ -329,7 +332,7 @@ class TestGnuplot
 
             auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
 
-            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation | gnuplot -persist");
+            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation.gnu | gnuplot -persist");
             GnuplotCanvas canvas;
 
             Image3D image;
@@ -350,6 +353,47 @@ class TestGnuplot
 
             canvas.plotTensor3D(gp, image, range3D, data);
         }
+
+        void BoundsData()
+        {
+            Gnuplot gp = Gnuplot("tee test_gnuplot-Bound.gnu | gnuplot -persist");   //commands dump and make graphics
+            GnuplotCanvas canvas = GnuplotCanvas();
+
+            Image2D img;
+
+            DoublePrecision pr;
+            typedef RawFloat<decltype(pr)> F;
+
+            Array<Bounds<F>> data(50);
+
+            for (SizeType i = 0; i < data.size(); i++)
+            {
+                data[i] = i*(Bounds<F>)1.123456789123456789123456789;
+            }
+            
+            canvas.setTerminal(gp, _png, "test_gnuplot-Bound");
+
+            canvas.setTitle(gp, "Test Linear Function Bound Plot");
+            canvas.setXLabel(gp, "x");
+            canvas.setYLabel(gp, "y");
+
+            canvas.setColour(img, _black);
+
+            _Line2D line1;
+            line1.style = lines2D;
+            line1.ls = 1;
+            line1.lw = 2;
+            canvas.setLineStyle(img, line1);
+
+            canvas.setMultiplot(gp, true);
+
+            _Range2D range;
+            canvas.setRange2D(range, 0, data.size(), 0, 100);
+
+            canvas.plotArray2D(gp, img, data);
+            
+        }//Linear Function - Bounds value
+
 };
 
 int main(int argc, const char** argv) {
