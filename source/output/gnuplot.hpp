@@ -27,6 +27,7 @@
 #include "../config.hpp"
 #include "../utility/string.hpp"
 #include "algebra/tensor.hpp"
+#include "numeric/float_bounds.hpp"
 #include <string>
 #include <ctype.h>
 
@@ -161,13 +162,31 @@ protected:
     bool is3DPalette;
 private:
     // Plot from Array
-    void plot2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<double> data);
-    // Plot from Array
     void plot2D(Gnuplot& gp, Image2D& image, Array<double> data);
-    // 2D Plot from file
-    //void plot2D(Gnuplot& gp, Image2D& image, _Range2D range2D, String filename);
-    // 3D Plot with tensor - Evolution in Time
+    // Plot from Vector
+    //void plot2D(Gnuplot& gp, Image2D& image, Vector<double> data);
+    // Plot Bounds from Array
+    void plot2D(Gnuplot& gp, Image2D& image, Array<Array<double>> dataBound);
+    // Plot Bounds from Vector
+    //void plot2D(Gnuplot& gp, Image2D& image, Vector<Vector<double>> dataBound);
+    // Plot from Array with Range
+    void plot2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<double> data);
+    // Plot from Array Bound with Range
+    void plot2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<Array<double>> dataBound);
+    // Plot from Vector with Range
+    //void plot2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Vector<double> data);
+    // Plot from Vector Bound with Range
+    //void plot2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Vector<Vector<double>> dataBound);
+    // 3D Plot with tensor Array - Evolution in Time
     void plot3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Array<Array<double>> data);
+    // 3D Plot with tensor Vector - Evolution in Time
+    //void plot3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Vector<Vector<double>> data);   
+    // 3D Plot Bounds with tensor Vector - Evolution in Time
+    //void plot3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Vector<Vector<Vector<double>>> dataBound);   
+    // 3D Plot Bounds with tensor Array - Evolution in Time
+    void plot3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Array<Array<Array<double>>> dataBound);   
+
+
 public:
     ~GnuplotCanvas();
     // Constructors - Create the canvas
@@ -185,6 +204,40 @@ public:
     template<typename T>
     void plotArray2D(Gnuplot& gp, Image2D& image, Array<T>& array)
     {
+        //Create Array<double> and feed into plot2D w/ array
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(array.size(), 0);
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            data[x] = array[x].get_d();
+        }
+        plot2D(gp, image, data);
+    }
+    //Plot 2D Bounds - Array
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, Array<Bounds<T>>& array)
+    {
+        //Create Array<double> and feed into plot2D w/ array
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+
+        Array<Array<double>> dataBound(2);   //dataBound[0] = Lower Value
+                                                //dataBound[1] = Upper Value
+        for (SizeType i = 0; i < 2; i++)    //Resize each bound
+        {
+            dataBound[i].resize(array.size());
+        }
+        
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            dataBound[0].at(x) = array[x].lower().get_d();
+            dataBound[1].at(x) = array[x].upper().get_d();
+        }
+        plot2D(gp, image, dataBound);
+    }
+    //Plot 2D Vector
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, Vector<T>& array)
+    {
         //Create Array<double> and feed into plot2D w/ array data
         std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
         Array<double> data(array.size(), 0);
@@ -194,6 +247,27 @@ public:
         }
         plot2D(gp, image, data);
     }
+    //Plot 2D Bounds - Vector
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, Vector<Bounds<T>>& array)
+    {
+        //Create Array<double> and feed into plot2D w/ array
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+
+        Array<Array<double>> dataBound(2); //dataBound[0] = Lower Value
+                                                //dataBound[1] = Upper Value
+        for (SizeType i = 0; i < 2; i++)    //Resize the bound value
+        {
+            dataBound[i].resize(array.size());
+        }
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            dataBound[0].at(x) = array[x].lower().get_d();
+            dataBound[1].at(x) = array[x].upper().get_d();
+        }
+        plot2D(gp, image, dataBound);
+    }
+
     //Plot 2D Array
     template<typename T>
     void plotArray2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<T>& array)
@@ -207,9 +281,108 @@ public:
         }
         plot2D(gp, image, range2D, data);
     }
+    //Plot 2D Bounds - Array
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Array<Bounds<T>>& array)
+    {
+        //Create Array<double> and feed into plot2D w/ array
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+
+        Array<Array<double>> dataBound(2); //dataBound[0] = Lower Value
+                                                //dataBound[1] = Upper Value
+        for (SizeType i = 0; i < 2; i++)
+        {
+            dataBound[i].resize(array.size());
+        }
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            dataBound[0].at(x) = array[x].lower().get_d();
+            dataBound[1].at(x) = array[x].upper().get_d();
+        }
+        plot2D(gp, image, dataBound);
+    }
+
+    //Plot 2D Vector
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Vector<T>& array)
+    {
+        //Create Array<double> and feed into plot2D w/ array data
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(array.size(), 0);
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            data[x] = array[x].get_d();
+        }
+        plot2D(gp, image, range2D, data);
+    }
+    //Plot 2D Bounds - Vector
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Vector<Bounds<T>>& array)
+    {
+        //Create Array<double> and feed into plot2D w/ array
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+
+        Array<Array<double>> dataBound(2); //dataBound[0] = Lower Value
+                                                //dataBound[1] = Upper Value
+        for (SizeType i = 0; i < 2; i++)
+        {
+            dataBound[i].resize(array.size());
+        }
+        for (SizeType x = 0; x < array.size(); x++)
+        {
+            dataBound[0].at(x) = array[x].lower().get_d();
+            dataBound[1].at(x) = array[x].upper().get_d();
+        }
+        plot2D(gp, image, dataBound);
+    }
+
     //Plot 2D Array with list
     template<typename T>
     void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, Array<Array<T>> dataList)
+    {
+        ARIADNE_ASSERT(dataList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(dataList[0].size(), 0);
+        for (SizeType i = 0; i < dataList.size(); i++)
+        {
+            for (SizeType j = 0; j < data.size(); j++)
+            {
+                data[j] = dataList[i].at(j).get_d();
+            }
+            
+            plot2D(gp, imgList[i], data);
+        }
+    }
+    //Plot 2D Bounds Array with list
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, Array<Array<Bounds<T>>> dataList)
+    {
+        ARIADNE_ASSERT(dataList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        for (SizeType i = 0; i < dataList.size(); i++)  //For each Function
+        {
+            Array<Array<double>> dataBound(2);       //Create the bound value
+            for (SizeType k = 0; k < 2; k++)
+            {
+                dataBound[i].resize(dataList[0].size());//Resize each bound array
+            }
+            
+            for (SizeType j = 0; j < dataBound[0].size(); j++)
+            {
+                dataBound[0].at(j) = dataList[i].at(j).lower().get_d();
+                dataBound[1].at(j) = dataList[i].at(j).upper().get_d();
+            }
+            plot2D(gp, imgList[i], dataBound);
+        }        
+    }
+
+    //Plot 2D Vector with list
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Vector<Image2D> imgList, Vector<Vector<T>> dataList)
     {
         ARIADNE_ASSERT(imgList.size() == dataList.size());
         std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
@@ -224,7 +397,32 @@ public:
             plot2D(gp, imgList[i], data);
         }
     }
-    //Plot 2D Array with list
+    //Plot 2D Bounds Vector with list
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Vector<Image2D> imgList, Vector<Vector<Bounds<T>>> dataList)
+    {
+        ARIADNE_ASSERT(dataList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        for (SizeType i = 0; i < dataList.size(); i++)  //For each Function
+        {
+            Array<Array<double>> dataBound(2);       //Create the bound value
+            for (SizeType k = 0; k < 2; k++)
+            {
+                dataBound[i].resize(dataList[0].size());//Resize each bound array
+            }
+            
+            for (SizeType j = 0; j < dataBound[0].size(); j++)
+            {
+                dataBound[0].at(j) = dataList[i].at(j).lower().get_d();
+                dataBound[1].at(j) = dataList[i].at(j).upper().get_d();
+            }
+            plot2D(gp, imgList[i], dataBound);
+        } 
+    }
+
+    //Plot 2D Array with list and range
     template<typename T>
     void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, _Range2D& range2D, Array<Array<T>> dataList)
     {
@@ -241,6 +439,73 @@ public:
             plot2D(gp, imgList[i], range2D, data);
         }
     }
+    //Plot 2D Bounds Array with list and range
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Array<Image2D> imgList, _Range2D& range2D, Array<Array<Bounds<T>>> dataList)
+    {
+        ARIADNE_ASSERT(dataList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        for (SizeType i = 0; i < dataList.size(); i++)  //For each Function
+        {
+            Array<Array<double>> dataBound(2);       //Create the bound value
+            for (SizeType k = 0; k < 2; k++)
+            {
+                dataBound[i].resize(dataList[0].size());//Resize each bound array
+            }
+            
+            for (SizeType j = 0; j < dataBound[0].size(); j++)
+            {
+                dataBound[0].at(j) = dataList[i].at(j).lower().get_d();
+                dataBound[1].at(j) = dataList[i].at(j).upper().get_d();
+            }
+            plot2D(gp, imgList[i], dataBound);
+        } 
+    }
+
+    //Plot 2D Vector with list
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Vector<Image2D> imgList, _Range2D& range2D, Vector<Vector<T>> dataList)
+    {
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        Array<double> data(dataList[0].size(), 0);
+        for (SizeType i = 0; i < dataList.size(); i++)
+        {
+            for (SizeType j = 0; j < data.size(); j++)
+            {
+                data[j] = dataList[i].at(j).get_d();
+            }
+            
+            plot2D(gp, imgList[i], range2D, data);
+        }
+    }
+    //Plot 2D Bounds Vector with list and range
+    template<typename T>
+    void plotArray2D(Gnuplot& gp, Vector<Image2D> imgList, _Range2D& range2D, Vector<Vector<Bounds<T>>> dataList)
+    {
+        ARIADNE_ASSERT(dataList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() > 0);
+        ARIADNE_ASSERT(imgList.size() == dataList.size());
+        std::cout << "\n\nPlotting 2D with GNUPLOT\n\n";
+        for (SizeType i = 0; i < dataList.size(); i++)  //For each Function
+        {
+            Array<Array<double>> dataBound(2);       //Create the bound value
+            for (SizeType k = 0; k < 2; k++)
+            {
+                dataBound[i].resize(dataList[0].size());//Resize each bound array
+            }
+            
+            for (SizeType j = 0; j < dataBound[0].size(); j++)
+            {
+                dataBound[0].at(j) = dataList[i].at(j).lower().get_d();
+                dataBound[1].at(j) = dataList[i].at(j).upper().get_d();
+            }
+            plot2D(gp, imgList[i], dataBound);
+        } 
+    }
+
     //Plot 2D data from Tensor - time evolution
     template<typename T>
     void plotTensor2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Tensor<2, T>& tensor)
@@ -257,7 +522,30 @@ public:
             plot2D(gp, image, range2D, data);
         }
     }
-    // Plot 3D data from Tensor - time evolution
+    //Plot 2D Bounds data from Tensor - time evolution
+    template<typename T>
+    void plotTensor2D(Gnuplot& gp, Image2D& image, _Range2D& range2D, Tensor<2, Bounds<T>>& tensor)
+    {
+        //Create Array<double> and feed into plot2D w/ array data
+        Array<Array<double>> dataBound(2);
+        for (SizeType step = 0; step < tensor.size(1) ; step++) //For each time step
+        {
+            for (SizeType i = 0; i < 2; i++)
+            {
+                dataBound[i].resize(tensor.size(0));
+            }
+            
+            for (SizeType x = 0; x < tensor.size(0); x++)
+            {
+                dataBound[0] = tensor[{x, step}].lower().get_d();
+                dataBound[1] = tensor[{x, step}].upper().get_d();
+            }
+            plot2D(gp, image, range2D, dataBound);
+        }
+        
+    }
+
+    // Plot 3D Array from Tensor - time evolution
     template<typename T>
     void plotTensor3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Tensor<3, T>& tensor)
     {
@@ -282,8 +570,43 @@ public:
             plot3D(gp, image, range3D, data);
         }
     }
+    // Plot 3D Bounds Array from Tensor - time evolution
+
+    template<typename T>
+    void plotTensor3D(Gnuplot& gp, Image3D& image, _Range3D& range3D, Tensor<3, Bounds<T>>& tensor)
+    {
+        //Create Array<Array<double>> and send into plot3D w/ array data
+        SizeType dimX = tensor.size(0);
+        SizeType dimY = tensor.size(1);
+        SizeType dimTime = tensor.size(2);
+        
+
+        std::cout << "\n\nPlotting 3D with GNUPLOT\n\n";
+
+        for (SizeType step = 0; step < dimTime; step++)
+        {
+            Array<Array<Array<double>>> dataBound(2);
+            for (SizeType i = 0; i < 2; i++)    //Resize
+            {
+                dataBound[i].resize(dimX);
+            }
+            
+            for (SizeType x = 0; x < dimX; x++)
+            {
+                dataBound[0].at(x).resize(dimY);
+                dataBound[1].at(x).resize(dimY);
+                for (SizeType y = 0; y < dimY; y++)
+                {
+                    dataBound[0].at(x).at(y) = tensor[{x, y, step}].lower().get_d();
+                    dataBound[1].at(x).at(y) = tensor[{x, y, step}].upper().get_d();
+                }  
+            }
+            plot3D(gp, image,range3D, dataBound); 
+        }  
+    }
+
     // Set Terminal output
-    void setTerminal(Gnuplot& gp, /*Image2D& image, */_Format format, String nameFile);
+    void setTerminal(Gnuplot& gp, _Format format, String nameFile);
     // Set X Label
     void setXLabel(Gnuplot& gp, String xLabel);
     // Set Y Label
