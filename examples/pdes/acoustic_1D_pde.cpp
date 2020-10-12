@@ -55,7 +55,8 @@ int main() {
   
 
     //auto VelInitCond = [&](Real x){return 0;};            // Set function initial velocity position
-   
+
+
     Gnuplot gp = Gnuplot("tee plot.gnu | gnuplot -persist");
 
     GnuplotCanvas canvas = GnuplotCanvas();
@@ -64,6 +65,7 @@ int main() {
     _Range2D range;
 
     canvas.setTerminal(gp, _gif, "string-TimeEvol");
+    
     canvas.setMultiplot(gp, false);
     canvas.setTitle(gp, "String Evolution with triangular IC");
     canvas.setXLabel(gp, "x - Space");
