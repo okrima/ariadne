@@ -368,7 +368,7 @@ class TestGnuplot
 
             for (SizeType i = 0; i < data.size(); i++)
             {
-                data[i] = i*(Bounds<F>)1.123456789123456789123456789;
+                data[i] = i*Bounds<F>(1.1, 1.2);
             }
             
             canvas.setTerminal(gp, _png, "test_gnuplot-Bound");
@@ -380,8 +380,8 @@ class TestGnuplot
             canvas.setColour(img, _black);
 
             _Line2D line1;
-            line1.style = lines2D;
-            line1.ls = 1;
+            line1.style = points2D;
+            line1.ls = 3;
             line1.lw = 2;
             canvas.setLineStyle(img, line1);
 
