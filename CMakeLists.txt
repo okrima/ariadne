@@ -62,7 +62,7 @@ include(CheckIncludeFiles)
 include(CheckIncludeFileCXX)
 include(CheckLibraryExists)
 
-include(cmake/FindGnuplot.cmake)
+
 
 check_type_size("char" SIZEOF_CHAR)
 check_type_size("short int" SIZEOF_SHORT_INT)
@@ -110,9 +110,9 @@ else()
     message(WARNING "Unable to find Cairo. You will not be able to use graphics.")
 endif()
 
+find_package(Gnuplot)
 if(GNUPLOT_FOUND)
     set(HAVE_GNUPLOT_H ON)
-    message("-- Found GNUPLOT")
 else()
     message(WARNING "Unable to find GNUPLOT. You will not be able to use GNUPLOT.")
     set(HAVE_GNUPLOT_H OFF)
