@@ -81,22 +81,6 @@ THE SOFTWARE.
 #endif
 
 
-
-// ---------------- BOOST ------------------- //
-
-//#include <boost/iostreams/device/file_descriptor.hpp>
-//#include <boost/iostreams/stream.hpp>
-//#include <boost/version.hpp>
-//#include <boost/utility.hpp>
-//#include <boost/tuple/tuple.hpp>
-//// This is the version of boost which has v3 of the filesystem libraries by default.
-//#if BOOST_VERSION >= 104600
-//#    define GNUPLOT_USE_TMPFILE
-//#    include <boost/filesystem.hpp>
-//#endif // BOOST_VERSION
-
-// ---------------- BOOST ------------------- //
-
 // Note: this is here for reverse compatibility.  The new way to enable blitz support is to
 // just include the gnuplot-iostream.h header after you include the blitz header (likewise for
 // armadillo).
@@ -192,30 +176,6 @@ static constexpr bool is_like_stl_container<T, std::void_t<
 
 static_assert( is_like_stl_container<std::vector<int>>);
 static_assert(!is_like_stl_container<int>);
-
-// ---------------------- BOOST -------------------//
-
-//template <typename T>
-//static constexpr bool is_boost_tuple_nulltype =
-//    std::is_same_v<T, boost::tuples::null_type>;
-//
-//static_assert(is_boost_tuple_nulltype<boost::tuples::null_type>);
-//
-//template <typename T, typename=void>
-//static constexpr bool is_boost_tuple = false;
-//
-//template <typename T>
-//static constexpr bool is_boost_tuple<T, std::void_t<
-//        typename T::head_type,
-//        typename T::tail_type
-//    >> = is_boost_tuple<typename T::tail_type> || is_boost_tuple_nulltype<typename T::tail_type>;
-//
-//static_assert( is_boost_tuple<boost::tuple<int>>);
-//static_assert( is_boost_tuple<boost::tuple<int, int>>);
-//static_assert(!is_boost_tuple<std::tuple<int>>);
-//static_assert(!is_boost_tuple<std::tuple<int, int>>);
-
-// ---------------------- BOOST -------------------//
 
 // }}}1
 
@@ -585,52 +545,6 @@ struct BinarySender<std::complex<T>> {
 };
 
 // }}}2
-//
-//// -------------------------- BOOST ----------------- //
-
-//// {{{2 boost::tuple support
-//
-//template <typename T>
-//struct TextSender<T,
-//    typename std::enable_if_t<is_boost_tuple<T>>
-//> {
-//    static void send(std::ostream &stream, const T &v) {
-//        TextSender<typename T::head_type>::send(stream, v.get_head());
-//        if constexpr (!is_boost_tuple_nulltype<typename T::tail_type>) {
-//            stream << " ";
-//            TextSender<typename T::tail_type>::send(stream, v.get_tail());
-//        }
-//    }
-//};
-//
-//template <typename T>
-//struct BinfmtSender<T,
-//    typename std::enable_if_t<is_boost_tuple<T>>
-//> {
-//    static void send(std::ostream &stream) {
-//        BinfmtSender<typename T::head_type>::send(stream);
-//        if constexpr (!is_boost_tuple_nulltype<typename T::tail_type>) {
-//            stream << " ";
-//            BinfmtSender<typename T::tail_type>::send(stream);
-//        }
-//    }
-//};
-//
-//template <typename T>
-//struct BinarySender<T,
-//    typename std::enable_if_t<is_boost_tuple<T>>
-//> {
-//    static void send(std::ostream &stream, const T &v) {
-//        BinarySender<typename T::head_type>::send(stream, v.get_head());
-//        if constexpr (!is_boost_tuple_nulltype<typename T::tail_type>) {
-//            BinarySender<typename T::tail_type>::send(stream, v.get_tail());
-//        }
-//    }
-//};
-
-//// -------------------------- BOOST ----------------- //
-
-// }}}2
 
 // {{{2 std::tuple support
 
@@ -946,58 +860,6 @@ public:
         );
     }
 };
-
-// }}}2
-
-////// -------------------------- BOOST ----------------- //
-//
-//// {{{2 boost::tuple support
-//
-//template <typename T>
-//class ArrayTraits<T,
-//    typename std::enable_if_t<
-//        is_boost_tuple<T> && !is_boost_tuple_nulltype<typename T::tail_type>
-//    >
-//> : public ArrayTraits<
-//    typename std::pair<
-//        typename T::head_type,
-//        typename T::tail_type
-//    >
-//> {
-//public:
-//    typedef typename T::head_type HT;
-//    typedef typename T::tail_type TT;
-//
-//    typedef ArrayTraits<typename std::pair<HT, TT>> parent;
-//
-//    static typename parent::range_type get_range(const T &arg) {
-//        return typename parent::range_type(
-//            ArrayTraits<HT>::get_range(arg.get_head()),
-//            ArrayTraits<TT>::get_range(arg.get_tail())
-//        );
-//    }
-//};
-//
-//template <typename T>
-//class ArrayTraits<T,
-//    typename std::enable_if_t<
-//        is_boost_tuple<T> && is_boost_tuple_nulltype<typename T::tail_type>
-//    >
-//> : public ArrayTraits<
-//    typename T::head_type
-//> {
-//    typedef typename T::head_type HT;
-//
-//    typedef ArrayTraits<HT> parent;
-//
-//public:
-//    static typename parent::range_type get_range(const T &arg) {
-//        return parent::get_range(arg.get_head());
-//    }
-//};
-//
-
-//// -------------------------- BOOST ----------------- //
 
 // }}}2
 
@@ -1578,61 +1440,6 @@ private:
     std::string bin_size;
 };
 
-/*
-
-class PlotGroup {
-public:
-    friend class Gnuplot;
-
-    explicit PlotGroup(const std::string &plot_type_) : plot_type(plot_type_) { }
-
-    PlotGroup &add_preamble(const std::string &s) {
-        preamble_lines.push_back(s);
-        return *this;
-    }
-
-    PlotGroup &add_plot(const std::string &plotspec) { plots.emplace_back(plotspec); return *this; }
-
-    template <typename T> PlotGroup &add_plot1d         (const T &arg, const std::string &plotspec="", const std::string &text_array_record="text") { add(arg, plotspec, text_array_record, Mode1D      ()); return *this; }
-    template <typename T> PlotGroup &add_plot2d         (const T &arg, const std::string &plotspec="", const std::string &text_array_record="text") { add(arg, plotspec, text_array_record, Mode2D      ()); return *this; }
-    template <typename T> PlotGroup &add_plot1d_colmajor(const T &arg, const std::string &plotspec="", const std::string &text_array_record="text") { add(arg, plotspec, text_array_record, Mode1DUnwrap()); return *this; }
-    template <typename T> PlotGroup &add_plot2d_colmajor(const T &arg, const std::string &plotspec="", const std::string &text_array_record="text") { add(arg, plotspec, text_array_record, Mode2DUnwrap()); return *this; }
-
-    PlotGroup &file(const std::string &fn) {
-        assert(!plots.empty());
-        plots.back().file(fn);
-        return *this;
-    }
-
-    size_t num_plots() const { return plots.size(); }
-
-private:
-    template <typename T, typename OrganizationMode>
-    void add(const T &arg, const std::string &plotspec, const std::string &text_array_record, OrganizationMode) {
-        if(!(
-            text_array_record == "text" ||
-            text_array_record == "array" ||
-            text_array_record == "record"
-        )) throw std::logic_error("text_array_record must be one of text, array, or record (was "+
-            text_array_record+")");
-
-        if(text_array_record == "text") {
-            plots.emplace_back(arg, plotspec,
-                "array", // arbitrary value
-                OrganizationMode(), ModeText());
-        } else {
-            plots.emplace_back(arg, plotspec, text_array_record,
-                OrganizationMode(), ModeBinary());
-        }
-    }
-
-    std::string plot_type;
-    std::vector<std::string> preamble_lines;
-    std::vector<PlotData> plots;
-};
-
-*/
-
 // }}}1
 
 // {{{1 FileHandleWrapper
@@ -1644,7 +1451,7 @@ private:
 //    via multiple inheritance as described at http://stackoverflow.com/a/3821756/1048959
 // 2. It remembers whether the handle needs to be closed via fclose or pclose.
 
-//streambuf class from file descriptor
+
 
 struct FileHandleWrapper{
     FileHandleWrapper(std::FILE *_fh, bool _should_use_pclose)  :wrapped_fh(_fh), should_use_pclose(_should_use_pclose) {}
@@ -1670,8 +1477,7 @@ struct FileHandleWrapper{
 
 };
 
-// ------------------ WITHOUT BOOST -----------------------//
-
+//streambuf class from file descriptor
 class fdoutbuf : public std::streambuf {
   protected:
     int fd;    // file descriptor
@@ -1681,7 +1487,6 @@ class fdoutbuf : public std::streambuf {
     fdoutbuf (int _fd) : fd(_fd) {}
   protected:
     // write one character
-
     virtual int_type overflow (int_type c) {
         if (c != EOF) {
             char z = c;
@@ -1704,25 +1509,15 @@ class fdostream : public std::ostream {
     }
 };
 
-// ------------------ WITHOUT BOOST -----------------------//
-
 // }}}1
 
 // {{{1 Main class
 
 class Gnuplot :
-    // Some setup needs to be done before obtaining the file descriptor that gets passed to
-    // boost::iostreams::stream.  This is accomplished by using a multiple inheritance trick,
+    // Using a multiple inheritance trick,
     // as described at http://stackoverflow.com/a/3821756/1048959
     private FileHandleWrapper,
     public fdostream
-    
-
-    //// -------------------------- BOOST ----------------- //
-
-    //public boost::iostreams::stream<boost::iostreams::file_descriptor_sink>
-
-    //// -------------------------- BOOST ----------------- //
 {
 private:  
     GnuplotFeedback *feedback;
@@ -1763,24 +1558,6 @@ public:
     explicit Gnuplot(const std::string &_cmd="") :
         FileHandleWrapper(open_cmdline(_cmd)),
         fdostream(fh_fileno()),
-        
-
-//// -------------------------- BOOST ----------------- //
-
-        //boost::iostreams::stream<boost::iostreams::file_descriptor_sink>(
-        //    fh_fileno(),
-
-        
-
-//#if BOOST_VERSION >= 104400
-//            boost::iostreams::never_close_handle
-//#else
-//            false
-//#endif
-//        ),
-
-//// -------------------------- BOOST ----------------- //
-
         feedback(nullptr),
         tmp_files(new GnuplotTmpfileCollection()),
         debug_messages(false),
@@ -1794,22 +1571,6 @@ public:
     explicit Gnuplot(FILE *_fh) :
         FileHandleWrapper(_fh, 0),
         fdostream(fh_fileno()),
-        
-
-
-//// -------------------------- BOOST ----------------- //
-
-//        boost::iostreams::stream<boost::iostreams::file_descriptor_sink>(
-//            fh_fileno(),
-//#if BOOST_VERSION >= 104400
-//            boost::iostreams::never_close_handle
-//#else
-//            false
-//#endif
-//        ),
-
-//// -------------------------- BOOST ----------------- //
-
         feedback(nullptr),
         tmp_files(new GnuplotTmpfileCollection()),
         debug_messages(false),
@@ -1829,9 +1590,7 @@ public:
         if(debug_messages) {
             std::cerr << "ending gnuplot session" << std::endl;
         }
-
-        // FIXME - boost's close method calls close() on the file descriptor, but we need to
-        // use sometimes use pclose instead.  For now, just skip calling boost's close and use
+        //  For now, just skip calling boost's close and use
         // flush just in case.
         do_flush();
         // Wish boost had a pclose method...
@@ -2039,88 +1798,6 @@ private:
 #endif // GNUPLOT_ENABLE_FEEDBACK
 
 };
-
-// {{{2 PlotGroup
-
-/**
-
-public:
-    static PlotGroup plotGroup() {
-        return PlotGroup("plot");
-    }
-
-    static PlotGroup splotGroup() {
-        return PlotGroup("splot");
-    }
-
-    Gnuplot &send(const PlotGroup &plot_group) {
-        return send(PlotGroup(plot_group));
-    }
-
-    Gnuplot &send(const PlotGroup &&plot_group) {
-        for(const std::string &s : plot_group.preamble_lines) {
-            *this->os << s << "\n";
-        }
-
-        std::vector<PlotData> spl = std::move(plot_group.plots);
-
-        if(transport_tmpfile) {
-            for(size_t i=0; i<spl.size(); i++) {
-                if(spl[i].isInline()) {
-                    spl[i].file(make_tmpfile());
-                }
-            }
-        }
-
-        int need_sort = 0;
-        for(const PlotData &sp : spl) {
-            if(need_sort==0 && sp.isInline() && sp.isBinary()) need_sort = 1;
-            if(need_sort==1 && sp.isInline() && sp.isText  ()) need_sort = 2;
-        }
-        if(need_sort == 2) { // inline text occurs after inline binary
-            std::stable_sort(spl.begin(), spl.end(), [](const PlotData &a, const PlotData &b) {
-                bool x = a.isInline() && a.isBinary();
-                bool y = b.isInline() && b.isBinary();
-                return x < y;
-            });
-        }
-
-        *this->os << plot_group.plot_type << " ";
-        for(size_t i=0; i<spl.size(); i++) {
-            if(i) *this->os << ", ";
-            *this->os << spl[i].plotCmd();
-        }
-        *this->os << std::endl;
-
-        for(const PlotData &sp : spl) {
-            if(sp.isInline()) {
-                *this->os << sp.getData();
-                if(sp.isText()) {
-                    *this->os << "e" << std::endl; // gnuplot's "end of array" token
-                }
-            }
-        }
-
-        do_flush();
-
-        return *this;
-    }
-// }}}2
-
-
-
-};
-
-
-inline Gnuplot &operator<<(Gnuplot &gp, PlotGroup &sp) {
-    return gp.send(sp);
-}
-
-inline Gnuplot &operator<<(Gnuplot &gp, PlotGroup &&sp) {
-    return gp.send(sp);
-}
-
-*/
 
 
 // }}}1
