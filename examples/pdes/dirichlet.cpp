@@ -2,6 +2,9 @@
 
 #include "function/taylor_function.hpp"
 
+#include "utility/gnuplot-iostream.h"
+#include "output/gnuplot.hpp"
+
 #define PRINT(expr) { std::cout << #expr << ": " << (expr) << std::endl; }
 #define PRINTLN { std::cout << std::endl; }
 
@@ -58,6 +61,10 @@ template<class F> Void gnuplot(String filename, ValidatedScalarTaylorFunctionMod
     auto pr=tf.properties().precision();
     IntervalDomainType dom=tf.domain()[0];
     Nat m=100;
+
+    //FOR GNUPLOT PLOTTING
+    Array<Bounds<F>> u(m+1);
+
     Value<F> ax(Dyadic(dom.lower()),pr);
     Value<F> bx(Dyadic(dom.upper()),pr);
     Vector<Bounds<F>> x(1u,pr);
@@ -66,8 +73,30 @@ template<class F> Void gnuplot(String filename, ValidatedScalarTaylorFunctionMod
         Bounds<F> tfx=unchecked_evaluate(tf,x);
 //        ofs << (i!=0?";":"") << x[0].get_d() << "," << tfx.lower()<<","<<tfx.upper();
         ofs << x[0].get_d() << " " << tfx.lower()<<" "<<tfx.upper() << "\n";
+
+        //FILL the array for plotting
+        u[i] = tfx;
     }
     ofs.close();
+
+    //START GNUPLOT
+    Gnuplot gp = Gnuplot("tee "+filename+".gnu | gnuplot -persist");
+
+    GnuplotCanvas canvas = GnuplotCanvas();
+
+    Image2D image;
+    _Range2D range;
+
+    canvas.setTerminal(gp, _png, filename);
+    
+    canvas.setMultiplot(gp, true);
+    canvas.setTitle(gp, filename);
+    canvas.setXLabel(gp, "x - Space");
+    canvas.setYLabel(gp, "Amplitude");
+    canvas.setRange2D(range, 0, m+1, -1, 1);
+
+    canvas.plotArray2D(gp, image, range, u);
+
 }
 
 //! \brief Solve the Dirichlet boundary value problem u<sub>xx</sub>(x) + u(x) = f(x); u(0)=u(1)=0.
@@ -106,9 +135,10 @@ void dirichlet(EffectiveScalarMultivariateFunction f) {
     Vector<Value<F>> b({1},pr);
     auto xv=(a+2*b)/3;
 
+
     // Define domain of problem, and zero and coordinate functions.
     IntervalDomainType dom(0,1);
-        BoxDomainType bxdom(1u,dom);
+    BoxDomainType bxdom(1u,dom);
     ValidatedScalarTaylorFunctionModel<F> tz(bxdom, swp);
     ValidatedScalarTaylorFunctionModel<F> tx=ValidatedScalarTaylorFunctionModel<F>::coordinate(bxdom, 0, swp);
 
@@ -123,6 +153,8 @@ void dirichlet(EffectiveScalarMultivariateFunction f) {
 
     // Compute the Fourier coefficients of f
     List<Bounds<F>> as=fourier_coefficients(tf,n);
+
+    
 
     // Compute the square of the L2 norm of f
     Bounds<F> sqrnormL2f = integral(tf*tf,0,1);
