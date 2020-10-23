@@ -127,9 +127,11 @@ int main() {
     canvas.setRange3D(range3D, uts.size(0), uts.size(1), 1);
     canvas.setLineStyle(image, line3D);
     canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
-    //canvas.setMap(gp);
 
-    canvas.plotTensor3D(gp, image, range3D, u);
+    //canvas.setXYprojection(gp);
+    canvas.plotXZProjection(gp, image, range3D, u);
+
+    //canvas.plotTensor3D(gp, image, range3D, u);
 
     
 }
