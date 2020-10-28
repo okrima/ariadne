@@ -159,6 +159,7 @@ private:
 protected:  
     bool noCanvas;
     bool isMultiplot;
+    bool is2DPalette;
     bool is3DPalette;
     bool isProjection;
 private:
@@ -550,12 +551,12 @@ public:
 
         for(SizeType step = 0; step < dimTime; step++)
         {
-            for (SizeType i = 0; i < dimX; i++)
+            for (SizeType i = 0; i < dimY; i++)
             {
-                data[i].resize(dimY);
-                for (SizeType j = 0; j < dimY; j++)
+                data[i].resize(dimX);
+                for (SizeType j = 0; j < dimX; j++)
                 {
-                    data[i].at(j) = tensor[{i, j, step}].get_d();
+                    data[i].at(j) = tensor[{j, i, step}].get_d();
                 }    
             }
             plot3D(gp, image, range3D, data);
@@ -597,7 +598,6 @@ public:
     }
 
     //Plot XZ projection
-    //TODO
     template<typename T>
     void plotXZProjection(Gnuplot& gp, Image3D& image, _Range3D& range, Tensor<3, T>& tensor)
     {
@@ -610,22 +610,60 @@ public:
         rng.Xmax = range.Xmax;
         rng.Ymin = range.Zmin;
         rng.Ymax = range.Zmax;
+        set2DPalette(gp, img, rng.Ymin, rng.Ymax, 0.2);
         Array<double> data(tensor.size(0), 0);
         if (!isMultiplot)
         { 
             for (SizeType step = 0; step < tensor.size(2); step++)
             { 
-                setMultiplot(gp, false);
+                setMultiplot(gp, true);
                 for (SizeType y = 0; y < tensor.size(1); y++)
                 {
                     for (SizeType x = 0; x < tensor.size(0); x++)
                     {
                         data[x] = tensor[{x, y, step}].get_d();
                     }
-                    plot2D(gp, img, rng, data);
-                    setMultiplot(gp, true);     
+                    plot2D(gp, img, rng, data);    
                 }
             }
+            setMultiplot(gp, false);
+        }
+        else{
+            ARIADNE_ERROR("Impossible to plot 3D image or projections with multiplot, please set multiplot = FALSE");
+        }
+    }
+
+    //Plot XZ projection
+    template<typename T>
+    void plotYZProjection(Gnuplot& gp, Image3D& image, _Range3D& range, Tensor<3, T>& tensor)
+    {
+        _Line2D line;
+        line.style = lines2D;
+        Image2D img;
+        img.linestyle2D = line;
+        _Range2D rng;
+        rng.Xmin = range.Ymin;
+        rng.Xmax = range.Ymax;
+        rng.Ymin = range.Zmin;
+        rng.Ymax = range.Zmax;
+        set2DPalette(gp, img, rng.Ymin, rng.Ymax, 0.2);
+        Array<double> data(tensor.size(1), 0);
+        if (!isMultiplot)
+        { 
+            for (SizeType step = 0; step < tensor.size(2); step++)
+            { 
+                setMultiplot(gp, true);
+                for (SizeType x = 0; x < tensor.size(0); x++)
+                {
+                    for (SizeType y = 0; y < tensor.size(1); y++)
+                    {
+                        data[y] = tensor[{x, y, step}].get_d();
+                    }
+                    plot2D(gp, img, rng, data);
+                    //setMultiplot(gp, true);     
+                }
+            }
+            setMultiplot(gp, false);
         }
         else{
             ARIADNE_ERROR("Impossible to plot 3D image or projections with multiplot, please set multiplot = FALSE");
@@ -693,11 +731,18 @@ public:
     void setMap(Gnuplot& gp);
     //Set 3D palette
     void set3DPalette(Gnuplot& gp, Image3D& image, FloatDP min, FloatDP max, FloatDP step, bool s);
+    //Set 2D palette
+    void set2DPalette(Gnuplot& gp, Image2D& image, FloatDP min, FloatDP max, FloatDP step);
     //Unset colorbox
     void unsetColorbox(Gnuplot& gp);
     //Set plane projection
     void setXYprojection(Gnuplot& gp);
 
+    void setXZProjection(Gnuplot& gp);
+
+    void setYZProjection(Gnuplot& gp);
+
+    void setWalls(Gnuplot& gp);
 
 
 };
