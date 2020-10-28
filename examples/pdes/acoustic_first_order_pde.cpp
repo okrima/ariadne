@@ -110,7 +110,7 @@ int main() {
         }
     }
 
-    Gnuplot gp = Gnuplot("tee acoustic_first_order_pde.gnu | gnuplot -persist");
+    Gnuplot gp = Gnuplot("tee Acoustic_First_Order_PDE_ProjYZ.gnu | gnuplot -persist");
     GnuplotCanvas canvas;
 
     Image3D image;
@@ -118,20 +118,40 @@ int main() {
     _Line3D line3D;
     line3D.style = surface3D;
 
-    canvas.setTerminal(gp, _gif, "acoustic_first_order_pde");
+    canvas.setTerminal(gp, _gif, "Acoustic_First_Order_PDE_ProjYZ");
     canvas.setMultiplot(gp, false);
-    canvas.setTitle(gp, "Evolution");
-    canvas.setXLabel(gp, "x - Space");
-    canvas.setYLabel(gp, "y - Space");
-    canvas.setZLabel(gp, "Amplitude");
     canvas.setRange3D(range3D, uts.size(0), uts.size(1), 1);
     canvas.setLineStyle(image, line3D);
     canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
+//    
+//    //PLOT 3D
+      canvas.setTitle(gp, "Evolution");
+      canvas.setXLabel(gp, "x - Space");
+      canvas.setYLabel(gp, "y - Space");
+      canvas.setZLabel(gp, "Amplitude");
+      canvas.plotTensor3D(gp, image, range3D, u);
 
-    //canvas.setXYprojection(gp);
-    canvas.plotXZProjection(gp, image, range3D, u);
+//    //PLOT XY PROJECTION
+//    canvas.setTitle(gp, "set view projection XY / HEAT MAP");
+//    canvas.setXLabel(gp, "x - Space");
+//    canvas.setYLabel(gp, "y - Space");
+//    canvas.setXYprojection(gp);
+//    canvas.plotTensor3D(gp, image, range3D, u);
 
-    //canvas.plotTensor3D(gp, image, range3D, u);
+//    //PLOT XZ PROJECTION
+//    canvas.setTitle(gp, "set view projection XZ");
+//    canvas.setXLabel(gp, "x - Space");
+//    canvas.setYLabel(gp, "Amplitude");
+//    //canvas.setXZProjection(gp);
+//    canvas.plotXZProjection(gp, image, range3D, u);
+//
+//    //PLOT YZ PROJECTION
+//    canvas.setTitle(gp, "set view projection YZ");
+//    canvas.setXLabel(gp, "y - Space");
+//    canvas.setYLabel(gp, "Amplitude");
+//    //canvas.setYZProjection(gp);
+//    canvas.plotYZProjection(gp, image, range3D, u);
 
-    
+
+
 }
