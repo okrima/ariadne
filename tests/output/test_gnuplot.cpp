@@ -41,7 +41,13 @@ class TestGnuplot
             ARIADNE_TEST_CALL(defaultSincFunc());
             ARIADNE_TEST_CALL(stringAnimation());
             ARIADNE_TEST_CALL(gauss3D());
+            ARIADNE_TEST_CALL(gauss3DProjXY());
+            ARIADNE_TEST_CALL(gauss3DProjXZ());
+            ARIADNE_TEST_CALL(gauss3DProjYZ());
             ARIADNE_TEST_CALL(gauss3DAnimation());
+            ARIADNE_TEST_CALL(gauss3DAnimationProjXY());
+            ARIADNE_TEST_CALL(gauss3DAnimationProjXZ());
+            ARIADNE_TEST_CALL(gauss3DAnimationProjYZ());
             ARIADNE_TEST_CALL(BoundsData());
         }
 
@@ -313,6 +319,121 @@ class TestGnuplot
             canvas.plotTensor3D(gp, gauss, range, data);
         }//Gauss 3D
 
+        void gauss3DProjXY()
+        {
+            Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D-XY.gnu | gnuplot -persist");
+            GnuplotCanvas canvas = GnuplotCanvas();
+
+            Image3D gauss;
+            SizeType dim = 50;
+            Tensor<3, FloatDP> data({dim, dim, 1}, 0);
+
+            std::function<FloatDP(FloatDP, FloatDP)> fun = [&](FloatDP x, FloatDP y){return (exp(-0.005*pow(x-dim/2, 2)-0.005*pow(y-dim/2, 2)));};
+
+            for (SizeType step = 0; step < 1; step++)
+            {
+                for (SizeType x = 0; x < dim; x++)
+                {
+                    for (SizeType y = 0; y < dim; y++)
+                    {
+                        data[{x, y, step}] = fun(x, y);
+                    }   
+                }
+            }
+
+            _Range3D range;
+
+            canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D-XY");
+            canvas.setTitle(gp, "3D Projection XY Plot");
+            canvas.setXLabel(gp, "x");
+            canvas.setYLabel(gp, "y");
+
+            canvas.set3DPalette(gp, gauss, -0.5, 1, 0.2, true);
+
+            canvas.setMultiplot(gp, false);
+            
+            canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
+
+            canvas.setXYprojection(gp);
+            canvas.plotTensor3D(gp, gauss, range, data);
+        }
+
+        void gauss3DProjXZ()
+        {
+            Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D-XZ.gnu | gnuplot -persist");
+            GnuplotCanvas canvas = GnuplotCanvas();
+
+            Image3D gauss;
+            SizeType dim = 50;
+            Tensor<3, FloatDP> data({dim, dim, 1}, 0);
+
+            std::function<FloatDP(FloatDP, FloatDP)> fun = [&](FloatDP x, FloatDP y){return (exp(-0.005*pow(x-dim/2, 2)-0.005*pow(y-dim/2, 2)));};
+
+            for (SizeType step = 0; step < 1; step++)
+            {
+                for (SizeType x = 0; x < dim; x++)
+                {
+                    for (SizeType y = 0; y < dim; y++)
+                    {
+                        data[{x, y, step}] = fun(x, y);
+                    }   
+                }
+            }
+
+            _Range3D range;
+
+            canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D-XZ");
+            canvas.setTitle(gp, "3D Projection XZ Plot");
+            canvas.setXLabel(gp, "x");
+            canvas.setYLabel(gp, "z");           
+
+            //canvas.set3DPalette(gp, gauss, -0.5, 1, 0.2, true);
+
+            canvas.setMultiplot(gp, false);
+            
+            canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
+
+            canvas.plotXZProjection(gp, gauss, range, data);
+        }
+
+        void gauss3DProjYZ()
+        {
+            Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D-YZ.gnu | gnuplot -persist");
+            GnuplotCanvas canvas = GnuplotCanvas();
+
+            Image3D gauss;
+            SizeType dim = 50;
+            Tensor<3, FloatDP> data({dim, dim, 1}, 0);
+
+            std::function<FloatDP(FloatDP, FloatDP)> fun = [&](FloatDP x, FloatDP y){return (exp(-0.005*pow(x-dim/2, 2)-0.005*pow(y-dim/2, 2)));};
+
+            for (SizeType step = 0; step < 1; step++)
+            {
+                for (SizeType x = 0; x < dim; x++)
+                {
+                    for (SizeType y = 0; y < dim; y++)
+                    {
+                        data[{x, y, step}] = fun(x, y);
+                    }   
+                }
+            }
+
+            _Range3D range;
+
+            canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D-YZ");
+            canvas.setTitle(gp, "3D Projection YZ Plot");
+            canvas.setXLabel(gp, "y");
+            canvas.setYLabel(gp, "z");           
+
+            //canvas.set3DPalette(gp, gauss, -0.5, 1, 0.2, true);
+
+            canvas.setMultiplot(gp, false);
+            
+            canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
+
+            canvas.plotYZProjection(gp, gauss, range, data);
+        }
+
         void gauss3DAnimation()
         {
             SizeType Nx = 10;   //Mesh 1° dim
@@ -349,9 +470,129 @@ class TestGnuplot
             canvas.setRange3D(range3D, Nx, Ny, 1);
             canvas.setLineStyle(image, line3D);
             canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
-            //canvas.setMap(gp);
+
 
             canvas.plotTensor3D(gp, image, range3D, data);
+        }
+
+        void gauss3DAnimationProjXY()
+        {
+            SizeType Nx = 10;   //Mesh 1° dim
+            SizeType Ny = 10;   //Mesh 2° dim
+
+            pde2D solver2D = pde2D();
+
+            Parameter2D firstDim, secondDim;
+
+            firstDim.length = 10;
+            secondDim.length = 10;
+
+            
+            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
+
+            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
+
+            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
+
+            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation-XY.gnu | gnuplot -persist");
+            GnuplotCanvas canvas;
+
+            Image3D image;
+            _Range3D range3D;
+            _Line3D line3D;
+            line3D.style = surface3D;
+
+            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-XY");
+            canvas.setMultiplot(gp, false);
+            canvas.setTitle(gp, "Evolution 3D Projection XY Plot");
+            canvas.setXLabel(gp, "x - Space");
+            canvas.setYLabel(gp, "y - Space");
+            canvas.setZLabel(gp, "Amplitude");
+            canvas.setRange3D(range3D, Nx, Ny, 1);
+            canvas.setLineStyle(image, line3D);
+            canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
+            //canvas.setMap(gp);
+
+            canvas.setXYprojection(gp);
+            canvas.plotTensor3D(gp, image, range3D, data);     
+        }
+
+        void gauss3DAnimationProjXZ()
+        {
+            SizeType Nx = 10;   //Mesh 1° dim
+            SizeType Ny = 10;   //Mesh 2° dim
+
+            pde2D solver2D = pde2D();
+
+            Parameter2D firstDim, secondDim;
+
+            firstDim.length = 10;
+            secondDim.length = 10;
+
+            
+            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
+
+            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
+
+            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
+
+            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation-XZ.gnu | gnuplot -persist");
+            GnuplotCanvas canvas;
+
+            Image3D image;
+            _Range3D range3D;
+            _Line3D line3D;
+            line3D.style = surface3D;
+
+            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-XZ");
+            canvas.setMultiplot(gp, false);
+            canvas.setTitle(gp, "Evolution 3D Projection XZ Plot");
+            canvas.setXLabel(gp, "x");
+            canvas.setYLabel(gp, "z");
+            canvas.setRange3D(range3D, Nx, Ny, 1);
+            canvas.setLineStyle(image, line3D);
+            //canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
+
+            canvas.plotXZProjection(gp, image, range3D, data);         
+        }
+
+        void gauss3DAnimationProjYZ()
+        {
+            SizeType Nx = 10;   //Mesh 1° dim
+            SizeType Ny = 10;   //Mesh 2° dim
+
+            pde2D solver2D = pde2D();
+
+            Parameter2D firstDim, secondDim;
+
+            firstDim.length = 10;
+            secondDim.length = 10;
+
+            
+            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
+
+            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
+
+            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
+
+            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation-YZ.gnu | gnuplot -persist");
+            GnuplotCanvas canvas;
+
+            Image3D image;
+            _Range3D range3D;
+            _Line3D line3D;
+            line3D.style = surface3D;
+
+            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-YZ");
+            canvas.setMultiplot(gp, false);
+            canvas.setTitle(gp, "Evolution 3D Projection YZ Plot");
+            canvas.setXLabel(gp, "y");
+            canvas.setYLabel(gp, "z");
+            canvas.setRange3D(range3D, Nx, Ny, 1);
+            canvas.setLineStyle(image, line3D);
+            //canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
+
+            canvas.plotYZProjection(gp, image, range3D, data);         
         }
 
         void BoundsData()
