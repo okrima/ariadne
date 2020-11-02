@@ -30,7 +30,7 @@ int main(){
 
     auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
 
-    Gnuplot gp;
+    Gnuplot gp = Gnuplot("tee acoustic-2D.gnu | gnuplot -persist");
     GnuplotCanvas canvas;
 
     Image3D image;
@@ -38,6 +38,7 @@ int main(){
     _Line3D line3D;
     line3D.style = surface3D;
 
+    //3D PLOT
     canvas.setTerminal(gp, _gif, "TimeEvol3D");
     canvas.setMultiplot(gp, false);
     canvas.setTitle(gp, "Evolution");
@@ -47,9 +48,44 @@ int main(){
     canvas.setRange3D(range3D, Nx, Ny, 1);
     canvas.setLineStyle(image, line3D);
     canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
-    //canvas.setMap(gp);
-
     canvas.plotTensor3D(gp, image, range3D, data);
+
+    //XY PROJECTION
+    canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-XY");
+    canvas.setMultiplot(gp, false);
+    canvas.setTitle(gp, "Evolution 3D Projection XY Plot");
+    canvas.setXLabel(gp, "x - Space");
+    canvas.setYLabel(gp, "y - Space");
+    canvas.setZLabel(gp, "Amplitude");
+    canvas.setRange3D(range3D, Nx, Ny, 1);
+    canvas.setLineStyle(image, line3D);
+    canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
+    //canvas.setMap(gp)
+    canvas.setXYprojection(gp);
+    canvas.plotTensor3D(gp, image, range3D, data);
+
+    //XZ PROJECTION
+    canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-XZ");
+    canvas.setMultiplot(gp, false);
+    canvas.setTitle(gp, "Evolution 3D Projection XZ Plot");
+    canvas.setXLabel(gp, "x");
+    canvas.setYLabel(gp, "z");
+    canvas.setRange3D(range3D, Nx, Ny, 1);
+    canvas.setLineStyle(image, line3D);
+    //canvas.set3DPalette(gp, image, -1, 1, 0.2, true)
+    canvas.plotXZProjection(gp, image, range3D, data);   
+
+    //YZ PROJECTION
+    canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-YZ");
+    canvas.setMultiplot(gp, false);
+    canvas.setTitle(gp, "Evolution 3D Projection YZ Plot");
+    canvas.setXLabel(gp, "y");
+    canvas.setYLabel(gp, "z");
+    canvas.setRange3D(range3D, Nx, Ny, 1);
+    canvas.setLineStyle(image, line3D);
+    //canvas.set3DPalette(gp, image, -1, 1, 0.2, true)
+    canvas.plotYZProjection(gp, image, range3D, data);
+
 
     return 0;
 }
