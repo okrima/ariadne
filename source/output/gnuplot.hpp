@@ -161,7 +161,6 @@ protected:
     bool isMultiplot;
     bool is2DPalette;
     bool is3DPalette;
-    bool isProjection;
 private:
     // Plot from Array
     void plot2D(Gnuplot& gp, Image2D& image, Array<double> data);
@@ -737,13 +736,6 @@ public:
     void unsetColorbox(Gnuplot& gp);
     //Set plane projection
     void setXYprojection(Gnuplot& gp);
-
-    void setXZProjection(Gnuplot& gp);
-
-    void setYZProjection(Gnuplot& gp);
-
-    void setWalls(Gnuplot& gp);
-
 
 };
 
