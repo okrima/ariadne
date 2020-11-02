@@ -110,11 +110,11 @@ else()
     message(WARNING "Unable to find Cairo. You will not be able to use graphics.")
 endif()
 
-find_package(Gnuplot)
+find_package(Gnuplot 5.4.0)
 if(GNUPLOT_FOUND)
     set(HAVE_GNUPLOT_H ON)
 else()
-    message(WARNING "Unable to find GNUPLOT. You will not be able to use GNUPLOT.")
+    message(WARNING "Unable to find GNUPLOT 5.4. You will not be able to use GNUPLOT.")
     set(HAVE_GNUPLOT_H OFF)
 endif()
 
