@@ -23,6 +23,8 @@
 #include "numeric/numeric.hpp"
 #include "numeric/float_bounds.hpp"
 
+#ifdef HAVE_GNUPLOT_H
+
 #include "utility/gnuplot-iostream.h"
 #include "output/gnuplot.hpp"
 #include "dynamics/1D_pde.hpp"
@@ -34,6 +36,10 @@ using namespace std;
 class TestGnuplot
 {
     public:
+
+        TestGnuplot(){};
+        ~TestGnuplot(){};
+
         void test()
         {
             ARIADNE_TEST_CALL(LinFun());
@@ -44,10 +50,6 @@ class TestGnuplot
             ARIADNE_TEST_CALL(gauss3DProjXY());
             ARIADNE_TEST_CALL(gauss3DProjXZ());
             ARIADNE_TEST_CALL(gauss3DProjYZ());
-            ARIADNE_TEST_CALL(gauss3DAnimation());
-            ARIADNE_TEST_CALL(gauss3DAnimationProjXY());
-            ARIADNE_TEST_CALL(gauss3DAnimationProjXZ());
-            ARIADNE_TEST_CALL(gauss3DAnimationProjYZ());
             ARIADNE_TEST_CALL(BoundsData());
         }
 
@@ -434,167 +436,6 @@ class TestGnuplot
             canvas.plotYZProjection(gp, gauss, range, data);
         }
 
-        void gauss3DAnimation()
-        {
-            SizeType Nx = 10;   //Mesh 1° dim
-            SizeType Ny = 10;   //Mesh 2° dim
-
-            pde2D solver2D = pde2D();
-
-            Parameter2D firstDim, secondDim;
-
-            firstDim.length = 10;
-            secondDim.length = 10;
-
-            
-            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
-
-            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
-
-            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
-
-            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation.gnu | gnuplot -persist");
-            GnuplotCanvas canvas;
-
-            Image3D image;
-            _Range3D range3D;
-            _Line3D line3D;
-            line3D.style = surface3D;
-
-            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation");
-            canvas.setMultiplot(gp, false);
-            canvas.setTitle(gp, "Evolution");
-            canvas.setXLabel(gp, "x - Space");
-            canvas.setYLabel(gp, "y - Space");
-            canvas.setZLabel(gp, "Amplitude");
-            canvas.setRange3D(range3D, Nx, Ny, 1);
-            canvas.setLineStyle(image, line3D);
-            canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
-
-
-            canvas.plotTensor3D(gp, image, range3D, data);
-        }
-
-        void gauss3DAnimationProjXY()
-        {
-            SizeType Nx = 10;   //Mesh 1° dim
-            SizeType Ny = 10;   //Mesh 2° dim
-
-            pde2D solver2D = pde2D();
-
-            Parameter2D firstDim, secondDim;
-
-            firstDim.length = 10;
-            secondDim.length = 10;
-
-            
-            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
-
-            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
-
-            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
-
-            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation-XY.gnu | gnuplot -persist");
-            GnuplotCanvas canvas;
-
-            Image3D image;
-            _Range3D range3D;
-            _Line3D line3D;
-            line3D.style = surface3D;
-
-            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-XY");
-            canvas.setMultiplot(gp, false);
-            canvas.setTitle(gp, "Evolution 3D Projection XY Plot");
-            canvas.setXLabel(gp, "x - Space");
-            canvas.setYLabel(gp, "y - Space");
-            canvas.setZLabel(gp, "Amplitude");
-            canvas.setRange3D(range3D, Nx, Ny, 1);
-            canvas.setLineStyle(image, line3D);
-            canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
-            //canvas.setMap(gp);
-
-            canvas.setXYprojection(gp);
-            canvas.plotTensor3D(gp, image, range3D, data);     
-        }
-
-        void gauss3DAnimationProjXZ()
-        {
-            SizeType Nx = 10;   //Mesh 1° dim
-            SizeType Ny = 10;   //Mesh 2° dim
-
-            pde2D solver2D = pde2D();
-
-            Parameter2D firstDim, secondDim;
-
-            firstDim.length = 10;
-            secondDim.length = 10;
-
-            
-            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
-
-            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
-
-            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
-
-            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation-XZ.gnu | gnuplot -persist");
-            GnuplotCanvas canvas;
-
-            Image3D image;
-            _Range3D range3D;
-            _Line3D line3D;
-            line3D.style = surface3D;
-
-            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-XZ");
-            canvas.setMultiplot(gp, false);
-            canvas.setTitle(gp, "Evolution 3D Projection XZ Plot");
-            canvas.setXLabel(gp, "x");
-            canvas.setYLabel(gp, "z");
-            canvas.setRange3D(range3D, Nx, Ny, 1);
-            canvas.setLineStyle(image, line3D);
-            //canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
-
-            canvas.plotXZProjection(gp, image, range3D, data);         
-        }
-
-        void gauss3DAnimationProjYZ()
-        {
-            SizeType Nx = 10;   //Mesh 1° dim
-            SizeType Ny = 10;   //Mesh 2° dim
-
-            pde2D solver2D = pde2D();
-
-            Parameter2D firstDim, secondDim;
-
-            firstDim.length = 10;
-            secondDim.length = 10;
-
-            
-            std::function<FloatDP(FloatDP,FloatDP)> IC_Gauss = [&](FloatDP x, FloatDP y){return (exp(-0.5*pow(x-firstDim.length/2, 2)-0.5*pow(y-secondDim.length/2, 2)));};
-
-            std::function<FloatDP(FloatDP, FloatDP, FloatDP)> source = [&](FloatDP x, FloatDP y, FloatDP t){return 0;};
-
-            auto data = solver2D.pde_2Dsolver(IC_Gauss, source, firstDim, secondDim, Nx+1, Ny+1);
-
-            Gnuplot gp = Gnuplot("tee test_gnuplot-GaussAnimation-YZ.gnu | gnuplot -persist");
-            GnuplotCanvas canvas;
-
-            Image3D image;
-            _Range3D range3D;
-            _Line3D line3D;
-            line3D.style = surface3D;
-
-            canvas.setTerminal(gp, _gif, "test_gnuplot-GaussAnimation-YZ");
-            canvas.setMultiplot(gp, false);
-            canvas.setTitle(gp, "Evolution 3D Projection YZ Plot");
-            canvas.setXLabel(gp, "y");
-            canvas.setYLabel(gp, "z");
-            canvas.setRange3D(range3D, Nx, Ny, 1);
-            canvas.setLineStyle(image, line3D);
-            //canvas.set3DPalette(gp, image, -1, 1, 0.2, true);
-
-            canvas.plotYZProjection(gp, image, range3D, data);         
-        }
-
         void BoundsData()
         {
             Gnuplot gp = Gnuplot("tee test_gnuplot-Bound.gnu | gnuplot -persist");   //commands dump and make graphics
@@ -645,3 +486,5 @@ int main(int argc, const char** argv) {
 
     return 0;
 }
+
+#endif
