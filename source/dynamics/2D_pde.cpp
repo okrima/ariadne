@@ -2,6 +2,7 @@
 
 namespace Ariadne
 {
+
     Array<FloatDP> pde2D::linspace2D(FloatDP L, SizeType n)
     {
         Array<FloatDP> linspaced(n);
@@ -22,42 +23,35 @@ namespace Ariadne
         return linspaced;
     }
 
-    Tensor<3, FloatDP> pde2D::setIC(Tensor<3, FloatDP>& uts, std::function<FloatDP(FloatDP, FloatDP)> &phi0, SizeType Nx, SizeType Ny, Array<FloatDP> spacePointX, Array<FloatDP> spacePointY)
+    Tensor<2, FloatDP> pde2D::setIC2D(std::function<FloatDP(FloatDP, FloatDP)>& phi0, SizeType Nx, SizeType Ny, Array<FloatDP> spacePointX, Array<FloatDP> spacePointY)
     {
-        for (SizeType i = 1; i < Nx -1; i++)
+        Tensor<2, FloatDP> u({Nx, Ny}, 0);
+        for (SizeType i = 0; i < Nx; i++)
         {
-            for (SizeType j = 1; j < Ny -1; j++)
+            for (SizeType j = 0; j < Ny; j++)
             {
-                uts[{i, j, 0}] = phi0(spacePointX[i], spacePointY[j]);
+                u[{i, j}] = phi0(spacePointX[i], spacePointY[j]);
             }
         }
-        return uts;
+        return u;
     }
 
-    Tensor<3, FloatDP> pde2D::pde_2Dsolver(std::function<FloatDP(FloatDP, FloatDP)> &phi0, std::function<FloatDP(FloatDP, FloatDP, FloatDP)>& source, Parameter2D& firstDim, Parameter2D& secondDim, SizeType Nx, SizeType Ny)
+
+Tensor<3, FloatDP> pde2D::pde_2Dsolver(std::function<FloatDP(FloatDP, FloatDP)>& phi0, std::function<FloatDP(FloatDP, FloatDP, FloatDP)>& source, Parameter2D& firstDim, Parameter2D& secondDim, SizeType Nx, SizeType Ny)
     {
         auto spaceX = linspace2D(firstDim.length, Nx);    //Mesh point x
         auto spaceY = linspace2D(secondDim.length, Ny);   //Mesh point y
 
         auto dx = spaceX[1] - spaceX[0];
         auto dy = spaceY[1] - spaceY[0];
-        auto dx2 = pow(dx, 2);
-        auto dy2 = pow(dy, 2);
 
         FloatDP c = 10.0;
         FloatDP T = 5;
 
-        FloatDP stability_limit = (1/c)*(1/sqrt(1/dx2 + 1/dy2));
         FloatDP dt = 0.01;
-        if (dt <= 0)
-        {
-            FloatDP safetyFact = -dt;
-            dt = safetyFact*stability_limit;
-        }
         
         FloatDP Nt = round(T/dt);
         SizeType Ntime = Nt.get_d();
-
         auto time = linspace2D(T, Ntime);                 //Mesh point t
 
         FloatDP Cx = (c*dt/dx);                         //Courant Numbers
@@ -65,11 +59,19 @@ namespace Ariadne
         FloatDP Cx2 = pow(Cx, 2);
         FloatDP Cy2 = pow(Cy, 2);
 
+        Tensor<2, FloatDP> u({Nx, Ny}, 0);
         Tensor<3, FloatDP> uts({Nx, Ny, Ntime}, 0);
 
         std::cout << "Start Computing";
+        u = setIC2D(phi0, Nx, Ny, spaceX, spaceY);
+        for (SizeType x = 0; x < Nx; x++)
+        {
+            for (SizeType y = 0; y < Ny; y++)
+            {
+                uts[{x, y, 0}] = u[{x, y}];
+            }   
+        }
 
-        uts = setIC(uts, phi0, Nx, Ny, spaceX, spaceY);
         std::cout << " .";
         //Compute first time step
         SizeType n = 0;
@@ -101,4 +103,6 @@ namespace Ariadne
         std::cout << " ." << std::endl;
     return uts;
     }
+
+
 }//namespace Ariadne
