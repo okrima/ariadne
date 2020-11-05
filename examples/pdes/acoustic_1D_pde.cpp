@@ -57,7 +57,7 @@ int main() {
     //auto VelInitCond = [&](Real x){return 0;};            // Set function initial velocity position
 
 
-    Gnuplot gp = Gnuplot("tee plot.gnu | gnuplot -persist");
+    Gnuplot gp = Gnuplot("tee acoustic_1D.gnu | gnuplot -persist");
 
     GnuplotCanvas canvas = GnuplotCanvas();
 
