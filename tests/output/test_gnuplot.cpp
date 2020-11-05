@@ -47,9 +47,9 @@ class TestGnuplot
             ARIADNE_TEST_CALL(defaultSincFunc());
             ARIADNE_TEST_CALL(stringAnimation());
             ARIADNE_TEST_CALL(gauss3D());
-            ARIADNE_TEST_CALL(gauss3DProjXY());
-            ARIADNE_TEST_CALL(gauss3DProjXZ());
-            ARIADNE_TEST_CALL(gauss3DProjYZ());
+            //ARIADNE_TEST_CALL(gauss3DProjXY());
+            //ARIADNE_TEST_CALL(gauss3DProjXZ());
+            //ARIADNE_TEST_CALL(gauss3DProjYZ());
             ARIADNE_TEST_CALL(BoundsData());
         }
 
@@ -308,20 +308,51 @@ class TestGnuplot
 
             _Range3D range;
 
+            //3D
             canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D");
             canvas.setTitle(gp, "3D plot");
             canvas.setXYZLabel(gp, "x", "y", "z");
-
             canvas.set3DPalette(gp, gauss, -0.5, 1, 0.2, true);
-
             canvas.setMultiplot(gp, false);
-            
             canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
 
             canvas.plotTensor3D(gp, gauss, range, data);
+
+            //Projection XY
+            canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D-XY");
+            canvas.setTitle(gp, "3D Projection XY Plot");
+            canvas.setXLabel(gp, "x");
+            canvas.setYLabel(gp, "y");
+            canvas.set3DPalette(gp, gauss, -0.5, 1, 0.2, true);
+            canvas.setMultiplot(gp, false);
+            canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
+
+            canvas.setXYprojection(gp);
+            canvas.plotTensor3D(gp, gauss, range, data);
+
+            //Projection XZ
+            canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D-XZ");
+            canvas.setTitle(gp, "3D Projection XZ Plot");
+            canvas.setXLabel(gp, "x");
+            canvas.setYLabel(gp, "z");           
+            canvas.setMultiplot(gp, false);  
+            canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
+
+            canvas.plotXZProjection(gp, gauss, range, data);
+
+            //Projection YZ
+            canvas.setTerminal(gp, _png, "test_gnuplot-Gauss3D-YZ");
+            canvas.setTitle(gp, "3D Projection YZ Plot");
+            canvas.setXLabel(gp, "y");
+            canvas.setYLabel(gp, "z");           
+            canvas.setMultiplot(gp, false);
+            canvas.setRange3D(range, 0, dim, 0, dim, 0, 1);
+
+            canvas.plotYZProjection(gp, gauss, range, data);
+
         }//Gauss 3D
 
-        void gauss3DProjXY()
+/*        void gauss3DProjXY()
         {
             Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D-XY.gnu | gnuplot -persist");
             GnuplotCanvas canvas = GnuplotCanvas();
@@ -359,8 +390,8 @@ class TestGnuplot
             canvas.setXYprojection(gp);
             canvas.plotTensor3D(gp, gauss, range, data);
         }
-
-        void gauss3DProjXZ()
+*/
+/*        void gauss3DProjXZ()
         {
             Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D-XZ.gnu | gnuplot -persist");
             GnuplotCanvas canvas = GnuplotCanvas();
@@ -397,8 +428,8 @@ class TestGnuplot
 
             canvas.plotXZProjection(gp, gauss, range, data);
         }
-
-        void gauss3DProjYZ()
+*/
+/*        void gauss3DProjYZ()
         {
             Gnuplot gp = Gnuplot("tee test_gnuplot-Gauss3D-YZ.gnu | gnuplot -persist");
             GnuplotCanvas canvas = GnuplotCanvas();
@@ -435,7 +466,7 @@ class TestGnuplot
 
             canvas.plotYZProjection(gp, gauss, range, data);
         }
-
+*/
         void BoundsData()
         {
             Gnuplot gp = Gnuplot("tee test_gnuplot-Bound.gnu | gnuplot -persist");   //commands dump and make graphics
