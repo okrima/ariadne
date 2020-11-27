@@ -93,7 +93,7 @@ HybridFigure::write(const char* cfilename, Nat drawing_width, Nat drawing_height
     const Nat canvas_width = drawing_width+LEFT_MARGIN+RIGHT_MARGIN;
     const Nat canvas_height = drawing_height+BOTTOM_MARGIN+TOP_MARGIN;
 
-    SharedPointer<CanvasInterface> canvas=make_canvas(canvas_width, canvas_height);
+    SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, canvas_width, canvas_height);
 
     this->_paint_all(*canvas);
 
