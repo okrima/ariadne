@@ -28,6 +28,7 @@
 #include "../utility/string.hpp"
 #include "algebra/tensor.hpp"
 #include "numeric/float_bounds.hpp"
+#include "geometry2d.hpp"
 #include <string>
 #include <ctype.h>
 
@@ -151,16 +152,26 @@ struct Image3D
     
 };
 
-class GnuplotCanvas
+class GnuplotCanvas : public CanvasInterface
 {
+friend class Figure;
 private:
-    int sizeX;
-    int sizeY;
-protected:  
+    Gnuplot *gnuplot;
+    List<Point2d> geom;
+    Colour lc, fc;
+    //_Range2D range2D;
+    Nat dim;
+    Point2d Cpoint;
+    double dr;
+    bool isdot;
+    Nat sizeX;
+    Nat sizeY;
     bool noCanvas;
     bool isMultiplot;
     bool is2DPalette;
     bool is3DPalette;
+    bool isAnimated;
+
 private:
     // Plot from Array
     void plot2D(Gnuplot& gp, Image2D& image, Array<double> data);
@@ -184,13 +195,33 @@ public:
     //Create empty canvas
     GnuplotCanvas();
     //Create canvas with dimensions
-    GnuplotCanvas(Image2D& image, int X, int Y);
-    GnuplotCanvas(Image3D& image, int X, int Y);
+    GnuplotCanvas(String filename, Nat X, Nat Y, bool isAnimated);
+
+
+    //CanvasInterface
+    Void initialise(StringType x, StringType y, double xl, double xu, double yl, double yu);
+    Void write(const char* filename) const;
+    Void finalise();
+    Void move_to(double x, double y);
+    Void line_to(double x, double y);
+    Void circle(double x, double y, double r);
+    Void dot(double x, double y);
+    Void stroke();
+    Void fill();
+    Void set_dot_radius(double dr);
+    Void set_line_width(double lw);
+    Void set_line_colour(double r, double g, double b);
+    Void set_fill_opacity(double o);
+    Void set_fill_colour(double r, double g, double b);
+    Vector2d scaling() const;
+    Box2d bounds() const;
+    //CanvasInterface
+
 
     //Set Multiplot - Multiple plot on same screen
-    void setMultiplot(Gnuplot& gp, bool s);
+    void setMultiplot(bool s);
     //Set Multiplot Layout
-    void setMultiplotLayout(Gnuplot& gp, int nRow, int nCol, String Title);
+    void setMultiplotLayout(int nRow, int nCol, String Title);
     //Plot 2D Array
     template<typename T>
     void plotArray2D(Gnuplot& gp, Image2D& image, Array<T>& array)
@@ -609,13 +640,13 @@ public:
         rng.Xmax = range.Xmax;
         rng.Ymin = range.Zmin;
         rng.Ymax = range.Zmax;
-        set2DPalette(gp, img, rng.Ymin, rng.Ymax, 0.2);
+        set2DPalette(img, rng.Ymin, rng.Ymax, 0.2);
         Array<double> data(tensor.size(0), 0);
         if (!isMultiplot)
         { 
             for (SizeType step = 0; step < tensor.size(2); step++)
             { 
-                setMultiplot(gp, true);
+                setMultiplot(true);
                 for (SizeType y = 0; y < tensor.size(1); y++)
                 {
                     for (SizeType x = 0; x < tensor.size(0); x++)
@@ -625,7 +656,7 @@ public:
                     plot2D(gp, img, rng, data);    
                 }
             }
-            setMultiplot(gp, false);
+            setMultiplot(false);
         }
         else{
             ARIADNE_ERROR("Impossible to plot 3D image or projections with multiplot, please set multiplot = FALSE");
@@ -645,13 +676,13 @@ public:
         rng.Xmax = range.Ymax;
         rng.Ymin = range.Zmin;
         rng.Ymax = range.Zmax;
-        set2DPalette(gp, img, rng.Ymin, rng.Ymax, 0.2);
+        set2DPalette(img, rng.Ymin, rng.Ymax, 0.2);
         Array<double> data(tensor.size(1), 0);
         if (!isMultiplot)
         { 
             for (SizeType step = 0; step < tensor.size(2); step++)
             { 
-                setMultiplot(gp, true);
+                setMultiplot(true);
                 for (SizeType x = 0; x < tensor.size(0); x++)
                 {
                     for (SizeType y = 0; y < tensor.size(1); y++)
@@ -662,26 +693,28 @@ public:
                     //setMultiplot(gp, true);     
                 }
             }
-            setMultiplot(gp, false);
+            setMultiplot(false);
         }
         else{
             ARIADNE_ERROR("Impossible to plot 3D image or projections with multiplot, please set multiplot = FALSE");
         }
     }
     // Set Terminal output
-    void setTerminal(Gnuplot& gp, _Format format, String nameFile);
+    void setTerminal(_Format format, String nameFile);
     // Set X Label
-    void setXLabel(Gnuplot& gp, String xLabel);
+    void setXLabel(String xLabel);
     // Set Y Label
-    void setYLabel(Gnuplot& gp, String yLabel);
+    void setYLabel(String yLabel);
     // Set Z Label
-    void setZLabel(Gnuplot& gp, String zLabel);
+    void setZLabel(String zLabel);
     // Set Title
-    void setTitle(Gnuplot& gp, String title);
+    void setTitle(String title);
     // Set Labels
-    void setXYZLabel(Gnuplot& gp, String xLabel, String yLabel, String zLabel);
+    void setXYZLabel(String xLabel, String yLabel, String zLabel);
     // Set Labels and Title
-    void setLabels(Gnuplot& gp, String xLabel, String yLabel, String zLabel, String title);
+    void setLabels(String xLabel, String yLabel, String zLabel, String title);
+    // Set X, Y Range
+    void setRange2D(FloatDP minX, FloatDP maxX, FloatDP minY, FloatDP maxY);
     // Set X, Y specular symmetric range
     void setRange2D(_Range2D& range2D, FloatDP maxX, FloatDP maxY);
     // Set X, Y range
@@ -713,29 +746,29 @@ public:
     // Set colour with color
     void setColour(Image3D& image, _Colours color);
     // Set X Log axis
-    void setXLogAxis(Gnuplot& gp);
+    void setXLogAxis();
     // Set Y Log axis
-    void setYLogAxis(Gnuplot& gp);
+    void setYLogAxis();
     // Set XY Log axis
-    void setXYLogAxis(Gnuplot& gp);
+    void setXYLogAxis();
     // Set XZ Log axis
-    void setXZLogAxis(Gnuplot& gp);
+    void setXZLogAxis();
     // Set YZ Log axis
-    void setYZLogAxis(Gnuplot& gp);
+    void setYZLogAxis();
     // Set XYZ Log axis
-    void setXYZLogAxis(Gnuplot& gp);
+    void setXYZLogAxis();
     // Set Legend
-    void setLegend(Gnuplot& gp);
+    void setLegend();
     // Set View Projection of a 3D rapresentation
-    void setMap(Gnuplot& gp);
+    void setMap();
     //Set 3D palette
-    void set3DPalette(Gnuplot& gp, Image3D& image, FloatDP min, FloatDP max, FloatDP step, bool s);
+    void set3DPalette(Image3D& image, FloatDP min, FloatDP max, FloatDP step, bool s);
     //Set 2D palette
-    void set2DPalette(Gnuplot& gp, Image2D& image, FloatDP min, FloatDP max, FloatDP step);
+    void set2DPalette(Image2D& image, FloatDP min, FloatDP max, FloatDP step);
     //Unset colorbox
-    void unsetColorbox(Gnuplot& gp);
+    void unsetColorbox();
     //Set plane projection
-    void setXYprojection(Gnuplot& gp);
+    void setXYprojection();
 
 };
 
