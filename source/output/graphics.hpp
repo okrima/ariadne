@@ -135,9 +135,10 @@ class Figure
     //! Display the figure.
     Void display() const;
     //! Write out to file, using width \a nx pixels, and height \a ny pixels
-    Void write(const Char* filename, Nat nx, Nat ny) const;
+    Void write(const Char* filename, Nat nx, Nat ny, bool isAnimated=false) const;
     //! Write to \a filename.
-    Void write(const Char* filename) const;
+    Void write(const Char* filename, bool isAnimated=false) const;
+
   public:
     struct Data;
   public:
