@@ -58,7 +58,7 @@ inline OutputStream& operator<<(OutputStream& os, const PlanarProjectionMap& p) 
     return os << "P<R"<<p.n<<";R2>[x"<<p.i<<",x"<<p.j<<"]"; }
 typedef PlanarProjectionMap Projection2d;
 
-SharedPointer<CanvasInterface> make_canvas(Nat drawing_width, Nat drawing_height);
+SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, bool isAnimated = false);
 
 //! \ingroup GraphicsModule
 //! \brief Base interface for plotting and drawing classes.
