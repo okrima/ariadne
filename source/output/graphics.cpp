@@ -338,86 +338,64 @@ Void Figure::_paint_all(CanvasInterface& canvas) const
 
 
 Void
-Figure::write(const char* cfilename, bool isAnimated) const
+Figure::write(const char* cfilename, CairoFileType fileType) const
 {
-    this->write(cfilename, DEFAULT_WIDTH, DEFAULT_HEIGHT, isAnimated);
+        this->write(cfilename, DEFAULT_WIDTH, DEFAULT_HEIGHT, fileType);
 }
 
 Void
-Figure::write(const char* cfilename, Nat drawing_width, Nat drawing_height, bool isAnimated) const
+Figure::write(const char* cfilename, GnuplotFileType fileType) const
 {
-    SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, drawing_width,drawing_height, isAnimated);
+    this->write(cfilename, DEFAULT_WIDTH, DEFAULT_HEIGHT, fileType);
+}
+
+Void
+Figure::write(const char* cfilename, Nat drawing_width, Nat drawing_height, CairoFileType fileType) const
+{
+    SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, drawing_width,drawing_height, fileType);
 
     this->_paint_all(*canvas);
 
-//DA INSERIRE ALL'INTERNO DI CAIRO
-//    StringType filename(cfilename);
-//    if(filename.rfind(".") != StringType::npos) {
-//    } else {
-//        filename=filename+".png";
-//    }
-//
-//    canvas->write(filename.c_str());
     canvas->write(cfilename);
 }
 
-//#ifdef HAVE_GNUPLOT_H
-//
-//SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, bool isAnimated) {
-//    return std::make_shared<GnuplotCanvas>(cfilename, drawing_width, drawing_height, isAnimated);
-//}
-//
-//#else
-//
-//#ifdef HAVE_CAIRO_H
-//
-//SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, bool isAnimated) {
-//    if (isAnimated){ 
-//        ARIADNE_WARN_ONCE("No facilities for displaying animated graphics are available.");
-//        return std::make_shared<NullCanvas>();
-//    }
-//    else{ return std::make_shared<CairoCanvas>(ImageSize2d(drawing_width,drawing_height));}
-//}
-//
-//#else
-//
-//SharedPointer<CanvasInterface> make_canvas(Nat drawing_width, Nat drawing_height) {
-//    ARIADNE_WARN_ONCE("No facilities for displaying graphics are available.");
-//    return std::make_shared<NullCanvas>();
-//}
-//#endif
-//#endif
+Void
+Figure::write(const char* cfilename, Nat drawing_width, Nat drawing_height, GnuplotFileType fileType) const
+{
+    SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, drawing_width,drawing_height, fileType);
 
-SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, bool isAnimated) {
-    if (!isAnimated) //Static image
-    {
-        #ifdef HAVE_CAIRO_H
-            return std::make_shared<CairoCanvas>(ImageSize2d(drawing_width,drawing_height));
-        #else
-        #ifdef HAVE_GNUPLOT_H
-            return std::make_shared<GnuplotCanvas>(cfilename, drawing_width, drawing_height, isAnimated);
-        #else
-            ARIADNE_WARN_ONCE("No facilities for displaying graphics are available.");
-            return std::make_shared<NullCanvas>();
-        #endif 
-        #endif
-    }
-    else
-    {
-        #ifdef HAVE_GNUPLOT_H
-            return std::make_shared<GnuplotCanvas>(cfilename, drawing_width, drawing_height, isAnimated);
-        #else
-        #ifdef HAVE_CAIRO_H
-            ARIADNE_WARN_ONCE("No facilities for displaying animated graphics are available.");
-            return std::make_shared<NullCanvas>();
-        #else
-            ARIADNE_WARN_ONCE("No facilities for displaying graphics are available.");
-            return std::make_shared<NullCanvas>();
-        #endif
-        #endif 
+    this->_paint_all(*canvas);
 
-    }
+
+    canvas->write(cfilename);
 }
+
+#ifdef HAVE_GNUPLOT_H
+
+SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, GnuplotFileType fileType) {
+    return std::make_shared<GnuplotCanvas>(cfilename, drawing_width, drawing_height, fileType);
+}
+#else
+SharedPointer<CanvasInterface> make_canvas(const char* filename, Nat drawing_width, Nat drawing_height, GnuplotFileType fileType) {
+    ARIADNE_WARN_ONCE("No facilities for displaying graphics are available.");
+    return std::make_shared<NullCanvas>();
+}
+#endif
+
+#ifdef HAVE_CAIRO_H
+
+SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, CairoFileType filetype) {
+    return std::make_shared<CairoCanvas>(ImageSize2d(drawing_width,drawing_height));
+}
+
+#else
+
+SharedPointer<CanvasInterface> make_canvas(const char* filename, Nat drawing_width, Nat drawing_height, CairoFileType fileType) {
+    ARIADNE_WARN_ONCE("No facilities for displaying graphics are available.");
+    return std::make_shared<NullCanvas>();
+}
+#endif
+
 
 #ifdef HAVE_CAIRO_H
 
@@ -636,7 +614,7 @@ Void CairoCanvas::finalise()
 
 #ifdef HAVE_GNUPLOT_H
 
-//Create the canvas
+//Create the canvas - Maybe remove it
 GnuplotCanvas::GnuplotCanvas()
 {
     gnuplot = new Gnuplot();
@@ -650,9 +628,10 @@ GnuplotCanvas::GnuplotCanvas()
 
 }
 
-//CANVAS for 2D plot
-GnuplotCanvas::GnuplotCanvas(String cfilename, Nat X, Nat Y, bool _isAnimated): lc(0.0, 0.0, 0.0, 0.0),
+//CANVAS
+GnuplotCanvas::GnuplotCanvas(String cfilename, Nat X, Nat Y, GnuplotFileType typeFile): lc(0.0, 0.0, 0.0, 0.0),
                                             fc(1.0, 1.0, 1.0, 1.0),
+                                            lw(1.0),
                                             dr(1.0),
                                             isdot(false),
                                             sizeX(X),
@@ -660,18 +639,18 @@ GnuplotCanvas::GnuplotCanvas(String cfilename, Nat X, Nat Y, bool _isAnimated): 
                                             noCanvas(false), 
                                             isMultiplot(false),
                                             is2DPalette(false),
-                                            is3DPalette(false),
-                                            isAnimated(_isAnimated)
+                                            is3DPalette(false)
 
 {
     gnuplot = new Gnuplot("tee "+cfilename+".gnu | gnuplot -persist");
-    if(!isAnimated){ 
+    if(typeFile == GnuplotFileType::PNG){ 
         *gnuplot << "set terminal png ";
     }
-    else{ 
+    else if (typeFile == GnuplotFileType::GIF){ 
         *gnuplot << "set terminal gif animate ";
     }
-    if (noCanvas == true){} // If no dimensions
+
+    if (noCanvas == true){} // If no dimensions initialization
     else    
     {
         *gnuplot << "size " << to_string(this->sizeX) << ", " <<
@@ -679,15 +658,15 @@ GnuplotCanvas::GnuplotCanvas(String cfilename, Nat X, Nat Y, bool _isAnimated): 
     }
     *gnuplot << "\n";
 
-    if(!isAnimated){
+    if(typeFile == GnuplotFileType::PNG){
         *gnuplot << "set output \"" << cfilename << ".png\"\n";
         this->setMultiplot(true);
     }
-    else{
+    else if(typeFile == GnuplotFileType::GIF){
         *gnuplot << "set output \"" << cfilename << ".gif\"\n";
         this->setMultiplot(false);
     }
-
+    
     this->geom.resize(1024);
     this->dim = 0;
     //TODO CANVAS for 3D plot and animation
@@ -748,7 +727,6 @@ void GnuplotCanvas::fill()
     else
     {
         *gnuplot << "plot '-' w filledcurves ";
-
         *gnuplot << "fc rgb \"#";
         if (this->fc.red < 9) { *gnuplot << "0" << this->fc.red;}
         else if (this->fc.red > 255){ *gnuplot << "FF";}
@@ -767,15 +745,49 @@ void GnuplotCanvas::fill()
         else{sprintf(hex_string, "%X", std::make_unsigned<int>::type(this->fc.blue)); 
             *gnuplot <<hex_string;
             }
-        *gnuplot << "\"";
+        *gnuplot << "\"\n";
 
-        *gnuplot << "\n";/*fc rgb \"#" << std::hex << this->fc.red << std::hex << this->fc.green << std::hex << this->fc.blue <<"\" fs solid " << to_string(this->fc.opacity) << " border lc rgb \"#" << std::hex << this->lc.red << std::hex << this->lc.green << this->lc.blue <<"\"\n";*/
         for (SizeType i = 0; i < this->dim; i++)
         {
             *gnuplot << to_string(this->geom[i].x) << " " << to_string(this->geom[i].y) << "\n";
         }
-        this->dim = 0;
         *gnuplot << "e\n"; 
+
+        if(this->lw == 0){}
+        else{
+            *gnuplot << "plot '-' w lines";
+            *gnuplot << " lc rgb\"#";
+            if (this->lc.red < 9) { *gnuplot << "0" << this->lc.red;}
+            else if (this->lc.red > 255){ *gnuplot << "FF";}
+            else{   
+                sprintf(hex_string, "%X", std::make_unsigned<int>::type(this->lc.red)); 
+                *gnuplot << hex_string;
+                }
+            if (this->lc.green < 9) { *gnuplot << "0" << this->lc.green;}
+            else if (this->lc.green > 255){ *gnuplot << "FF";}
+            else{
+                sprintf(hex_string, "%X", std::make_unsigned<int>::type(this->lc.green)); 
+                *gnuplot << hex_string;
+                }
+            if (this->lc.blue < 9) { *gnuplot << "0" << this->lc.blue;}
+            else if (this->lc.blue > 255){ *gnuplot << "FF";}
+            else{sprintf(hex_string, "%X", std::make_unsigned<int>::type(this->lc.blue)); 
+                *gnuplot <<hex_string;
+                }
+            *gnuplot << "\" ";
+
+            *gnuplot << "lw " << to_string(this->lw);
+
+            *gnuplot << "\n";
+            for (SizeType i = 0; i < this->dim; i++)
+            {
+                *gnuplot << to_string(this->geom[i].x) << " " << to_string(this->geom[i].y) << "\n";
+            }
+            *gnuplot << to_string(this->geom[0].x) << " " << to_string(this->geom[0].y) << "\n";
+            *gnuplot << "e\n"; 
+        }
+
+        this->dim = 0;   
     }   
 }
 
@@ -789,31 +801,9 @@ void GnuplotCanvas::set_dot_radius(double r)
     this->dr = r;
 }
 
-void GnuplotCanvas::set_line_width(double lw)
+void GnuplotCanvas::set_line_width(double _lw)
 {
-    char hex_string[20];
-    *gnuplot << "set style line 1 lw " << to_string(lw); 
-    *gnuplot << "lt rgb \"#";
-    if (this->lc.red < 9) { *gnuplot << "0" << this->lc.red;}
-    else if (this->lc.red > 255){ *gnuplot << "FF";}
-    else{   
-        sprintf(hex_string, "%X", std::make_unsigned<int>::type(this->lc.red)); 
-        *gnuplot << hex_string;
-        }
-    if (this->lc.green < 9) { *gnuplot << "0" << this->lc.green;}
-    else if (this->lc.green > 255){ *gnuplot << "FF";}
-    else{
-        sprintf(hex_string, "%X", std::make_unsigned<int>::type(this->lc.green)); 
-        *gnuplot << hex_string;
-        }
-    if (this->lc.blue < 9) { *gnuplot << "0" << this->lc.blue;}
-    else if (this->lc.blue > 255){ *gnuplot << "FF";}
-    else{sprintf(hex_string, "%X", std::make_unsigned<int>::type(this->lc.blue)); 
-        *gnuplot <<hex_string;
-        }
-    *gnuplot << "\"";   
-    
-    *gnuplot << "\n";
+    this->lw = _lw;
 }
 
 void GnuplotCanvas::set_line_colour(double r, double g, double b) 
@@ -1189,7 +1179,7 @@ void GnuplotCanvas::setLineStyle(Image2D& image, _Line2D line)
     image.linestyle2D.lw = 1;
 }
 
-void GnuplotCanvas::setLineStyle(Image2D& image, _Line2D line, int ls, int lw)
+void GnuplotCanvas::setLineStyle(Image2D& image, _Line2D line, int ls, int _lw)
 {
     image.linestyle2D.style = line.style;
     if (lw < 0)
@@ -1200,7 +1190,7 @@ void GnuplotCanvas::setLineStyle(Image2D& image, _Line2D line, int ls, int lw)
     {
         lw = 7;
     }
-    image.linestyle2D.lw = lw;
+    image.linestyle2D.lw = _lw;
     if (ls < 0)
     {
         ls = 0;
@@ -1212,7 +1202,7 @@ void GnuplotCanvas::setLineStyle(Image2D& image, _Line2D line, int ls, int lw)
     image.linestyle2D.ls = ls;
 }
 
-void GnuplotCanvas::setLineStyle(Image3D& image, _Line3D line, int ls, int lw)
+void GnuplotCanvas::setLineStyle(Image3D& image, _Line3D line, int ls, int _lw)
 {
     image.linestyle3D.style = line.style;
     if (lw < 0)
@@ -1223,7 +1213,7 @@ void GnuplotCanvas::setLineStyle(Image3D& image, _Line3D line, int ls, int lw)
     {
         lw = 7;
     }
-    image.linestyle3D.lw = lw;
+    image.linestyle3D.lw = _lw;
     if (ls < 0)
     {
         ls = 0;
