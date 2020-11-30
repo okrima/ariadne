@@ -159,6 +159,7 @@ private:
     Gnuplot *gnuplot;
     List<Point2d> geom;
     Colour lc, fc;
+    double lw;
     //_Range2D range2D;
     Nat dim;
     Point2d Cpoint;
@@ -170,7 +171,6 @@ private:
     bool isMultiplot;
     bool is2DPalette;
     bool is3DPalette;
-    bool isAnimated;
 
 private:
     // Plot from Array
@@ -195,8 +195,7 @@ public:
     //Create empty canvas
     GnuplotCanvas();
     //Create canvas with dimensions
-    GnuplotCanvas(String filename, Nat X, Nat Y, bool isAnimated);
-
+    GnuplotCanvas(String filename, Nat X, Nat Y, GnuplotFileType fileType);
 
     //CanvasInterface
     Void initialise(StringType x, StringType y, double xl, double xu, double yl, double yu);
