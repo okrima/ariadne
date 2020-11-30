@@ -47,6 +47,15 @@ class DrawableInterface;
 class FigureInterface;
 class CanvasInterface;
 
+enum class CairoFileType {
+  PNG
+};
+
+enum class GnuplotFileType {
+  PNG,
+  GIF
+};
+
 struct PlanarProjectionMap {
     DimensionType n, i, j;
     PlanarProjectionMap(DimensionType nn, DimensionType ii, DimensionType jj) : n(nn), i(ii), j(jj) { }
@@ -58,7 +67,8 @@ inline OutputStream& operator<<(OutputStream& os, const PlanarProjectionMap& p) 
     return os << "P<R"<<p.n<<";R2>[x"<<p.i<<",x"<<p.j<<"]"; }
 typedef PlanarProjectionMap Projection2d;
 
-SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, bool isAnimated = false);
+SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, CairoFileType fileType);
+SharedPointer<CanvasInterface> make_canvas(const char* cfilename, Nat drawing_width, Nat drawing_height, GnuplotFileType fileType);
 
 //! \ingroup GraphicsModule
 //! \brief Base interface for plotting and drawing classes.
