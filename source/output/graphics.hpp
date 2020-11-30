@@ -135,9 +135,11 @@ class Figure
     //! Display the figure.
     Void display() const;
     //! Write out to file, using width \a nx pixels, and height \a ny pixels
-    Void write(const Char* filename, Nat nx, Nat ny, bool isAnimated=false) const;
+    Void write(const Char* filename, Nat nx, Nat ny, CairoFileType fileType) const;
+    Void write(const Char* filename, Nat nx, Nat ny, GnuplotFileType fileType) const;
     //! Write to \a filename.
-    Void write(const Char* filename, bool isAnimated=false) const;
+    Void write(const Char* filename, CairoFileType fileType=CairoFileType::PNG) const;
+    Void write(const Char* filename, GnuplotFileType fileType) const;
 
   public:
     struct Data;
