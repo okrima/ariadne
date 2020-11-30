@@ -77,33 +77,55 @@ HybridFigure::HybridFigure()
 {
 }
 
-
-
+Void
+HybridFigure::write(const char* cfilename, CairoFileType fileType) const
+{
+    this->write(cfilename, DEFAULT_WIDTH, DEFAULT_HEIGHT, fileType);
+}
 
 Void
-HybridFigure::write(const char* cfilename) const
+HybridFigure::write(const char* cfilename, GnuplotFileType fileType) const
 {
-    this->write(cfilename, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    this->write(cfilename, DEFAULT_WIDTH, DEFAULT_HEIGHT, fileType);
 }
 
 
 Void
-HybridFigure::write(const char* cfilename, Nat drawing_width, Nat drawing_height) const
+HybridFigure::write(const char* cfilename, Nat drawing_width, Nat drawing_height, CairoFileType fileType) const
 {
     const Nat canvas_width = drawing_width+LEFT_MARGIN+RIGHT_MARGIN;
     const Nat canvas_height = drawing_height+BOTTOM_MARGIN+TOP_MARGIN;
 
-    SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, canvas_width, canvas_height);
+    SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, canvas_width, canvas_height, fileType);
 
     this->_paint_all(*canvas);
-
+/*
     StringType filename(cfilename);
     if(filename.rfind(".") != StringType::npos) {
     } else {
         filename=filename+".png";
     }
+*/
+    canvas->write(cfilename);
+}
 
-    canvas->write(filename.c_str());
+Void
+HybridFigure::write(const char* cfilename, Nat drawing_width, Nat drawing_height, GnuplotFileType fileType) const
+{
+    const Nat canvas_width = drawing_width+LEFT_MARGIN+RIGHT_MARGIN;
+    const Nat canvas_height = drawing_height+BOTTOM_MARGIN+TOP_MARGIN;
+
+    SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, canvas_width, canvas_height, fileType);
+
+    this->_paint_all(*canvas);
+/*
+    StringType filename(cfilename);
+    if(filename.rfind(".") != StringType::npos) {
+    } else {
+        filename=filename+".png";
+    }
+*/
+    canvas->write(cfilename);
 }
 
 
