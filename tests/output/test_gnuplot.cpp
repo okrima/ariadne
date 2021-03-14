@@ -28,7 +28,6 @@
 
 #ifdef HAVE_GNUPLOT_H
 
-#include "utility/gnuplot-iostream.h"
 #include "output/gnuplot.hpp"
 #include "dynamics/1D_pde.hpp"
 #include "dynamics/2D_pde.hpp"

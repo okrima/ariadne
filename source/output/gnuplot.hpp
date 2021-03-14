@@ -34,7 +34,7 @@
 
 #ifdef HAVE_GNUPLOT_H
 
-#include "utility/gnuplot-iostream.h"
+#include "gnuplot-iostream.hpp"
 
 namespace Ariadne{
 

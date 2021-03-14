@@ -35,8 +35,8 @@ THE SOFTWARE.
  *     Maybe temporary files read in a thread can replace PTY stuff.
  */
 
-#ifndef GNUPLOT_IOSTREAM_H
-#define GNUPLOT_IOSTREAM_H
+#ifndef GNUPLOT_IOSTREAM_HPP
+#define GNUPLOT_IOSTREAM_HPP
 
 // {{{1 Includes and defines
 
@@ -1808,7 +1808,7 @@ private:
 // for reverse compatibility.
 using gnuplotio::Gnuplot;
 
-#endif // GNUPLOT_IOSTREAM_H
+#endif // GNUPLOT_IOSTREAM_HPP
 
 // {{{1 Support for 3rd party array libraries
 
