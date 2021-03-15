@@ -4,7 +4,7 @@
 namespace Ariadne{
 
     template<class X>
-    Array<FloatValue<X>> linspace1D(FloatValue<X> L, SizeType n)
+    Array<FloatValue<X>> linspace1d(FloatValue<X> L, SizeType n)
     {
         Array<FloatValue<X>> linspaced(n, FloatValue<X>(0.0));
         if (n == 0)
@@ -26,7 +26,7 @@ namespace Ariadne{
 
     // Set initial condition
     template<class X>
-    Tensor<2, FloatValue<X>> setIC(Tensor<2, FloatValue<X>>& uts,/* std::function<FloatValue<X>(FloatValue<X>)> &phi0, */SizeType Nx, Array<FloatValue<X>> spacePoint, Parameter1D<X>& stringModel, bool isTriangular)
+    Tensor<2, FloatValue<X>> set_ic(Tensor<2, FloatValue<X>>& uts,/* std::function<FloatValue<X>(FloatValue<X>)> &phi0, */SizeType Nx, Array<FloatValue<X>> spacePoint, Parameter1D<X>& stringModel, bool isTriangular)
     {
         if (!isTriangular)
         {
@@ -49,7 +49,7 @@ namespace Ariadne{
 
     //Solving one dimensional pde
     template<class PR>
-    Tensor<2, FloatValue<PR>> pde_1Dsolver(/*std::function<FloatValue<PR>(FloatValue<PR>)>& phi0, std::function<FloatValue<PR>(FloatValue<PR>, FloatValue<PR>)>& source, */Parameter1D<PR>& stringParameter, SizeType Nx)
+    Tensor<2, FloatValue<PR>> pde_1d_solver(/*std::function<FloatValue<PR>(FloatValue<PR>)>& phi0, std::function<FloatValue<PR>(FloatValue<PR>, FloatValue<PR>)>& source, */Parameter1D<PR>& stringParameter, SizeType Nx)
     {
         FloatValue<PR> c = sqrt((stringParameter.tension/(stringParameter.mass/stringParameter.length)));
         //FloatDPValue c = sqrt((stringParameter.tension/(stringParameter.mass/stringParameter.length))).value();
@@ -60,7 +60,7 @@ namespace Ariadne{
         FloatValue<PR> C2 = pow(stringParameter.CourantNumber, 2);
         //FloatDPValue C2 = pow(stringParameter.CourantNumber, 2).value();
 
-        Array<FloatValue<PR>> space = linspace1D(stringParameter.length, Nx);
+        Array<FloatValue<PR>> space = linspace1d(stringParameter.length, Nx);
         //Array<FloatDPValue> space = linspace1D(stringParameter.length, Nx);
 
         FloatValue<PR> dx = (space[1] - space[0]);
@@ -72,11 +72,11 @@ namespace Ariadne{
         //FloatDPValue Nt = round(T/dt).value();
         SizeType Ntime = Nt.get_d();
 
-        Array<FloatValue<PR>> time = linspace1D(T, Ntime);
+        Array<FloatValue<PR>> time = linspace1d(T, Ntime);
 
         Tensor<2, FloatValue<PR>> uts({Nx, Ntime}, zb);
 
-        uts = setIC(uts, /*phi0, */Nx, space);
+        uts = set_ic(uts, /*phi0, */Nx, space);
 
         // Set first Time step
         SizeType n = 0;

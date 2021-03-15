@@ -103,10 +103,10 @@ GraphicsProperties& GraphicsProperties::set_fill_opacity(Dbl fo) { this->fill_co
 GraphicsProperties& GraphicsProperties::set_fill_colour(Colour fc) { this->fill_colour=fc; return *this; }
 GraphicsProperties& GraphicsProperties::set_fill_colour(Dbl r, Dbl g, Dbl b) {
     this->set_fill_colour(Colour(r,g,b,this->fill_colour.opacity)); return *this; }
-GraphicsProperties& GraphicsProperties::set_3D(Bool dim) { this->is3D = true; return *this; }
-GraphicsProperties& GraphicsProperties::setProjXY() {this->isProj=true; this->isXY=true; return *this; }
-GraphicsProperties& GraphicsProperties::setProjXZ() {this->isProj=true; this->isXZ=true; return *this; }
-GraphicsProperties& GraphicsProperties::setProjYZ() {this->isProj=true; this->isYZ=true; return *this; }
+GraphicsProperties& GraphicsProperties::set_3d(Bool dim) { this->is3D = true; return *this; }
+GraphicsProperties& GraphicsProperties::set_proj_xy() {this->isProj=true; this->isXY=true; return *this; }
+GraphicsProperties& GraphicsProperties::set_proj_xz() {this->isProj=true; this->isXZ=true; return *this; }
+GraphicsProperties& GraphicsProperties::set_proj_yz() {this->isProj=true; this->isYZ=true; return *this; }
 
 OutputStream& operator<<(OutputStream& os, GraphicsProperties const& gp) {
     return os << "GraphicsProperties(" << "dot_radius=" << gp.dot_radius
@@ -357,19 +357,19 @@ Figure& Figure::set_fill_colour(Dbl r, Dbl g, Dbl b)
     this->set_fill_colour(Colour(r,g,b,this->_data->properties.fill_colour.opacity)); return *this;
 }
 
-Figure& Figure::setProjXY()
+Figure& Figure::set_proj_xy()
 {
     this->_data->properties.isProj = true;
     this->_data->properties.isXY = true;
     return *this;
 }
-Figure& Figure::setProjXZ()
+Figure& Figure::set_proj_xz()
 {
     this->_data->properties.isProj = true;
     this->_data->properties.isXZ = true;
     return *this;
 }
-Figure& Figure::setProjYZ()
+Figure& Figure::set_proj_yz()
 {
     this->_data->properties.isProj = true;
     this->_data->properties.isYZ = true;
@@ -463,7 +463,7 @@ Void set_properties(CanvasInterface& canvas, const GraphicsProperties& propertie
     canvas.set_line_colour(line_colour.red, line_colour.green, line_colour.blue);
 }
 
-Void Figure::_paint2D(CanvasInterface& canvas, GnuplotFileType fileType) const
+Void Figure::_paint2d(CanvasInterface& canvas, GnuplotFileType fileType) const
 {
     DimensionType dimension=this->_data->projection.argument_size();
 
@@ -491,7 +491,7 @@ Void Figure::_paint2D(CanvasInterface& canvas, GnuplotFileType fileType) const
     set_properties(canvas, this->_data->properties);
 }
 
-Void Figure::_paint3D(CanvasInterface& canvas, GnuplotFileType fileType) const
+Void Figure::_paint3d(CanvasInterface& canvas, GnuplotFileType fileType) const
 {
     DimensionType dimension=this->_data->projection.argument_size();
 
@@ -524,10 +524,10 @@ Void Figure::_paint3D(CanvasInterface& canvas, GnuplotFileType fileType) const
 Void Figure::_paint_all(CanvasInterface& canvas, GnuplotFileType filetype) const
 {
     if (this->_data->properties.is3D == false){
-        this->_paint2D(canvas, filetype);
+        this->_paint2d(canvas, filetype);
     }   
     else{
-        this->_paint3D(canvas, filetype);
+        this->_paint3d(canvas, filetype);
     }
 }
 
@@ -649,7 +649,7 @@ Figure::write(const Char* cfilename, Nat drawing_width, Nat drawing_height, Gnup
 
     this->_paint_all(*canvas, fileType);
     if (this->_data->properties.is3D == false){
-        canvas->plotTensor2DImage(tensor);
+        canvas->plot_tensor_2d_image(tensor);
     }
     else{
         ARIADNE_ERROR("Error for trying to plot 3D img in a 2D tensor");
@@ -664,22 +664,22 @@ Figure::write(const Char* cfilename, Nat drawing_width, Nat drawing_height, Gnup
 {
     SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, drawing_width,drawing_height, fileType);
     
-    this->_data->properties.set_3D(true);
+    this->_data->properties.set_3d(true);
     this->_paint_all(*canvas, fileType);
 
     if (this->_data->properties.isProj){
         if (this->_data->properties.isXY){
-            canvas->plotXYProjection(tensor);
+            canvas->plot_xy_projection(tensor);
         }
         else if (this->_data->properties.isXZ){
-            canvas->plotXZProjection(tensor);
+            canvas->plot_xz_projection(tensor);
         }
         else{
-            canvas->plotYZProjection(tensor);
+            canvas->plot_yz_projection(tensor);
         } 
     }
     else if (this->_data->properties.is3D == true){           
-        canvas->plotTensor3DImage(tensor);
+        canvas->plot_tensor_3d_image(tensor);
     }
     else{
         ARIADNE_ERROR("Error trying to plot 2D img in a 3D tensor");
@@ -694,7 +694,7 @@ Figure::write(const Char* filename, Nat drawing_width, Nat drawing_height, Gnupl
     SharedPointer<CanvasInterface> canvas=make_canvas(filename, drawing_width,drawing_height, fileType);
 
     this->_paint_all(*canvas, fileType);
-    canvas->plotData(data);
+    canvas->plot_data(data);
 
     canvas->write(filename);
 }
@@ -706,7 +706,7 @@ Figure::write(const Char* filename, Nat drawing_width, Nat drawing_height, Gnupl
     SharedPointer<CanvasInterface> canvas=make_canvas(filename, drawing_width,drawing_height, fileType);
 
     this->_paint_all(*canvas, fileType);
-    canvas->plotBounds(bounds);
+    canvas->plot_bounds(bounds);
 
     canvas->write(filename);
 
@@ -816,7 +816,7 @@ Void LabelledFigure::function_to_draw(Array<Array<double>> vector)
     this->_data->arrayBound = vector;
 }
 
-Void LabelledFigure::_paint2D(CanvasInterface& canvas, GnuplotFileType filetype) const
+Void LabelledFigure::_paint2d(CanvasInterface& canvas, GnuplotFileType filetype) const
 {
     auto const& bounds = this->_data->bounds;
     RealVariable const& x=this->_data->variables.x_variable();
@@ -837,7 +837,7 @@ Void LabelledFigure::_paint2D(CanvasInterface& canvas, GnuplotFileType filetype)
     set_properties(canvas, this->_data->properties);
 }
 
-Void LabelledFigure::_paint3D(CanvasInterface& canvas, GnuplotFileType fileType) const
+Void LabelledFigure::_paint3d(CanvasInterface& canvas, GnuplotFileType fileType) const
 {
     ARIADNE_LOG_SCOPE_CREATE;
     auto const& bounds = this->_data->bounds;
@@ -895,10 +895,10 @@ Void LabelledFigure::_paint_all(CanvasInterface& canvas) const
 Void LabelledFigure::_paint_all(CanvasInterface& canvas, GnuplotFileType fileType) const
 {
     if (this->_data->properties.is3D == false){
-        this->_paint2D(canvas, fileType);
+        this->_paint2d(canvas, fileType);
     }   
     else{
-        this->_paint3D(canvas, fileType);
+        this->_paint3d(canvas, fileType);
     }
 }
 
@@ -977,7 +977,7 @@ LabelledFigure::write(const Char* cfilename, Nat drawing_width, Nat drawing_heig
 
     this->_paint_all(*canvas, fileType);
     if (this->_data->properties.is3D == false)
-        canvas->plotTensor2DImage(tensor);
+        canvas->plot_tensor_2d_image(tensor);
     else{
         ARIADNE_ERROR("Error for trying to plot 3D img in a 2D tensor");
     }
@@ -991,22 +991,22 @@ LabelledFigure::write(const Char* cfilename, Nat drawing_width, Nat drawing_heig
 {
     SharedPointer<CanvasInterface> canvas=make_canvas(cfilename, drawing_width,drawing_height, fileType);
 
-    this->_data->properties.set_3D(true);
+    this->_data->properties.set_3d(true);
     this->_paint_all(*canvas, fileType);
 
     if (this->_data->properties.isProj){
         if (this->_data->properties.isXY){
-            canvas->plotXYProjection(tensor);
+            canvas->plot_xy_projection(tensor);
         }
         else if (this->_data->properties.isXZ){
-            canvas->plotXZProjection(tensor);
+            canvas->plot_xz_projection(tensor);
         }
         else{
-            canvas->plotYZProjection(tensor);
+            canvas->plot_yz_projection(tensor);
         } 
     }
     else if (this->_data->properties.is3D == true){  
-        canvas->plotTensor3DImage(tensor);
+        canvas->plot_tensor_3d_image(tensor);
     }
     else{
         ARIADNE_ERROR("Error for trying to plot 2D img in a 3D tensor");
@@ -1021,7 +1021,7 @@ LabelledFigure::write(const Char* filename, Nat drawing_width, Nat drawing_heigh
     SharedPointer<CanvasInterface> canvas=make_canvas(filename, drawing_width,drawing_height, fileType);
 
     this->_paint_all(*canvas, fileType);
-    canvas->plotData(data);
+    canvas->plot_data(data);
 
     canvas->write(filename);
 }
@@ -1033,7 +1033,7 @@ LabelledFigure::write(const Char* filename, Nat drawing_width, Nat drawing_heigh
     SharedPointer<CanvasInterface> canvas=make_canvas(filename, drawing_width,drawing_height, fileType);
 
     this->_paint_all(*canvas, fileType);
-    canvas->plotBounds(bounds);
+    canvas->plot_bounds(bounds);
 
     canvas->write(filename);
 }
@@ -1281,13 +1281,13 @@ Void CairoCanvas::finalise()
     cairo_stroke (crp);
 }
 
-Void CairoCanvas::plotData(Array<double> data)                  { ARIADNE_NOT_IMPLEMENTED; }
-Void CairoCanvas::plotTensor2DImage(Tensor<2, double> tensor)   { ARIADNE_NOT_IMPLEMENTED; }
-Void CairoCanvas::plotTensor3DImage(Tensor<3, double> tensor)   { ARIADNE_NOT_IMPLEMENTED; }
-Void CairoCanvas::plotXYProjection(Tensor<3, double> tensor)    { ARIADNE_NOT_IMPLEMENTED; } 
-Void CairoCanvas::plotXZProjection(Tensor<3, double> tensor)    { ARIADNE_NOT_IMPLEMENTED; } 
-Void CairoCanvas::plotYZProjection(Tensor<3, double> tensor)    { ARIADNE_NOT_IMPLEMENTED; } 
-Void CairoCanvas::plotBounds(Array<Array<double>> bounds)       { ARIADNE_NOT_IMPLEMENTED; }
+Void CairoCanvas::plot_data(Array<double> data)                  { ARIADNE_NOT_IMPLEMENTED; }
+Void CairoCanvas::plot_tensor_2d_image(Tensor<2, double> tensor)   { ARIADNE_NOT_IMPLEMENTED; }
+Void CairoCanvas::plot_tensor_3d_image(Tensor<3, double> tensor)   { ARIADNE_NOT_IMPLEMENTED; }
+Void CairoCanvas::plot_xy_projection(Tensor<3, double> tensor)    { ARIADNE_NOT_IMPLEMENTED; } 
+Void CairoCanvas::plot_xz_projection(Tensor<3, double> tensor)    { ARIADNE_NOT_IMPLEMENTED; } 
+Void CairoCanvas::plot_yz_projection(Tensor<3, double> tensor)    { ARIADNE_NOT_IMPLEMENTED; } 
+Void CairoCanvas::plot_bounds(Array<Array<double>> bounds)       { ARIADNE_NOT_IMPLEMENTED; }
 
 #endif
 
@@ -1322,12 +1322,12 @@ GnuplotCanvas::GnuplotCanvas(String cfilename, GnuplotFileType typeFile, Nat X, 
 
     if(typeFile == GnuplotFileType::PNG){
         *gnuplot << "set output \"" << cfilename << ".png\"\n";
-        this->setMultiplot(true);
+        this->set_multiplot(true);
     }
     else if(typeFile == GnuplotFileType::GIF){
         *gnuplot << "set output \"" << cfilename << ".gif\"\n";
         *gnuplot << "unset multiplot\n";
-        this->setMultiplot(false);
+        this->set_multiplot(false);
     }
     
     this->geom.resize(1024);
@@ -1337,17 +1337,17 @@ GnuplotCanvas::GnuplotCanvas(String cfilename, GnuplotFileType typeFile, Nat X, 
 //Set Label and Range
 void GnuplotCanvas::initialise(StringType x, StringType y, StringType z, double xl, double xu, double yl, double yu, double zl, double zu)
 {
-    this->setXLabel(x);
-    this->setYLabel(y);
-    this->setZLabel(z);
-    this->setRange3D(xl, xu, yl, yu, zl, zu);
+    this->set_x_label(x);
+    this->set_y_label(y);
+    this->set_z_label(z);
+    this->set_range_3d(xl, xu, yl, yu, zl, zu);
 }
 //Set Label and Range
 void GnuplotCanvas::initialise(StringType x, StringType y, double xl, double xu, double yl, double yu)
 {
-    this->setXLabel(x);
-    this->setYLabel(y);
-    this->setRange2D(xl, xu, yl, yu);
+    this->set_x_label(x);
+    this->set_y_label(y);
+    this->set_range_2d(xl, xu, yl, yu);
 }
 
 void GnuplotCanvas::finalise() {}
@@ -1493,7 +1493,7 @@ void GnuplotCanvas::set_fill_colour(double _r, double _g, double _b)
     this->fc.blue = std::round(_b*255);
 }
 
-Void GnuplotCanvas::set_3D_palette()
+Void GnuplotCanvas::set_3d_palette()
 {
     is3DPalette = true;
     *gnuplot << "set cbrange [" << to_string(-0.5) << ":" << to_string(1) << "]\n";
@@ -1501,7 +1501,7 @@ Void GnuplotCanvas::set_3D_palette()
     *gnuplot << "set palette defined\n";
 }
 
-Void GnuplotCanvas::plotTensor2DImage(Tensor<2, double> tensor)
+Void GnuplotCanvas::plot_tensor_2d_image(Tensor<2, double> tensor)
 {
     Array<double> data(tensor.size(0), 0);
     for (SizeType step = 0; step < tensor.size(1); step++)
@@ -1510,13 +1510,13 @@ Void GnuplotCanvas::plotTensor2DImage(Tensor<2, double> tensor)
         {
             data[x] = (tensor[{x, step}]);
         }
-        plot2D(data);
+        plot_2d(data);
     }
 }
 
-Void GnuplotCanvas::plotTensor3DImage(Tensor<3, double> tensor)
+Void GnuplotCanvas::plot_tensor_3d_image(Tensor<3, double> tensor)
 {
-    this->set_3D_palette();
+    this->set_3d_palette();
     SizeType dimX = tensor.size(0);
     SizeType dimY = tensor.size(1);
     SizeType dimTime = tensor.size(2);
@@ -1531,71 +1531,71 @@ Void GnuplotCanvas::plotTensor3DImage(Tensor<3, double> tensor)
                 data[i].at(j) = tensor[{j, i, step}];
             }    
         }
-        plot3D(data);
+        plot_3d(data);
     }  
 }
 
-Void GnuplotCanvas::plotXYProjection(Tensor<3, double> tensor)
+Void GnuplotCanvas::plot_xy_projection(Tensor<3, double> tensor)
 {
-    this->setMap();
+    this->set_map();
     this->initialise(this->labels.xLabel, this->labels.yLabel, this->rng.Xmin, this->rng.Xmax, this->rng.Ymin, this->rng.Ymax);
     Array<Array<double>> data(tensor.size(1));
-    this->plotTensor3DImage(tensor);
+    this->plot_tensor_3d_image(tensor);
 }
 
-Void GnuplotCanvas::plotYZProjection(Tensor<3, double> tensor)
+Void GnuplotCanvas::plot_yz_projection(Tensor<3, double> tensor)
 {
     this->initialise(this->labels.yLabel, this->labels.zLabel, this->rng.Ymin, this->rng.Ymax, this->rng.Zmin, this->rng.Zmax);
-    set2DPalette(this->rng.Ymin, this->rng.Ymax, 0.2);
+    set_2d_palette(this->rng.Ymin, this->rng.Ymax, 0.2);
     Array<double> data(tensor.size(1), 0);
     for (SizeType step = 0; step < tensor.size(2); step++)
     { 
-        setMultiplot(true);
+        set_multiplot(true);
         for (SizeType x = 0; x < tensor.size(0); x++)
         {
             for (SizeType y = 0; y < tensor.size(1); y++)
             {
                 data[y] = tensor[{x, y, step}];
             }
-            plot2D(data);    
+            plot_2d(data);    
         }
     }
 }
 
-Void GnuplotCanvas::plotXZProjection(Tensor<3, double> tensor)
+Void GnuplotCanvas::plot_xz_projection(Tensor<3, double> tensor)
 {
     this->initialise(this->labels.xLabel, this->labels.zLabel, this->rng.Xmin, this->rng.Xmax, this->rng.Zmin, this->rng.Zmax);
-    set2DPalette(this->rng.Zmin, this->rng.Zmax, 0.2);
+    set_2d_palette(this->rng.Zmin, this->rng.Zmax, 0.2);
     Array<double> data(tensor.size(0), 0);
     for (SizeType step = 0; step < tensor.size(2); step++)
     { 
-        setMultiplot(true);
+        set_multiplot(true);
         for (SizeType y = 0; y < tensor.size(1); y++)
         {
             for (SizeType x = 0; x < tensor.size(0); x++)
             {
                 data[x] = tensor[{x, y, step}];
             }
-            plot2D(data);    
+            plot_2d(data);    
         }
     }
 }
 
-Void GnuplotCanvas::plotBounds(Array<Array<double>> bounds)
+Void GnuplotCanvas::plot_bounds(Array<Array<double>> bounds)
 {
-    this->setMultiplot(true);
-    this->plot2D(bounds);
+    this->set_multiplot(true);
+    this->plot_2d(bounds);
 }
 
-Void GnuplotCanvas::plotData(Array<double> data)
+Void GnuplotCanvas::plot_data(Array<double> data)
 {
-    this->plot2D(data);
+    this->plot_2d(data);
 }
 
 Vector2d GnuplotCanvas::scaling() const { return Vector2d(0, 0); }
 Box2d GnuplotCanvas::bounds() const { return Box2d(0, 0, 0, 0); }
 
-void GnuplotCanvas::setMultiplot(bool s)
+void GnuplotCanvas::set_multiplot(bool s)
 {
 
     if (this->isMultiplot == s){ }
@@ -1606,12 +1606,12 @@ void GnuplotCanvas::setMultiplot(bool s)
     }
 }
 
-void GnuplotCanvas::setMultiplotLayout(int nRow, int nCol, String title)
+void GnuplotCanvas::set_multiplot_layout(int nRow, int nCol, String title)
 {
     *gnuplot << "set multiplot layout " << to_string(nRow) << "," << to_string(nCol) << " title \"" << title << "\"\n";
 }
 
-Void GnuplotCanvas::plot2D(Array<double> data)
+Void GnuplotCanvas::plot_2d(Array<double> data)
 {
     char hex_string[20];
     // START PLOT SINTAX
@@ -1652,7 +1652,7 @@ Void GnuplotCanvas::plot2D(Array<double> data)
     gnuplot->send1d(data);
 }
 
-void GnuplotCanvas::plot2D(Array<Array<double>> dataBound)
+void GnuplotCanvas::plot_2d(Array<Array<double>> dataBound)
 {
     char hex_string[20];
 
@@ -1694,7 +1694,7 @@ void GnuplotCanvas::plot2D(Array<Array<double>> dataBound)
     }
 }
 
-Void GnuplotCanvas::plot3D(Array<Array<double>> data)
+Void GnuplotCanvas::plot_3d(Array<Array<double>> data)
 {  
     // START PLOT SINTAX
     *gnuplot << "splot ";
@@ -1709,30 +1709,30 @@ Void GnuplotCanvas::plot3D(Array<Array<double>> data)
     gnuplot->send2d(data); 
 }
 
-void GnuplotCanvas::setXLabel(String _xLabel)
+void GnuplotCanvas::set_x_label(String _xLabel)
 {
     *gnuplot << "set xlabel '" << _xLabel << "'\n";
     this->labels.xLabel = _xLabel;
 }
 
-void GnuplotCanvas::setYLabel(String _yLabel)
+void GnuplotCanvas::set_y_label(String _yLabel)
 {
     *gnuplot << "set ylabel '" << _yLabel << "'\n";
     this->labels.yLabel = _yLabel;
 }
 
-void GnuplotCanvas::setZLabel(String _zLabel)
+void GnuplotCanvas::set_z_label(String _zLabel)
 {
     *gnuplot << "set zlabel '" << _zLabel << "'\n";
     this->labels.zLabel = _zLabel;
 }
 
-void GnuplotCanvas::setTitle(String title)
+void GnuplotCanvas::set_title(String title)
 {
     *gnuplot << "set title '" << title << "'\n";
 }
 
-void GnuplotCanvas::setXYZLabel(String xLabel, String yLabel, String zLabel = "")
+void GnuplotCanvas::set_xyz_label(String xLabel, String yLabel, String zLabel = "")
 {
     *gnuplot << "set xlabel '" << xLabel << "'\n";
     *gnuplot << "set ylabel '" << yLabel << "'\n";
@@ -1744,7 +1744,7 @@ void GnuplotCanvas::setXYZLabel(String xLabel, String yLabel, String zLabel = ""
 
 }
 
-void GnuplotCanvas::setLabels(String xLabel, String yLabel, String zLabel, String title)
+void GnuplotCanvas::set_labels(String xLabel, String yLabel, String zLabel, String title)
 {
     *gnuplot << "set xlabel '" << xLabel << "'\n";
     *gnuplot << "set ylabel '" << yLabel << "'\n";
@@ -1752,7 +1752,7 @@ void GnuplotCanvas::setLabels(String xLabel, String yLabel, String zLabel, Strin
     *gnuplot << "set title '" << title << "'\n";
 }
 
-void GnuplotCanvas::setRange2D(double minX, double maxX, double minY, double maxY)
+void GnuplotCanvas::set_range_2d(double minX, double maxX, double minY, double maxY)
 {
     *gnuplot << "set xrange [" << to_string(minX) <<":" << to_string(maxX) << "] \n";
     this->rng.Xmin = minX;
@@ -1762,7 +1762,7 @@ void GnuplotCanvas::setRange2D(double minX, double maxX, double minY, double max
     this->rng.Ymax = maxY;
 }
 
-void GnuplotCanvas::setRange3D(double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
+void GnuplotCanvas::set_range_3d(double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
 {
     *gnuplot << "set xrange [" << to_string(minX) <<":" << to_string(maxX) << "] \n";
     this->rng.Xmin = minX;
@@ -1775,47 +1775,47 @@ void GnuplotCanvas::setRange3D(double minX, double maxX, double minY, double max
     this->rng.Zmax = maxZ;
 }
 
-void GnuplotCanvas::setXLogAxis()
+void GnuplotCanvas::set_x_log_axis()
 {
     *gnuplot << "set logscale x\n";
 }
 
-void GnuplotCanvas::setYLogAxis()
+void GnuplotCanvas::set_y_log_axis()
 {
     *gnuplot << "set logscale y\n";
 }
 
-void GnuplotCanvas::setXYLogAxis()
+void GnuplotCanvas::set_xy_log_axis()
 {
     *gnuplot << "set logscale xy\n";
 }
 
-void GnuplotCanvas::setXZLogAxis()
+void GnuplotCanvas::set_xz_log_axis()
 {
     *gnuplot << "set logscale xz\n";
 }
 
-void GnuplotCanvas::setYZLogAxis()
+void GnuplotCanvas::set_yz_log_axis()
 {
     *gnuplot << "set logscale yz\n";
 }
 
-void GnuplotCanvas::setXYZLogAxis()
+void GnuplotCanvas::set_xyz_log_axis()
 {
     *gnuplot << "set logscale xyz\n";
 }
 
-void GnuplotCanvas::setLegend()
+void GnuplotCanvas::set_legend()
 {
     *gnuplot << "set key default\n";
 }
-void GnuplotCanvas::setMap()
+void GnuplotCanvas::set_map()
 {
     //*gnuplot << "set pm3d map\n";
     *gnuplot << "set view map\n";
 }
 
-void GnuplotCanvas::set2DPalette(double min, double max, double step)
+void GnuplotCanvas::set_2d_palette(double min, double max, double step)
 {
     is2DPalette = true;
     *gnuplot << "set cbrange [" << to_string(min) << ":" << to_string(max) << "]\n";
@@ -1823,7 +1823,7 @@ void GnuplotCanvas::set2DPalette(double min, double max, double step)
     *gnuplot << "set palette defined\n";    
 }
 
-void GnuplotCanvas::unsetColorbox()
+void GnuplotCanvas::unset_color_box()
 {
     *gnuplot << "unset colorbox\n";
 }

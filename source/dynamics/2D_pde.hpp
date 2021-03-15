@@ -8,8 +8,8 @@ namespace Ariadne
     class Parameter2D
     {
         public:
-            Parameter2D(PR pr)  :   length(0.0_x, pr),
-                                    damping(0.0_x, pr)
+            Parameter2D(PR pr)  :   length(cast_exact(ApproximateDouble(0.0)), pr),
+                                    damping(cast_exact(ApproximateDouble(0.0)), pr)
             {}
             FloatValue<PR> length;     //Length
             FloatValue<PR> damping;    //damping
@@ -19,7 +19,7 @@ namespace Ariadne
 
     // Set initial condition
     template<class PR>
-    Tensor<2, FloatValue<PR>> setIC2D(Parameter2D<PR>firstDim, Parameter2D<PR>secondDim, SizeType Nx, SizeType Ny, Array<FloatValue<PR>> spacePointX, Array<FloatValue<PR>> spacePointY, PR pr)
+    Tensor<2, FloatValue<PR>> set_ic_2d(Parameter2D<PR>firstDim, Parameter2D<PR>secondDim, SizeType Nx, SizeType Ny, Array<FloatValue<PR>> spacePointX, Array<FloatValue<PR>> spacePointY, PR pr)
     {
         FloatValue<PR> zb(0, pr);
         Tensor<2, FloatValue<PR>> u({Nx, Ny}, zb);
@@ -34,9 +34,9 @@ namespace Ariadne
     }
 
     template<class PR>
-    Array<FloatValue<PR>> linspace2D(FloatValue<PR> L, SizeType n, PR pr)
+    Array<FloatValue<PR>> linspace2d(FloatValue<PR> L, SizeType n, PR pr)
     {
-        Array<FloatValue<PR>> linspaced(n,FloatValue<PR>(0.0_x, pr));
+        Array<FloatValue<PR>> linspaced(n,FloatValue<PR>(cast_exact(ApproximateDouble(0.0)), pr));
         if (n == 0)
             return linspaced;
         if (n == 1)
@@ -56,24 +56,24 @@ namespace Ariadne
 
     // Solving the one dimensional pde
     template<class PR>
-    Tensor<3, FloatValue<PR>> pde_2Dsolver(Parameter2D<PR>& firstDim, Parameter2D<PR>& secondDim, SizeType Nx, SizeType Ny, PR pr)
+    Tensor<3, FloatValue<PR>> pde_2d_solver(Parameter2D<PR>& firstDim, Parameter2D<PR>& secondDim, SizeType Nx, SizeType Ny, PR pr)
     {
-        auto spaceX = linspace2D(firstDim.length, Nx, pr);    //Mesh point x
-        auto spaceY = linspace2D(secondDim.length, Ny, pr);   //Mesh point y
+        auto spaceX = linspace2d(firstDim.length, Nx, pr);    //Mesh point x
+        auto spaceY = linspace2d(secondDim.length, Ny, pr);   //Mesh point y
 
         auto dx = (spaceX[1] - spaceX[0]).value();
         auto dy = (spaceY[1] - spaceY[0]).value();
 
-        FloatValue<PR> c(10.0_x, pr);
-        FloatValue<PR> T(2.5_x, pr);
+        FloatValue<PR> c(cast_exact(ApproximateDouble(10.0)), pr);
+        FloatValue<PR> T(cast_exact(ApproximateDouble(2.5)), pr);
 
-        FloatValue<PR> zb(0.0_x, pr);
+        FloatValue<PR> zb(cast_exact(ApproximateDouble(0.0)), pr);
 
-        FloatValue<PR> dt(0.015625_x, pr);
+        FloatValue<PR> dt(cast_exact(ApproximateDouble(0.015625_x)), pr);
         
         FloatValue<PR> Nt = round(T/dt).value();
         SizeType Ntime = Nt.get_d();
-        auto time = linspace2D(T, Ntime, pr);                   //Mesh point t
+        auto time = linspace2d(T, Ntime, pr);                   //Mesh point t
 
         FloatValue<PR> Cx = (c*dt/dx).value();                       //Courant Numbers
         FloatValue<PR> Cy = (c*dt/dy).value();
@@ -83,7 +83,7 @@ namespace Ariadne
         Tensor<2, FloatValue<PR>> u({Nx, Ny}, zb);
         Tensor<3, FloatValue<PR>> uts({Nx, Ny, Ntime}, zb);
 
-        u = setIC2D(/*phi0, */firstDim, secondDim, Nx, Ny, spaceX, spaceY, pr);
+        u = set_ic_2d(/*phi0, */firstDim, secondDim, Nx, Ny, spaceX, spaceY, pr);
         for (SizeType x = 0; x < Nx; x++)
         {
             for (SizeType y = 0; y < Ny; y++)
@@ -121,7 +121,7 @@ namespace Ariadne
     }
 
     template<class PR>
-    Tensor<3, FloatValue<PR>>gaussianFunction(Tensor<3, FloatValue<PR>>&tensor, int sizeX, int sizeY, PR pr)
+    Tensor<3, FloatValue<PR>>gaussian_function(Tensor<3, FloatValue<PR>>&tensor, int sizeX, int sizeY, PR pr)
     {
         for (SizeType step = 0; step < 1; step++)
         {

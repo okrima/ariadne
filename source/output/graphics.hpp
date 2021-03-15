@@ -74,9 +74,9 @@ inline FillOpacity fill_opacity(Dbl o) { return FillOpacity(o); }
 inline FillColour fill_colour(const Colour& c) { return FillColour(c); }
 inline FillColour fill_colour(Dbl r, Dbl g, Dbl b) { return FillColour(Colour(r,g,b)); }
 //inline Set3D set_3D_dim(Bool dim) {return Set3D(dim); }
-inline SetXYProj setProjXY() { return SetXYProj(); }
-inline SetXZProj setProjXZ() { return SetXZProj(); }
-inline SetYZProj setProjYZ() { return SetYZProj(); }
+inline SetXYProj set_proj_xy() { return SetXYProj(); }
+inline SetXZProj set_proj_xz() { return SetXZProj(); }
+inline SetYZProj set_proj_yz() { return SetYZProj(); }
 
 struct GraphicsProperties {
     GraphicsProperties()
@@ -107,10 +107,10 @@ struct GraphicsProperties {
     GraphicsProperties& set_fill_colour(Dbl, Dbl, Dbl);
     GraphicsProperties& set_fill_opacity(Dbl);
 
-    GraphicsProperties& set_3D(Bool);
-    GraphicsProperties& setProjXY();
-    GraphicsProperties& setProjXZ();
-    GraphicsProperties& setProjYZ();
+    GraphicsProperties& set_3d(Bool);
+    GraphicsProperties& set_proj_xy();
+    GraphicsProperties& set_proj_xz();
+    GraphicsProperties& set_proj_yz();
 
 
     friend OutputStream& operator<<(OutputStream& os, GraphicsProperties const& gp);
@@ -222,10 +222,10 @@ class Figure
     //! Set the opacity of shapes. An opacity of 0 means no fill.
     Figure& set_fill_opacity(Dbl);
 
-    Figure& set3D_(Bool);
-    Figure& setProjXY(); 
-    Figure& setProjXZ(); 
-    Figure& setProjYZ(); 
+    Figure& set3d_(Bool);
+    Figure& set_proj_xy(); 
+    Figure& set_proj_xz(); 
+    Figure& set_proj_yz(); 
 
     Bool get_line_style() const;
     Dbl get_line_width() const;
@@ -358,8 +358,8 @@ class Figure
   public:
     Void _paint_all(CanvasInterface& canvas) const;
     Void _paint_all(CanvasInterface& canvas, GnuplotFileType fileType) const; // Writes all shapes to the canvas
-    Void _paint2D(CanvasInterface& canvas, GnuplotFileType fileType) const;
-    Void _paint3D(CanvasInterface& canvas, GnuplotFileType fileType) const;    
+    Void _paint2d(CanvasInterface& canvas, GnuplotFileType fileType) const;
+    Void _paint3d(CanvasInterface& canvas, GnuplotFileType fileType) const;    
   
   private:
     Data* _data;
@@ -380,9 +380,9 @@ inline Figure& operator<<(Figure& g, const FillStyle& fs) { g.properties().set_f
 inline Figure& operator<<(Figure& g, const FillOpacity& fo) { g.properties().set_fill_opacity(fo); return g; }
 inline Figure& operator<<(Figure& g, const FillColour& fc) { g.properties().set_fill_colour(fc); return g; }
 //inline Figure& operator<<(Figure& g, const Set3D& dim) {g.properties().set_3D(dim); return g; }
-inline Figure& operator<<(Figure&g, const SetXYProj& xyproj) {g.properties().setProjXY(); return g; }
-inline Figure& operator<<(Figure&g, const SetXZProj& xzproj) {g.properties().setProjXZ(); return g; }
-inline Figure& operator<<(Figure&g, const SetYZProj& yzproj) {g.properties().setProjYZ(); return g; }
+inline Figure& operator<<(Figure&g, const SetXYProj& xyproj) {g.properties().set_proj_xy(); return g; }
+inline Figure& operator<<(Figure&g, const SetXZProj& xzproj) {g.properties().set_proj_xz(); return g; }
+inline Figure& operator<<(Figure&g, const SetYZProj& yzproj) {g.properties().set_proj_yz(); return g; }
 
 
 template<class S> class LabelledSet;
@@ -579,8 +579,8 @@ class LabelledFigure {
   public:
     Void _paint_all(CanvasInterface& canvas) const; // Writes all shapes to the canvas
     Void _paint_all(CanvasInterface& canvas, GnuplotFileType fileType) const; // Writes all shapes to the canvas
-    Void _paint2D(CanvasInterface& canvas, GnuplotFileType fileType) const;
-    Void _paint3D(CanvasInterface& canvas, GnuplotFileType fileType) const;
+    Void _paint2d(CanvasInterface& canvas, GnuplotFileType fileType) const;
+    Void _paint3d(CanvasInterface& canvas, GnuplotFileType fileType) const;
   private:
     Data* _data;
     Void function_to_draw(Tensor<2, double> tensor2d);
@@ -597,9 +597,9 @@ inline LabelledFigure& operator<<(LabelledFigure& g, const FillStyle& fs) { g.pr
 inline LabelledFigure& operator<<(LabelledFigure& g, const FillOpacity& fo) { g.properties().set_fill_opacity(fo); return g; }
 inline LabelledFigure& operator<<(LabelledFigure& g, const FillColour& fc) { g.properties().set_fill_colour(fc); return g; }
 //inline LabelledFigure& operator<<(LabelledFigure& g, const Set3D& dim) { g.properties().set_3D(dim); return g; }
-inline LabelledFigure& operator<<(LabelledFigure& g, const SetXYProj& xyproj) {g.properties().setProjXY(); return g; }
-inline LabelledFigure& operator<<(LabelledFigure& g, const SetXZProj& xzproj) {g.properties().setProjXZ(); return g; }
-inline LabelledFigure& operator<<(LabelledFigure& g, const SetYZProj& yzproj) {g.properties().setProjYZ(); return g; }
+inline LabelledFigure& operator<<(LabelledFigure& g, const SetXYProj& xyproj) {g.properties().set_proj_xy(); return g; }
+inline LabelledFigure& operator<<(LabelledFigure& g, const SetXZProj& xzproj) {g.properties().set_proj_xz(); return g; }
+inline LabelledFigure& operator<<(LabelledFigure& g, const SetYZProj& yzproj) {g.properties().set_proj_yz(); return g; }
 
 template<class S> class LabelledSet;
 template<class S> class LabelledDrawableWrapper : public LabelledDrawableInterface {

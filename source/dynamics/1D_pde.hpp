@@ -8,15 +8,15 @@ namespace Ariadne
     class Parameter1D
         {
             public:
-                Parameter1D(PR pr) :    length(0.0_x, pr),
-                                        tension(0.0_x, pr),
-                                        mass(.0_x, pr),
-                                        damping(0.0_x, pr),
-                                        CourantNumber(0.0_x, pr),
-                                        x0(0.0_x, pr),
-                                        amp(0.0_x, pr),
-                                        k(0.0_x, pr),
-                                        omega(0.0_x, pr)
+                Parameter1D(PR pr) :    length(cast_exact(ApproximateDouble(0.0)), pr),
+                                        tension(cast_exact(ApproximateDouble(0.0)), pr),
+                                        mass(cast_exact(ApproximateDouble(0.0)), pr),
+                                        damping(cast_exact(ApproximateDouble(0.0)), pr),
+                                        CourantNumber(cast_exact(ApproximateDouble(0.0)), pr),
+                                        x0(cast_exact(ApproximateDouble(0.0)), pr),
+                                        amp(cast_exact(ApproximateDouble(0.0)), pr),
+                                        k(cast_exact(ApproximateDouble(0.0)), pr),
+                                        omega(cast_exact(ApproximateDouble(0.0)), pr)
                 {}
                 FloatValue<PR> length;
                 FloatValue<PR> tension;
@@ -31,9 +31,9 @@ namespace Ariadne
         };
 
     template<class X>
-    Array<FloatValue<X>> linspace1D(FloatValue<X> L, SizeType n, X pr)
+    Array<FloatValue<X>> linspace1d(FloatValue<X> L, SizeType n, X pr)
     {
-        Array<FloatValue<X>> linspaced(n, FloatValue<X>(0.0_x, pr));
+        Array<FloatValue<X>> linspaced(n, FloatValue<X>(cast_exact(ApproximateDouble(0.0)), pr));
         if (n == 0)
             return linspaced;
         if (n == 1)
@@ -53,7 +53,7 @@ namespace Ariadne
 
     // Set initial condition
     template<class X>
-    Tensor<2, FloatValue<X>> setIC(Tensor<2, FloatValue<X>>& uts, SizeType Nx, Array<FloatValue<X>> spacePoint, Parameter1D<X>& stringModel, bool isTriangular)
+    Tensor<2, FloatValue<X>> set_ic(Tensor<2, FloatValue<X>>& uts, SizeType Nx, Array<FloatValue<X>> spacePoint, Parameter1D<X>& stringModel, bool isTriangular)
     {
         if (!isTriangular)
         {   //Sinusoind init condition
@@ -76,16 +76,16 @@ namespace Ariadne
 
     //Solving one dimensional pde
     template<class PR>
-    Tensor<2, FloatValue<PR>> pde_1Dsolver(Parameter1D<PR>& stringParameter, SizeType Nx, PR pr)
+    Tensor<2, FloatValue<PR>> pde_1d_solver(Parameter1D<PR>& stringParameter, SizeType Nx, PR pr)
     {
         FloatValue<PR> c = sqrt((stringParameter.tension/(stringParameter.mass/stringParameter.length))).value();
 
-        FloatValue<PR> T(0.03_x, pr);
-        FloatValue<PR> zb(0.0_x, pr);
+        FloatValue<PR> T(cast_exact(ApproximateDouble(0.03)), pr);
+        FloatValue<PR> zb(cast_exact(ApproximateDouble(0.0)), pr);
 
         FloatValue<PR> C2 = pow(stringParameter.CourantNumber, 2).value();
 
-        Array<FloatValue<PR>> space = linspace1D(stringParameter.length, Nx, pr);
+        Array<FloatValue<PR>> space = linspace1d(stringParameter.length, Nx, pr);
 
         FloatValue<PR> dx = (space[1] - space[0]).value();
         FloatValue<PR> dt = (stringParameter.CourantNumber*dx/c).value();
@@ -93,11 +93,11 @@ namespace Ariadne
         FloatValue<PR> Nt = round(T/dt).value();
         SizeType Ntime = Nt.get_d();
 
-        Array<FloatValue<PR>> time = linspace1D(T, Ntime, pr);
+        Array<FloatValue<PR>> time = linspace1d(T, Ntime, pr);
 
         Tensor<2, FloatValue<PR>> uts({Nx, Ntime}, zb);
 
-        uts = setIC(uts, Nx, space, stringParameter, true);
+        uts = set_ic(uts, Nx, space, stringParameter, true);
 
         // Set first Time step
         SizeType n = 0;

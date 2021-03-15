@@ -77,11 +77,11 @@ private:
     GnuplotFileType fileType;
 
 private:
-    Void plot2D(Array<double> data);
+    Void plot_2d(Array<double> data);
 
-    Void plot2D(Array<Array<double>> data);
+    Void plot_2d(Array<Array<double>> data);
 
-    Void plot3D(Array<Array<double>> data);
+    Void plot_3d(Array<Array<double>> data);
 
 public:
     ~GnuplotCanvas();
@@ -108,60 +108,60 @@ public:
     Vector2d scaling() const;
     Box2d bounds() const;
 
-    Void set_3D_palette();
+    Void set_3d_palette();
 
-    Void plotData(Array<double> data);
-    Void plotBounds(Array<Array<double>> bounds);
-    Void plotTensor2DImage(Tensor<2, double> tensor);
-    Void plotTensor3DImage(Tensor<3, double> tensor);
-    Void plotXYProjection(Tensor<3, double> tensor);
-    Void plotYZProjection(Tensor<3, double> tensor);
-    Void plotXZProjection(Tensor<3, double> tensor);
+    Void plot_data(Array<double> data);
+    Void plot_bounds(Array<Array<double>> bounds);
+    Void plot_tensor_2d_image(Tensor<2, double> tensor);
+    Void plot_tensor_3d_image(Tensor<3, double> tensor);
+    Void plot_xy_projection(Tensor<3, double> tensor);
+    Void plot_yz_projection(Tensor<3, double> tensor);
+    Void plot_xz_projection(Tensor<3, double> tensor);
     //CanvasInterface
 
     //Set Multiplot - Multiple plot on same screen
-    void setMultiplot(bool s);
+    void set_multiplot(bool s);
     //Set Multiplot Layout
-    void setMultiplotLayout(int nRow, int nCol, String Title);
+    void set_multiplot_layout(int nRow, int nCol, String Title);
     // Set X Label
-    void setXLabel(String xLabel);
+    void set_x_label(String xLabel);
     // Set Y Label
-    void setYLabel(String yLabel);
+    void set_y_label(String yLabel);
     // Set Z Label
-    void setZLabel(String zLabel);
+    void set_z_label(String zLabel);
     // Set Title
-    void setTitle(String title);
+    void set_title(String title);
     // Set Labels
-    void setXYZLabel(String xLabel, String yLabel, String zLabel);
+    void set_xyz_label(String xLabel, String yLabel, String zLabel);
     // Set Labels and Title
-    void setLabels(String xLabel, String yLabel, String zLabel, String title);
+    void set_labels(String xLabel, String yLabel, String zLabel, String title);
     // Set X, Y Range
-    void setRange2D(double minX, double maxX, double minY, double maxY);
+    void set_range_2d(double minX, double maxX, double minY, double maxY);
 
-    void setRange3D(double minX, double maxX, double minY,  double maxY, double minZ, double maxZ);
+    void set_range_3d(double minX, double maxX, double minY,  double maxY, double minZ, double maxZ);
     // Set X Log axis
-    void setXLogAxis();
+    void set_x_log_axis();
     // Set Y Log axis
-    void setYLogAxis();
+    void set_y_log_axis();
     // Set XY Log axis
-    void setXYLogAxis();
+    void set_xy_log_axis();
     // Set XZ Log axis
-    void setXZLogAxis();
+    void set_xz_log_axis();
     // Set YZ Log axis
-    void setYZLogAxis();
+    void set_yz_log_axis();
     // Set XYZ Log axis
-    void setXYZLogAxis();
+    void set_xyz_log_axis();
     // Set Legend
-    void setLegend();
+    void set_legend();
     // Set View Projection of a 3D rapresentation
-    void setMap();
+    void set_map();
     //Set 3D palette
-    void set3DPalette(double min, double max, double step);
+    void set_3d_palette(double min, double max, double step);
     //Set 2D palette
     //void set2DPalette(Image2D& image, double min, double max, double step);
-    void set2DPalette(double min, double max, double step);
+    void set_2d_palette(double min, double max, double step);
     //Unset colorbox
-    void unsetColorbox();
+    void unset_color_box();
 
 };
 

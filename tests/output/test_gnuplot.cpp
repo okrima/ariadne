@@ -109,15 +109,15 @@ class TestGnuplot
 
             FloatValue<PR> frequency = (c/wavelength).value(); // Frequency
 
-            stringModel.amp = 0.8_x;
+            stringModel.amp = cast_exact(ApproximateDouble(0.8));
             stringModel.damping = 100;
 
-            stringModel.CourantNumber = 0.8_x;
+            stringModel.CourantNumber = cast_exact(ApproximateDouble(0.8));
 
             stringModel.k = ((2*pi)/wavelength).value();
             stringModel.omega = (2*pi*frequency).value();
 
-            Tensor<2, FloatValue<PR>> data = pde_1Dsolver(stringModel, Nx+1, pr);
+            Tensor<2, FloatValue<PR>> data = pde_1d_solver(stringModel, Nx+1, pr);
 
             Figure fig1 = Figure(ApproximateBoxType({{0,Nx},{-1,1}}), Projection2d(2,0,1));
             fig1.set_line_colour(0.0,0.0,0.0);
@@ -127,7 +127,7 @@ class TestGnuplot
             fig1.write("Figure-StringEvolution", GnuplotFileType::GIF);
 
             RealVariable x("x"), y("y");
-            Axes2d axes(0.0<=x<=Nx,-1.0<=y<=1.0);
+            Axes2d axes(0.0<=x<=Nx-1,-1.0<=y<=1.0);
             LabelledFigure fig2=LabelledFigure(axes);
             fig2 << line_colour(0.0,0.0,0.0);
             fig2 << line_width(1.0);
@@ -145,7 +145,7 @@ class TestGnuplot
             int dim = 20;
             Tensor<3, FloatValue<PR>> data({SizeType(dim), SizeType(dim), 1}, zb);
 
-            data = gaussianFunction(data, dim, dim, pr);
+            data = gaussian_function(data, dim, dim, pr);
 
             Figure fig1 = Figure(ApproximateBoxType({{0,dim},{0,dim},{0,1}}), Projection3d(3,0,1,2));
             fig1.draw(data);
@@ -167,17 +167,17 @@ class TestGnuplot
             int dim = 20;
             Tensor<3, FloatValue<PR>> data({SizeType(dim), SizeType(dim), 1}, zb);
 
-            data = gaussianFunction(data, dim, dim, pr);
+            data = gaussian_function(data, dim, dim, pr);
 
             Figure fig1 = Figure(ApproximateBoxType({{0, dim}, {0,dim}, {0,1}}), Projection3d(3,0,1,2));
-            fig1.setProjXY();
+            fig1.set_proj_xy();
             fig1.draw(data);
             fig1.write("FigureGauss3DProjXY"/*,data*/,GnuplotFileType::PNG);
 
             RealVariable x("x"), y("y"), z("z");
             Axes3d axes(0<=x<=dim,0<=y<=dim,0<=z<=1);
             LabelledFigure fig2=LabelledFigure(axes);
-            fig2 << setProjXY();
+            fig2 << set_proj_xy();
             fig2.draw(data);
             fig2.write("LabelledFigure-Gauss3DProjXY"/*, data*/,GnuplotFileType::PNG);
         }
@@ -190,17 +190,17 @@ class TestGnuplot
             int dim = 20;
             Tensor<3, FloatValue<PR>> data({SizeType(dim), SizeType(dim), 1}, zb);
 
-            data = gaussianFunction(data, dim, dim, pr);
+            data = gaussian_function(data, dim, dim, pr);
 
             Figure fig1 = Figure(ApproximateBoxType({{0, dim}, {0,dim}, {0,1}}), Projection3d(3,0,1,2));
-            fig1.setProjXZ();
+            fig1.set_proj_xz();
             fig1.draw(data);
             fig1.write("Figure-Gauss3DProjXZ"/*, data*/,GnuplotFileType::PNG);
 
             RealVariable x("x"), y("y"), z("z");
             Axes3d axes(0<=x<=dim,0<=y<=dim,0<=z<=1);
             LabelledFigure fig2=LabelledFigure(axes);
-            fig2 << setProjXZ();
+            fig2 << set_proj_xz();
             fig2.draw(data);
             fig2.write("LabelledFigure-Gauss3DProjXZ"/*, data*/,GnuplotFileType::PNG);
         }
@@ -213,17 +213,17 @@ class TestGnuplot
             int dim = 20;
             Tensor<3, FloatValue<PR>> data({SizeType(dim), SizeType(dim), 1}, zb);
 
-            data = gaussianFunction(data, dim, dim, pr);
+            data = gaussian_function(data, dim, dim, pr);
 
             Figure fig1 = Figure(ApproximateBoxType({{0, dim}, {0,dim}, {0,1}}), Projection3d(3,0,1,2));
-            fig1.setProjYZ();
+            fig1.set_proj_yz();
             fig1.draw(data);
             fig1.write("Figure-Gauss3DProjYZ"/*, data*/,GnuplotFileType::PNG);
 
             RealVariable x("x"), y("y"), z("z");
             Axes3d axes(0<=x<=dim,0<=y<=dim,0<=z<=1);
             LabelledFigure fig2=LabelledFigure(axes);
-            fig2 << setProjYZ();
+            fig2 << set_proj_yz();
             //fig << set3Ddim(true);
             fig2.draw(data);
             fig2.write("LabelledFigure-Gauss3DProjYZ"/*, data*/,GnuplotFileType::PNG);
@@ -239,7 +239,7 @@ class TestGnuplot
             firstDim.length = 10;
             secondDim.length = 10;
 
-            Tensor<3, FloatValue<PR>> data = pde_2Dsolver(firstDim, secondDim, SizeType(Nx), SizeType(Ny), pr);
+            Tensor<3, FloatValue<PR>> data = pde_2d_solver(firstDim, secondDim, SizeType(Nx), SizeType(Ny), pr);
 
             Figure fig1 = Figure(ApproximateBoxType({{0,Nx}, {0,Ny}, {-1,1}}), Projection3d(3, 0, 1, 2));
             //fig.set3D(); 
@@ -257,8 +257,8 @@ class TestGnuplot
         template <class PR>
         void BoundsData(PR pr)
         {
-            FloatBounds<PR> zb(0.0_x,pr);
-            FloatBounds<PR> b(1.1_x, 1.2_x, pr);
+            FloatBounds<PR> zb(cast_exact(ApproximateDouble(0.0)),pr);
+            FloatBounds<PR> b(cast_exact(ApproximateDouble(1.1)), cast_exact(ApproximateDouble(1.2)), pr);
 
             Array<FloatBounds<PR>> data(50,zb);
 

@@ -146,13 +146,13 @@ class CanvasInterface {
 
     //Gnuplot animation
     //virtual Void set_3D_palette() = 0;
-    virtual Void plotData(Array<double> data) = 0;
-    virtual Void plotBounds(Array<Array<double>> bounds) = 0;
-    virtual Void plotTensor2DImage(Tensor<2, double> tensor) = 0;
-    virtual Void plotTensor3DImage(Tensor<3, double> tensor) = 0;
-    virtual Void plotXYProjection(Tensor<3, double> tensor) = 0;  
-    virtual Void plotXZProjection(Tensor<3, double> tensor) = 0;  
-    virtual Void plotYZProjection(Tensor<3, double> tensor) = 0;  
+    virtual Void plot_data(Array<double> data) = 0;
+    virtual Void plot_bounds(Array<Array<double>> bounds) = 0;
+    virtual Void plot_tensor_2d_image(Tensor<2, double> tensor) = 0;
+    virtual Void plot_tensor_3d_image(Tensor<3, double> tensor) = 0;
+    virtual Void plot_xy_projection(Tensor<3, double> tensor) = 0;  
+    virtual Void plot_xz_projection(Tensor<3, double> tensor) = 0;  
+    virtual Void plot_yz_projection(Tensor<3, double> tensor) = 0;  
 
     //! \brief The scaling of the figure, in user units per pixel.
     virtual Vector2d scaling() const = 0;
